@@ -936,6 +936,10 @@
   .ct-r span { color: var(--muted); }
   .ct-r b { font-weight: 700; text-align: right; overflow-wrap: anywhere; }
   .ct-green { color: #4ade80; }
+  .ct-est { display: flex; justify-content: space-between; margin-top: 10px; font-size: 13.5px; }
+  .ct-est span { color: var(--muted); }
+  .ct-est b { color: #4ade80; font-weight: 700; }
+  .ct-pend-tag { flex: none; padding: 3px 9px; border-radius: 999px; background: rgba(245,179,36,.15); color: #f5b324; font-size: 11px; font-weight: 700; }
   .ct-acts { display: flex; gap: 10px; margin-top: 14px; }
   .ct-acts .primary-btn { margin-top: 0; width: auto; flex: 1.5; }
   .ct-reject { flex: 1; height: 46px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text); font-size: 15px; font-weight: 700; }
@@ -6973,7 +6977,7 @@ window.TakeoffScene = {
   setInterval(hhPoll, 8000);
 
   // ---- Business contracts. The server keeps every proposal, running contract and payout ----
-  const ctState = { props: [], list: [], off: 0, seen: new Set(), gone: new Set(), picks: [], tok: 0, srchT: 0, sending: false, busy: false, payingId: '', polling: false, claiming: false, sig: '' };
+  const ctState = { props: [], list: [], sent: [], off: 0, seen: new Set(), gone: new Set(), picks: [], tok: 0, srchT: 0, sending: false, busy: false, payingId: '', polling: false, claiming: false, sig: '' };
   const ctType = id => CONTRACT_TYPES.find(t => t.id === id) || { id, icon: '📄', name: 'Business Contract', desc: '' };
   const ctRow = (k, v, cls) => `<div class="ct-r"><span>${k}</span><b${cls ? ` class="${cls}"` : ''}>${v}</b></div>`;
 
@@ -7043,6 +7047,7 @@ window.TakeoffScene = {
         refillFromLocked(); renderWallet(); save();
         if (window.hustleFlush) window.hustleFlush();
         ctState.sending = false;
+        ctPoll();
         setPartnerSheet(false); setContractBuySheet(false);
         showNotice('Proposal sent', `Your ${type.name} proposal went to ${to.join(', ')}. The first to pay takes it. If nobody pays within 1 hour, your ${naira(amt)} comes back.`, false);
         return;
@@ -7074,9 +7079,10 @@ window.TakeoffScene = {
   function ctRender(force) {
     const box = hq('contractPage'), n = ctState.props.length, badge = hq('ctBadge');
     badge.hidden = n === 0; badge.textContent = n > 9 ? '9+' : String(n);
-    const sig = JSON.stringify([ctState.props.map(p => p.id), ctState.list.map(c => c.id), ctState.busy, ctState.payingId]);
+    const sig = JSON.stringify([ctState.props.map(p => p.id), ctState.list.map(c => c.id), ctState.sent.map(s => s.id), ctState.busy, ctState.payingId]);
     if (!force && sig === ctState.sig) { ctPaint(); return; }
     ctState.sig = sig;
+    const sections = (n ? 1 : 0) + (ctState.sent.length ? 1 : 0) + (ctState.list.length ? 1 : 0);
     let h = '';
     if (n) {
       h += '<div class="ct-label">Proposals</div>' + ctState.props.map(x => {
@@ -7089,13 +7095,25 @@ window.TakeoffScene = {
         </div>`;
       }).join('');
     }
+    if (ctState.sent.length) {
+      if (sections > 1) h += '<div class="ct-label">Pending</div>';
+      h += ctState.sent.map(c => {
+        const t = ctType(c.type_id);
+        return `<div class="job-item ct-item" data-id="${opEsc(c.id)}">
+          <div class="ct-top"><span class="ct-ico">${t.icon}</span><div class="ct-name">${opEsc(t.name)}</div><span class="ct-pend-tag">Pending</span></div>
+          <div class="ji-timer"><div class="ji-timer-row"><span>Waiting for ${(c.to_names || []).map(opEsc).join(', ')}</span><span class="ji-left">--</span></div><div class="ji-bar"><div class="ji-fill"></div></div></div>
+          <div class="ct-est"><span>Est. profit</span><b>${naira(Number(c.share))}</b></div>
+        </div>`;
+      }).join('');
+    }
     if (ctState.list.length) {
-      if (n) h += '<div class="ct-label">Running contracts</div>';
+      if (sections > 1) h += '<div class="ct-label">Running contracts</div>';
       h += ctState.list.map(c => {
         const t = ctType(c.type_id);
         return `<div class="job-item ct-item" data-id="${opEsc(c.id)}">
           <div class="ct-top"><span class="ct-ico">${t.icon}</span><div class="ct-name">${opEsc(t.name)}</div><button class="ct-info" type="button" aria-label="Contract info"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.01"/></svg></button></div>
           <div class="ji-timer"><div class="ji-timer-row"><span>With ${opEsc(c.other_name)}</span><span class="ji-left">--</span></div><div class="ji-bar"><div class="ji-fill"></div></div></div>
+          <div class="ct-est"><span>Est. profit</span><b>${naira(Number(c.share))}</b></div>
         </div>`;
       }).join('');
     }
@@ -7104,20 +7122,24 @@ window.TakeoffScene = {
   }
   function ctPaint() {
     const now = Date.now() + ctState.off, box = hq('contractPage');
-    ctState.list.forEach(c => {
-      const el = box.querySelector(`.ct-item[data-id="${c.id}"]`); if (!el) return;
-      const s = new Date(c.starts_at).getTime(), e = new Date(c.ends_at).getTime();
+    const paint = (id, from, to) => {
+      const el = box.querySelector(`.ct-item[data-id="${id}"]`); if (!el) return;
+      const s = new Date(from).getTime(), e = new Date(to).getTime();
       el.querySelector('.ji-fill').style.width = Math.min(100, Math.max(0, (now - s) / (e - s) * 100)) + '%';
       el.querySelector('.ji-left').textContent = fmtLeft(e - now);
-    });
+    };
+    ctState.list.forEach(c => paint(c.id, c.starts_at, c.ends_at));
+    ctState.sent.forEach(c => paint(c.id, c.created_at, c.expires_at));
   }
   // When the time is up the contract leaves the list, and the payout is collected
   function ctTick() {
-    if (!ctState.list.length) return;
+    if (!ctState.list.length && !ctState.sent.length) return;
     const now = Date.now() + ctState.off;
     const ended = ctState.list.filter(c => new Date(c.ends_at).getTime() <= now);
-    if (ended.length) {
+    const lapsed = ctState.sent.filter(c => new Date(c.expires_at).getTime() <= now);
+    if (ended.length || lapsed.length) {
       ctState.list = ctState.list.filter(c => !ended.includes(c));
+      ctState.sent = ctState.sent.filter(c => !lapsed.includes(c));
       ctRender();
       setTimeout(ctClaim, 2500);
     } else ctPaint();
@@ -7187,7 +7209,7 @@ window.TakeoffScene = {
     const sb = window.hustleSb;
     if (!sb || ctState.polling || document.visibilityState === 'hidden') return;
     ctState.polling = true;
-    Promise.all([sb.rpc('my_contract_proposals'), sb.rpc('my_contracts')]).then(([p, c]) => {
+    Promise.all([sb.rpc('my_contract_proposals'), sb.rpc('my_contracts'), sb.rpc('my_sent_proposals').then(r => r, () => ({ error: true }))]).then(([p, c, s]) => {
       ctState.polling = false;
       if (!p.error && Array.isArray(p.data) && !ctState.busy) {
         ctState.props = p.data.filter(x => !ctState.gone.has(x.id));
@@ -7198,6 +7220,10 @@ window.TakeoffScene = {
       if (!c.error && Array.isArray(c.data)) {
         ctState.list = c.data;
         if (c.data.length) ctState.off = new Date(c.data[0].server_now).getTime() - Date.now();
+      }
+      if (!s.error && Array.isArray(s.data)) {
+        ctState.sent = s.data;
+        if (s.data.length) ctState.off = new Date(s.data[0].server_now).getTime() - Date.now();
       }
       ctRender();
     }).catch(() => { ctState.polling = false; });
