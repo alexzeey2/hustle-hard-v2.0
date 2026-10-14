@@ -870,6 +870,80 @@
     background: var(--surface-2); color: var(--text);
     display: grid; place-items: center;
   }
+  /* Business Contract: page where bought contracts will appear */
+  .contract-page {
+    margin-top: 16px; width: 100%; min-height: 68vh;
+    border-radius: 14px; background: var(--surface-2);
+    border: 1px solid var(--line);
+  }
+  /* Buy a Contract form */
+  .cb-summary { margin-top: 16px; border-radius: 14px; background: var(--surface-2); padding: 4px 14px; }
+  .cb-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 0; font-size: 14px; border-bottom: 1px solid var(--line); }
+  .cb-row:last-child { border-bottom: 0; }
+  .cb-row > span { color: var(--muted); flex: none; }
+  .cb-row > b { font-weight: 700; text-align: right; min-width: 0; overflow-wrap: anywhere; }
+  .cb-profit { color: #4ade80; }
+  .cb-amt input::placeholder { color: var(--muted); font-weight: 400; }
+  .cb-label { display: block; margin: 18px 0 8px; font-size: 13px; font-weight: 600; color: var(--muted); }
+  .cb-dd-btn { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 13px 14px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text); font-size: 15px; font-weight: 600; text-align: left; }
+  .cb-dd-btn svg { flex: none; width: 16px; height: 16px; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; fill: none; transition: transform .2s; }
+  .cb-dd.open .cb-dd-btn svg { transform: rotate(180deg); }
+  .cb-dd-list { margin-top: 8px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); overflow: hidden; }
+  .cb-dd-list[hidden] { display: none; }
+  .cb-opt { display: block; width: 100%; text-align: left; padding: 12px 14px; color: var(--text); border-bottom: 1px solid var(--line); }
+  .cb-opt:last-child { border-bottom: 0; }
+  .cb-opt.sel { background: rgba(139, 92, 246, .16); }
+  .cb-opt b { display: block; font-size: 14px; font-weight: 700; }
+  .cb-opt span { display: block; margin-top: 3px; font-size: 12.5px; line-height: 1.45; color: var(--muted); }
+  .cb-amt { display: flex; align-items: center; gap: 8px; padding: 0 14px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); }
+  .cb-amt > span { font-size: 17px; font-weight: 700; color: var(--muted); }
+  .cb-amt input { flex: 1; min-width: 0; padding: 13px 0; font-size: 16px; font-weight: 600; color: var(--text); background: transparent; border: 0; outline: 0; }
+  .cb-hint { margin-top: 8px; font-size: 12.5px; line-height: 1.5; color: var(--muted); }
+  .cb-hint.err { color: #f87171; }
+  #cbSend:disabled { opacity: .4; }
+  /* Find business partner */
+  .fp-lead { margin-top: 10px; font-size: 14px; line-height: 1.55; color: var(--muted); }
+  .fp-search { margin-top: 16px; display: flex; align-items: center; gap: 10px; padding: 0 14px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); }
+  .fp-search svg { flex: none; width: 18px; height: 18px; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; fill: none; }
+  .fp-search input { flex: 1; min-width: 0; padding: 13px 0; font-size: 16px; color: var(--text); background: transparent; border: 0; outline: 0; }
+  .fp-search input::placeholder { color: var(--muted); }
+  .fp-results { margin-top: 14px; min-height: 36vh; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--line); }
+  .fp-rows { display: grid; gap: 6px; padding: 10px; }
+  .fp-row { width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); color: var(--text); font-size: 15px; font-weight: 700; text-align: left; }
+  .fp-row i { flex: none; width: 30px; height: 30px; border-radius: 50%; background: #6d28d9; display: grid; place-items: center; font-style: normal; font-size: 13px; color: #fff; }
+  .fp-row.on { border-color: var(--purple-light); background: rgba(139, 92, 246, .16); }
+  .fp-chips { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .fp-chips[hidden] { display: none; }
+  .fp-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: rgba(139, 92, 246, .16); border: 1px solid var(--purple-light); color: var(--text); font-size: 13px; font-weight: 700; }
+  .fp-chip svg { width: 12px; height: 12px; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; fill: none; }
+  .fp-empty { padding: 22px 14px; text-align: center; font-size: 13px; line-height: 1.5; color: var(--muted); }
+  .fp-err { margin: 10px 0 0; font-size: 13px; }
+  /* Business contracts: inbox cards, running list, info */
+  .ct-badge { display: inline-block; min-width: 18px; height: 18px; padding: 0 5px; margin-left: 8px; border-radius: 9px; background: #ef4444; color: #fff; font-size: 11px; font-weight: 800; line-height: 18px; vertical-align: middle; }
+  .ct-badge[hidden] { display: none; }
+  .contract-page { padding: 12px; display: grid; align-content: start; gap: 12px; }
+  .ct-label { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+  .ct-empty { padding: 40px 12px; text-align: center; font-size: 14px; line-height: 1.6; color: var(--muted); }
+  .ct-prop { padding: 14px; border-radius: 16px; border: 1px solid var(--purple-light); background: var(--bg); }
+  .ct-top { display: flex; align-items: center; gap: 12px; }
+  .ct-ico { flex: none; width: 40px; height: 40px; border-radius: 12px; background: var(--surface-2); display: grid; place-items: center; font-size: 20px; }
+  .ct-kicker { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--purple-light); }
+  .ct-name { flex: 1; min-width: 0; font-size: 16px; font-weight: 700; overflow-wrap: anywhere; }
+  .ct-desc { margin: 10px 0 0; font-size: 13px; line-height: 1.5; color: var(--muted); }
+  .ct-rows { margin-top: 12px; border-radius: 12px; background: var(--surface-2); padding: 2px 12px; text-align: left; }
+  .ct-r { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; font-size: 13.5px; border-bottom: 1px solid var(--line); }
+  .ct-r:last-child { border-bottom: 0; }
+  .ct-r span { color: var(--muted); }
+  .ct-r b { font-weight: 700; text-align: right; overflow-wrap: anywhere; }
+  .ct-green { color: #4ade80; }
+  .ct-acts { display: flex; gap: 10px; margin-top: 14px; }
+  .ct-acts .primary-btn { margin-top: 0; width: auto; flex: 1.5; }
+  .ct-reject { flex: 1; height: 46px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text); font-size: 15px; font-weight: 700; }
+  .ct-reject:disabled { opacity: .4; }
+  .ct-item .ji-timer { margin-top: 12px; }
+  .ct-info { flex: none; width: 32px; height: 32px; border-radius: 50%; background: var(--surface-2); color: var(--purple-light); display: grid; place-items: center; }
+  .ct-info svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+  .ct-info-ico { font-size: 24px; }
   .sheet-close svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; fill: none; }
   .sheet::before {
     content: ""; position: absolute; top: 9px; left: 50%;
@@ -1403,16 +1477,15 @@
             <button class="primary-btn" id="bizOpenBtn">See all businesses</button>
           </div>
 
-          <div class="job-card soon-card" data-tier="contract">
+          <div class="job-card" id="contractCard" data-tier="contract">
             <div class="job-top">
               <div class="lock-badge">
                 <svg viewBox="0 0 24 24"><path d="M7 3h8l4 4v14H7zM15 3v4h4M10 12h6M10 16h4"/></svg>
               </div>
               <div class="job-title">Business Contract</div>
-              <span class="soon-tag">Coming soon</span>
             </div>
             <p class="job-desc">Win business contracts and earn big. Get a contract with your friends to make more money.</p>
-            <button class="primary-btn" disabled>Take a contract</button>
+            <button class="primary-btn" id="contractOpenBtn">See contract<b class="ct-badge" id="ctBadge" hidden></b></button>
           </div>
 
           <div class="job-card soon-card" data-tier="company">
@@ -1907,6 +1980,78 @@
     </div>
   </div>
 
+  <!-- Business Contract sheet -->
+  <div class="sheet-layer" id="contractSheetLayer" aria-hidden="true">
+    <div class="sheet-backdrop" id="contractSheetBackdrop"></div>
+    <div class="sheet" role="dialog" aria-label="Business Contract">
+      <div class="sheet-head">
+        <h2>Business Contract</h2>
+        <button class="sheet-close" id="contractSheetClose" aria-label="Close">
+          <svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13"/></svg>
+        </button>
+      </div>
+      <div class="contract-page" id="contractPage" aria-label="Contract page"></div>
+      <button class="primary-btn" id="contractBuyBtn">Buy a Contract</button>
+    </div>
+  </div>
+
+  <!-- Buy a Contract sheet -->
+  <div class="sheet-layer" id="contractBuyLayer" aria-hidden="true">
+    <div class="sheet-backdrop" id="contractBuyBackdrop"></div>
+    <div class="sheet" role="dialog" aria-label="Buy a Contract">
+      <div class="sheet-head">
+        <h2>Buy a Contract</h2>
+        <button class="sheet-close" id="contractBuyClose" aria-label="Close">
+          <svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13"/></svg>
+        </button>
+      </div>
+
+      <div class="cb-summary">
+        <div class="cb-row"><span>Contract name</span><b id="cbName">Not selected</b></div>
+        <div class="cb-row"><span>Expected profit</span><b class="cb-profit" id="cbProfit">&#8358;0</b></div>
+        <div class="cb-row"><span>Duration</span><b>2 hrs</b></div>
+        <div class="cb-row"><span>Contract amount</span><b id="cbAmountShow">&#8358;0</b></div>
+      </div>
+
+      <label class="cb-label">Contract type</label>
+      <div class="cb-dd" id="cbDd">
+        <button type="button" class="cb-dd-btn" id="cbDdBtn" aria-expanded="false">
+          <span id="cbDdText">Select a contract</span>
+          <svg viewBox="0 0 16 16"><path d="M3 6l5 5 5-5"/></svg>
+        </button>
+        <div class="cb-dd-list" id="cbDdList" hidden></div>
+      </div>
+
+      <label class="cb-label" for="cbAmount">Amount to invest</label>
+      <div class="cb-amt"><span>&#8358;</span><input id="cbAmount" type="text" inputmode="numeric" placeholder="250,000" autocomplete="off"></div>
+      <p class="cb-hint" id="cbHint">Minimum &#8358;250,000. Every &#8358;350,000 earns &#8358;2,500,000 profit, shared 50/50 with your partner.</p>
+
+      <button class="primary-btn" id="cbSend" disabled>Find business partner</button>
+    </div>
+  </div>
+
+  <!-- Find business partner sheet -->
+  <div class="sheet-layer" id="partnerLayer" aria-hidden="true">
+    <div class="sheet-backdrop" id="partnerBackdrop"></div>
+    <div class="sheet" role="dialog" aria-label="Find business partner">
+      <div class="sheet-head">
+        <h2>Find business partner</h2>
+        <button class="sheet-close" id="partnerClose" aria-label="Close">
+          <svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13"/></svg>
+        </button>
+      </div>
+      <p class="fp-lead">Find business owners to take this contract with you. Pick up to 3 players and send your proposal. The first one to pay takes it and it closes for the others. If nobody pays within 1 hour, your money goes back to you. You can send 3 proposals a day.</p>
+      <div class="fp-search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input id="partnerSearch" type="search" placeholder="Search business owner" autocomplete="off" autocapitalize="none" spellcheck="false" enterkeyhint="search" aria-label="Search business owner">
+      </div>
+      <div class="fp-chips" id="partnerChips" hidden></div>
+      <div class="fp-results" id="partnerResults" aria-label="Search results"><div class="fp-empty">Type a username to find a business owner.</div></div>
+      <p class="hh-err fp-err" id="partnerErr" hidden></p>
+      <button class="primary-btn" id="partnerSend" disabled>Send Business proposal</button>
+    </div>
+  </div>
+
   <!-- Achievements sheet -->
   <div class="sheet-layer" id="achSheetLayer" aria-hidden="true">
     <div class="sheet-backdrop" id="achSheetBackdrop"></div>
@@ -2197,6 +2342,18 @@
         <button class="popup-btn" id="hhReject" type="button">Reject</button>
         <button class="popup-btn hh-msg" id="hhMsg" type="button"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.6A8 8 0 1 1 21 12z"/></svg>Message</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Contract info -->
+  <div class="popup" id="ctInfo" aria-hidden="true" style="z-index: 97;">
+    <div class="popup-backdrop" id="ctInfoBackdrop"></div>
+    <div class="popup-card" role="dialog" aria-label="Contract info">
+      <div class="popup-icon ok ct-info-ico" id="ctInfoIcon"></div>
+      <h3 id="ctInfoTitle"></h3>
+      <p id="ctInfoText"></p>
+      <div class="ct-rows" id="ctInfoRows"></div>
+      <div class="popup-actions"><button class="popup-btn" id="ctInfoClose" type="button">Close</button></div>
     </div>
   </div>
 
@@ -4250,6 +4407,70 @@ window.TakeoffScene = {
     return set;
   }
   const setPlansSheet = bindSheet('sheetLayer', 'unlockBtn', 'sheetClose', 'sheetBackdrop');
+  const setContractSheet = bindSheet('contractSheetLayer', 'contractOpenBtn', 'contractSheetClose', 'contractSheetBackdrop');
+
+  // Buy a Contract form (front end only for now)
+  const CONTRACT_TYPES = [
+    { id: 'real_estate', icon: '🏠', name: 'Real Estate Flip', desc: 'Buy a property, renovate it and sell it on for a profit.' },
+    { id: 'import_export', icon: '🚢', name: 'Import & Export', desc: 'Ship goods between markets and keep the price difference.' },
+    { id: 'farm_supply', icon: '🌾', name: 'Farm Produce Supply', desc: 'Supply fresh produce in bulk to hotels, markets and stores.' },
+    { id: 'construction', icon: '🏗️', name: 'Construction Works', desc: 'Fund a building job for a client and share the payout.' },
+    { id: 'software', icon: '💻', name: 'Tech Software Build', desc: 'Back a software project built for a paying company.' }
+  ];
+  const CB_MIN = 250000, CB_STEP = 350000, CB_PROFIT = 2500000;
+  const cbEl = id => document.getElementById(id);
+  const cbNaira = n => '₦' + Math.round(n).toLocaleString('en-US');
+  let cbType = null;
+  const cbAmountVal = () => parseInt(cbEl('cbAmount').value.replace(/\D/g, ''), 10) || 0;
+  function cbRefresh() {
+    const amt = cbAmountVal();
+    const ok = amt >= CB_MIN;
+    cbEl('cbName').textContent = cbType ? cbType.name : 'Not selected';
+    cbEl('cbAmountShow').textContent = cbNaira(amt);
+    cbEl('cbProfit').textContent = cbNaira(ok ? amt * CB_PROFIT / CB_STEP : 0);
+    const hint = cbEl('cbHint');
+    hint.classList.toggle('err', amt > 0 && !ok);
+    cbEl('cbSend').disabled = !(cbType && ok);
+  }
+  function cbCloseDd() {
+    cbEl('cbDdList').hidden = true;
+    cbEl('cbDd').classList.remove('open');
+    cbEl('cbDdBtn').setAttribute('aria-expanded', 'false');
+  }
+  function cbReset() {
+    cbType = null;
+    cbEl('cbDdText').textContent = 'Select a contract';
+    cbEl('cbAmount').value = '';
+    cbCloseDd();
+    cbEl('cbDdList').querySelectorAll('.cb-opt').forEach(o => o.classList.remove('sel'));
+    cbRefresh();
+  }
+  CONTRACT_TYPES.forEach(t => {
+    const o = document.createElement('button');
+    o.type = 'button'; o.className = 'cb-opt';
+    o.innerHTML = '<b></b><span></span>';
+    o.firstChild.textContent = t.name; o.lastChild.textContent = t.desc;
+    o.addEventListener('click', () => {
+      cbType = t;
+      cbEl('cbDdText').textContent = t.name;
+      cbEl('cbDdList').querySelectorAll('.cb-opt').forEach(x => x.classList.toggle('sel', x === o));
+      cbCloseDd(); cbRefresh();
+    });
+    cbEl('cbDdList').appendChild(o);
+  });
+  cbEl('cbDdBtn').addEventListener('click', () => {
+    const open = cbEl('cbDdList').hidden;
+    cbEl('cbDdList').hidden = !open;
+    cbEl('cbDd').classList.toggle('open', open);
+    cbEl('cbDdBtn').setAttribute('aria-expanded', String(open));
+  });
+  cbEl('cbAmount').addEventListener('input', e => {
+    const n = cbAmountVal();
+    e.target.value = n ? n.toLocaleString('en-US') : '';
+    cbRefresh();
+  });
+  const setContractBuySheet = bindSheet('contractBuyLayer', 'contractBuyBtn', 'contractBuyClose', 'contractBuyBackdrop', cbReset);
+  const setPartnerSheet = bindSheet('partnerLayer', 'cbSend', 'partnerClose', 'partnerBackdrop', () => ctPartnerReset());
   // Transfer and Send money open the phone straight into the Opay app
   document.getElementById('transferBtn').addEventListener('click', () => { setPhone(true); openOpay(); opShow('send'); opUnlock = null; opRefreshSend(); });
   // Home page copies use the same buttons as the Hustle page
@@ -6750,6 +6971,266 @@ window.TakeoffScene = {
   });
   setTimeout(hhPoll, 3000);
   setInterval(hhPoll, 8000);
+
+  // ---- Business contracts. The server keeps every proposal, running contract and payout ----
+  const ctState = { props: [], list: [], off: 0, seen: new Set(), gone: new Set(), picks: [], tok: 0, srchT: 0, sending: false, busy: false, payingId: '', polling: false, claiming: false, sig: '' };
+  const ctType = id => CONTRACT_TYPES.find(t => t.id === id) || { id, icon: '📄', name: 'Business Contract', desc: '' };
+  const ctRow = (k, v, cls) => `<div class="ct-r"><span>${k}</span><b${cls ? ` class="${cls}"` : ''}>${v}</b></div>`;
+
+  // 1) Find business partners (up to 3), then send the proposal. Your money is held until someone pays or the hour is up.
+  const CT_MAX_PARTNERS = 3, CT_NO_RESULTS = '<div class="fp-empty">Type a username to find a business owner.</div>';
+  function ctChips() {
+    const box = hq('partnerChips');
+    box.hidden = ctState.picks.length === 0;
+    box.innerHTML = ctState.picks.map(u => `<button class="fp-chip" type="button" data-u="${opEsc(u)}">${opEsc(u)}<svg viewBox="0 0 16 16"><path d="M4 4l8 8M12 4L4 12"/></svg></button>`).join('');
+    hq('partnerResults').querySelectorAll('.fp-row').forEach(x => x.classList.toggle('on', ctState.picks.includes(x.dataset.u)));
+    hq('partnerSend').disabled = ctState.sending || ctState.picks.length === 0;
+  }
+  function ctPartnerReset() {
+    clearTimeout(ctState.srchT); ctState.tok++; ctState.picks = [];
+    hq('partnerSearch').value = '';
+    hq('partnerResults').innerHTML = CT_NO_RESULTS;
+    hq('partnerErr').hidden = true;
+    ctChips();
+  }
+  function ctSearch() {
+    const q = hq('partnerSearch').value.trim(), tok = ++ctState.tok, box = hq('partnerResults');
+    hq('partnerErr').hidden = true;
+    if (q.length < 2) { box.innerHTML = CT_NO_RESULTS; return; }
+    const sb = window.hustleSb;
+    if (!sb) return;
+    box.innerHTML = '<div class="fp-empty">Searching...</div>';
+    sb.rpc('search_usernames', { q }).then(r => {
+      if (tok !== ctState.tok) return;
+      if (r.error) { box.innerHTML = '<div class="fp-empty">Could not search. Check your internet.</div>'; return; }
+      const names = (r.data || []).map(x => x.username);
+      box.innerHTML = names.length
+        ? '<div class="fp-rows">' + names.map(u => `<button class="fp-row" type="button" data-u="${opEsc(u)}"><i>${opEsc(u.charAt(0).toUpperCase())}</i><span>${opEsc(u)}</span></button>`).join('') + '</div>'
+        : '<div class="fp-empty">No player found</div>';
+      ctChips();
+    }).catch(() => { if (tok === ctState.tok) box.innerHTML = '<div class="fp-empty">Could not search. Check your internet.</div>'; });
+  }
+  hq('partnerSearch').addEventListener('input', () => { clearTimeout(ctState.srchT); ctState.srchT = setTimeout(ctSearch, 300); });
+  hq('partnerResults').addEventListener('click', e => {
+    const b = e.target.closest('.fp-row');
+    if (!b || ctState.sending) return;
+    const u = b.dataset.u, i = ctState.picks.indexOf(u);
+    if (i >= 0) ctState.picks.splice(i, 1);
+    else if (ctState.picks.length >= CT_MAX_PARTNERS) { hq('partnerErr').textContent = 'You can pick up to 3 players.'; hq('partnerErr').hidden = false; return; }
+    else ctState.picks.push(u);
+    hq('partnerErr').hidden = true;
+    ctChips();
+  });
+  hq('partnerChips').addEventListener('click', e => {
+    const b = e.target.closest('.fp-chip');
+    if (!b || ctState.sending) return;
+    ctState.picks = ctState.picks.filter(u => u !== b.dataset.u);
+    hq('partnerErr').hidden = true;
+    ctChips();
+  });
+  function ctSendFail(amt, msg) {
+    wallet.bank += amt; enforceLimit(); renderWallet(); save();
+    ctState.sending = false;
+    hq('partnerSend').textContent = 'Send Business proposal';
+    hq('partnerErr').textContent = msg; hq('partnerErr').hidden = false;
+    ctChips();
+  }
+  // The same key is used on every retry, so a bad connection can never send the proposal twice
+  function ctSendTry(to, type, amt, key, left) {
+    const retry = () => { if (left > 0) setTimeout(() => ctSendTry(to, type, amt, key, left - 1), 1500); else ctSendFail(amt, 'No connection. Nothing was taken from you.'); };
+    window.hustleSb.rpc('contract_propose', { p_to: to, p_type: type.id, p_amount: amt, p_key: key }).then(r => {
+      if (!r.error) {
+        refillFromLocked(); renderWallet(); save();
+        if (window.hustleFlush) window.hustleFlush();
+        ctState.sending = false;
+        setPartnerSheet(false); setContractBuySheet(false);
+        showNotice('Proposal sent', `Your ${type.name} proposal went to ${to.join(', ')}. The first to pay takes it. If nobody pays within 1 hour, your ${naira(amt)} comes back.`, false);
+        return;
+      }
+      if (r.error.code === 'P0001') {
+        const m = String(r.error.message || '');
+        ctSendFail(amt, /user_not_found/.test(m) ? 'One of the players was not found.'
+          : /cannot_partner_self/.test(m) ? 'You cannot partner with yourself.'
+          : /daily_limit/.test(m) ? 'You can only send 3 proposals a day. Nothing was taken from you.'
+          : /too_many_partners/.test(m) ? 'You can pick up to 3 players.'
+          : /bad_amount/.test(m) ? 'That amount is not allowed.'
+          : 'Could not send the proposal. Nothing was taken from you.');
+        return;
+      }
+      retry();
+    }).catch(retry);
+  }
+  hq('partnerSend').addEventListener('click', () => {
+    const to = ctState.picks.slice(), type = cbType, amt = cbAmountVal();
+    if (ctState.sending || !to.length || !type || amt < CB_MIN || !window.hustleSb) return;
+    if (amt > wallet.bank) { needHelp(amt, 'a business contract'); return; }
+    ctState.sending = true;
+    hq('partnerSend').disabled = true; hq('partnerSend').textContent = 'Sending...'; hq('partnerErr').hidden = true;
+    wallet.bank -= amt; renderWallet();
+    ctSendTry(to, type, amt, uuid4(), 2);
+  });
+
+  // 2) The contracts page: proposals waiting for you (inbox) on top, running contracts below
+  function ctRender(force) {
+    const box = hq('contractPage'), n = ctState.props.length, badge = hq('ctBadge');
+    badge.hidden = n === 0; badge.textContent = n > 9 ? '9+' : String(n);
+    const sig = JSON.stringify([ctState.props.map(p => p.id), ctState.list.map(c => c.id), ctState.busy, ctState.payingId]);
+    if (!force && sig === ctState.sig) { ctPaint(); return; }
+    ctState.sig = sig;
+    let h = '';
+    if (n) {
+      h += '<div class="ct-label">Proposals</div>' + ctState.props.map(x => {
+        const t = ctType(x.type_id), paying = ctState.payingId === x.id, dis = ctState.busy ? ' disabled' : '';
+        return `<div class="ct-prop" data-id="${opEsc(x.id)}">
+          <div class="ct-top"><span class="ct-ico">${t.icon}</span><div class="ct-name"><div class="ct-kicker">Business Contract</div>${opEsc(t.name)}</div></div>
+          <p class="ct-desc">${opEsc(t.desc)}</p>
+          <div class="ct-rows">${ctRow('From', opEsc(x.from_name))}${ctRow('Your profit (50%)', naira(Number(x.share)), 'ct-green')}${ctRow('Duration', '2 hrs')}</div>
+          <div class="ct-acts"><button class="primary-btn ct-pay" type="button"${dis}>${paying ? 'Paying...' : 'Pay ' + naira(Number(x.amount))}</button><button class="ct-reject" type="button"${dis}>Reject</button></div>
+        </div>`;
+      }).join('');
+    }
+    if (ctState.list.length) {
+      if (n) h += '<div class="ct-label">Running contracts</div>';
+      h += ctState.list.map(c => {
+        const t = ctType(c.type_id);
+        return `<div class="job-item ct-item" data-id="${opEsc(c.id)}">
+          <div class="ct-top"><span class="ct-ico">${t.icon}</span><div class="ct-name">${opEsc(t.name)}</div><button class="ct-info" type="button" aria-label="Contract info"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.01"/></svg></button></div>
+          <div class="ji-timer"><div class="ji-timer-row"><span>With ${opEsc(c.other_name)}</span><span class="ji-left">--</span></div><div class="ji-bar"><div class="ji-fill"></div></div></div>
+        </div>`;
+      }).join('');
+    }
+    box.innerHTML = h || '<div class="ct-empty">No contracts running.<br>Tap Buy a Contract to start one.</div>';
+    ctPaint();
+  }
+  function ctPaint() {
+    const now = Date.now() + ctState.off, box = hq('contractPage');
+    ctState.list.forEach(c => {
+      const el = box.querySelector(`.ct-item[data-id="${c.id}"]`); if (!el) return;
+      const s = new Date(c.starts_at).getTime(), e = new Date(c.ends_at).getTime();
+      el.querySelector('.ji-fill').style.width = Math.min(100, Math.max(0, (now - s) / (e - s) * 100)) + '%';
+      el.querySelector('.ji-left').textContent = fmtLeft(e - now);
+    });
+  }
+  // When the time is up the contract leaves the list, and the payout is collected
+  function ctTick() {
+    if (!ctState.list.length) return;
+    const now = Date.now() + ctState.off;
+    const ended = ctState.list.filter(c => new Date(c.ends_at).getTime() <= now);
+    if (ended.length) {
+      ctState.list = ctState.list.filter(c => !ended.includes(c));
+      ctRender();
+      setTimeout(ctClaim, 2500);
+    } else ctPaint();
+  }
+  setInterval(ctTick, 1000);
+
+  // 3) Pay or reject a proposal
+  function ctGone(x) { ctState.gone.add(x.id); ctState.props = ctState.props.filter(p => p.id !== x.id); }
+  function ctPayEnd(x, amt, refund, title, text) {
+    if (refund) { wallet.bank += amt; enforceLimit(); renderWallet(); save(); }
+    ctState.busy = false; ctState.payingId = '';
+    if (title) { ctGone(x); showNotice(title, text, false, true); }
+    ctRender(true);
+  }
+  function ctPayTry(x, amt, left) {
+    const retry = () => { if (left > 0) setTimeout(() => ctPayTry(x, amt, left - 1), 1500); else { ctPayEnd(x, amt, true); showNotice('Not paid', 'No connection. Nothing was taken from you.', false, true); } };
+    window.hustleSb.rpc('contract_answer', { p_id: x.id, p_accept: true }).then(r => {
+      if (!r.error) {
+        refillFromLocked(); renderWallet(); save();
+        if (window.hustleFlush) window.hustleFlush();
+        ctGone(x); ctPayEnd(x, amt, false);
+        ctPoll();
+        return;
+      }
+      if (r.error.code === 'P0001') { ctPayEnd(x, amt, true, 'Not paid', 'This proposal is no longer available. Nothing was taken from you.'); return; }
+      retry();
+    }).catch(retry);
+  }
+  function ctPay(x) {
+    if (ctState.busy || !window.hustleSb) return;
+    const amt = Number(x.amount);
+    if (amt > wallet.bank) { needHelp(amt, 'this business contract'); return; }
+    ctState.busy = true; ctState.payingId = x.id;
+    wallet.bank -= amt; renderWallet();
+    ctRender(true);
+    ctPayTry(x, amt, 2);
+  }
+  function ctReject(x) {
+    if (ctState.busy || !window.hustleSb) return;
+    ctGone(x); ctRender(true);
+    window.hustleSb.rpc('contract_answer', { p_id: x.id, p_accept: false }).then(r => { if (r.error && r.error.code !== 'P0001') ctState.gone.delete(x.id); }, () => ctState.gone.delete(x.id));
+  }
+  function ctOpenInfo(id) {
+    const c = ctState.list.find(y => y.id === id); if (!c) return;
+    const t = ctType(c.type_id);
+    hq('ctInfoIcon').textContent = t.icon;
+    hq('ctInfoTitle').textContent = t.name;
+    hq('ctInfoText').textContent = t.desc;
+    hq('ctInfoRows').innerHTML = ctRow('Partner', opEsc(c.other_name)) + ctRow('You paid', naira(Number(c.amount))) + ctRow('Your profit (50%)', naira(Number(c.share)), 'ct-green') + ctRow('Duration', '2 hrs');
+    hhOpen(hq('ctInfo'));
+  }
+  hq('contractPage').addEventListener('click', e => {
+    const info = e.target.closest('.ct-info');
+    if (info) { ctOpenInfo(info.closest('.ct-item').dataset.id); return; }
+    const card = e.target.closest('.ct-prop');
+    if (!card) return;
+    const x = ctState.props.find(p => p.id === card.dataset.id);
+    if (!x) return;
+    if (e.target.closest('.ct-pay')) ctPay(x);
+    else if (e.target.closest('.ct-reject')) ctReject(x);
+  });
+  hq('ctInfoClose').addEventListener('click', () => hhShut(hq('ctInfo')));
+  hq('ctInfoBackdrop').addEventListener('click', () => hhShut(hq('ctInfo')));
+
+  // 4) Ask the server: new proposals, running contracts, and money owed to you (refunds and payouts)
+  function ctPoll() {
+    const sb = window.hustleSb;
+    if (!sb || ctState.polling || document.visibilityState === 'hidden') return;
+    ctState.polling = true;
+    Promise.all([sb.rpc('my_contract_proposals'), sb.rpc('my_contracts')]).then(([p, c]) => {
+      ctState.polling = false;
+      if (!p.error && Array.isArray(p.data) && !ctState.busy) {
+        ctState.props = p.data.filter(x => !ctState.gone.has(x.id));
+        const fresh = ctState.props.filter(x => !ctState.seen.has(x.id));
+        fresh.forEach(x => ctState.seen.add(x.id));
+        if (fresh.length) showNotice('Business proposal', fresh.length === 1 ? `${fresh[0].from_name} sent you a business contract proposal. Open Business Contract to see it.` : `${fresh.length} business contract proposals are waiting for you.`, false);
+      }
+      if (!c.error && Array.isArray(c.data)) {
+        ctState.list = c.data;
+        if (c.data.length) ctState.off = new Date(c.data[0].server_now).getTime() - Date.now();
+      }
+      ctRender();
+    }).catch(() => { ctState.polling = false; });
+    ctClaim();
+  }
+  function ctClaim() {
+    const sb = window.hustleSb;
+    if (!sb || ctState.claiming) return;
+    ctState.claiming = true;
+    sb.rpc('claim_contract_credits').then(r => {
+      ctState.claiming = false;
+      const rows = (!r.error && r.data) || [];
+      if (!rows.length) return;
+      const lockedBefore = wallet.locked;
+      let total = 0;
+      rows.forEach(t => {
+        const a = Number(t.amount);
+        wallet.bank += a; total += a;
+        opTx.unshift({ name: opEsc('Business contract'), bank: BANK_NAME, amt: a, in: true });
+      });
+      enforceLimit(); renderWallet(); renderOpTx(); save();
+      if (window.hustleFlush) window.hustleFlush();
+      const toLocked = wallet.locked - lockedBefore;
+      const one = rows.length === 1 ? rows[0] : null;
+      const text = one
+        ? (one.kind === 'refund' ? `Nobody took your ${ctType(one.type_id).name} proposal. ${naira(total)} is back in your bank.` : `Your ${ctType(one.type_id).name} contract with ${one.other_name} is complete. ${naira(total)} was added to your bank.`)
+        : `${naira(total)} from ${rows.length} business contracts was added to your bank.`;
+      showNotice(one && one.kind === 'refund' ? 'Proposal returned' : 'Contract complete', text + (toLocked > 0 ? ` ${naira(toLocked)} is in Locked money because it is above your bank limit.` : ''), false);
+    }).catch(() => { ctState.claiming = false; });
+  }
+  hq('contractOpenBtn').addEventListener('click', () => { ctRender(true); ctPoll(); });
+  setTimeout(ctPoll, 3500);
+  setInterval(ctPoll, 8000);
 
   // ---- Messages: chat with other players. The server deletes every message 3 days after it was sent ----
   const MSG_LIFE = 3 * 24 * 60 * 60 * 1000;
