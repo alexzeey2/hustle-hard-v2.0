@@ -932,7 +932,7 @@
   .fp-empty { padding: 22px 14px; text-align: center; font-size: 13px; line-height: 1.5; color: var(--muted); }
   .fp-err { margin: 10px 0 0; font-size: 13px; }
   /* Business contracts: inbox cards, running list, info */
-  #contractCard { position: relative; }
+  #contractCard, #bizCard { position: relative; }
   .ct-badge { position: absolute; top: -7px; right: -7px; z-index: 2; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: #ef4444; color: #fff; border: 2px solid var(--bg); box-sizing: content-box; font-size: 11px; font-weight: 800; line-height: 20px; text-align: center; }
   .ct-badge[hidden] { display: none; }
   .contract-page { padding: 12px; display: grid; align-content: start; gap: 12px; }
@@ -1492,6 +1492,7 @@
               <div class="job-title">Mini Business</div>
             </div>
             <p class="job-desc">Run a small business of your own. Start any business, then boost it to earn more.</p>
+            <b class="ct-badge" id="bizBadge" hidden></b>
             <button class="primary-btn" id="bizOpenBtn">See all businesses</button>
           </div>
 
@@ -5984,6 +5985,8 @@ window.TakeoffScene = {
   }
   function tickBiz() {
     document.getElementById('bizBal').textContent = naira(wallet.bank);
+    const bb = document.getElementById('bizBadge'), bn = BUSINESSES.filter(b => biz[b.id]).length;
+    bb.hidden = bn === 0; bb.textContent = String(bn);
     const now = Date.now();
     BUSINESSES.forEach(b => {
       const st = biz[b.id]; if (!st || st.ready) return;
@@ -7093,7 +7096,7 @@ window.TakeoffScene = {
   // 2) The contracts page: proposals waiting for you (inbox) on top, running contracts below
   function ctRender(force) {
     const box = hq('contractPage'), n = ctState.props.length, badge = hq('ctBadge');
-    const cnt = n + ctState.sent.length; badge.hidden = cnt === 0; badge.textContent = cnt > 9 ? '9+' : String(cnt);
+    const cnt = n + ctState.sent.length + ctState.list.length; badge.hidden = cnt === 0; badge.textContent = cnt > 9 ? '9+' : String(cnt);
     const sig = JSON.stringify([ctState.props.map(p => p.id), ctState.list.map(c => c.id), ctState.sent.map(s => s.id), ctState.busy, ctState.payingId]);
     if (!force && sig === ctState.sig) { ctPaint(); return; }
     ctState.sig = sig;
