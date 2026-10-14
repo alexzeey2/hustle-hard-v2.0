@@ -491,6 +491,34 @@
   .g-btn.primary { background: var(--purple); border-color: var(--purple); color: #fff; }
   .g-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
+  /* Find a friend sheet: half-height so the zoomed country stays visible above it */
+  .friend-layer { pointer-events: none; }
+  .friend-layer .sheet-backdrop { display: none; }
+  .friend-sheet { height: 50%; max-height: none; display: flex; flex-direction: column; overflow: hidden; padding: 16px 16px calc(14px + env(safe-area-inset-bottom)); pointer-events: auto; box-shadow: 0 -10px 30px rgba(0, 0, 0, .45); }
+  .friend-sheet::before { display: none; }
+  .fs-top { display: flex; align-items: center; gap: 10px; }
+  .fs-search { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; height: 46px; padding: 0 14px; border-radius: 14px; background: var(--bg); border: 1px solid var(--line); }
+  .fs-search:focus-within { border-color: var(--purple-light); }
+  .fs-search svg { flex: none; width: 20px; height: 20px; fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; }
+  .fs-search input { flex: 1; min-width: 0; background: none; border: 0; outline: 0; color: var(--text); font: inherit; font-size: 16px; }
+  .fs-search input::placeholder { color: var(--muted); }
+  .fs-search input::-webkit-search-cancel-button { display: none; }
+  .fs-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin: 14px 2px 10px; }
+  .fs-head h2 { font-size: 20px; }
+  .fs-count { flex: none; font-size: 13px; font-weight: 700; color: var(--purple-light); }
+  .fs-list { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .fs-card { display: flex; align-items: center; gap: 12px; padding: 11px 14px; margin-bottom: 8px; border-radius: 16px; border: 1px solid var(--line); background: var(--bg); }
+  .fs-av { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-size: 18px; font-weight: 800; color: #fff; }
+  .fs-name { flex: 1; min-width: 0; font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fs-worth { flex: none; text-align: right; }
+  .fs-worth span { display: block; font-size: 11px; color: var(--muted); }
+  .fs-worth b { font-size: 14px; font-weight: 800; color: #f7c948; font-variant-numeric: tabular-nums; }
+  button.fs-card { width: 100%; text-align: left; color: inherit; font: inherit; cursor: pointer; }
+  .fs-where { margin-top: 2px; font-size: 12px; font-weight: 600; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fs-retry { margin-top: 12px; padding: 9px 18px; border-radius: 999px; background: var(--purple-light); color: #fff; font: inherit; font-size: 14px; font-weight: 700; }
+  .fs-empty { padding: 22px 12px; text-align: center; font-size: 14px; line-height: 1.5; color: var(--muted); }
+  .friend-open .map-info { display: none; }
+
   /* Gold button and "what you own" sheet */
   .gold-btn { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 3; height: 44px; padding: 0 20px; display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; background: linear-gradient(145deg, #fde68a, #d9a21b); border: 1px solid #fff3b0; color: #3b2a00; font-size: 14px; font-weight: 800; white-space: nowrap; box-shadow: 0 8px 22px rgba(217, 162, 27, .35); }
   .gold-btn[hidden] { display: none; }
@@ -1888,6 +1916,27 @@
       <p class="section-sub" id="achNote" style="margin:0 0 10px"></p>
       <div class="gt-tabs" id="achTabs"></div>
       <div id="achList"></div>
+    </div>
+  </div>
+
+  <!-- Find a friend sheet -->
+  <div class="sheet-layer friend-layer" id="friendSheetLayer" aria-hidden="true">
+    <div class="sheet-backdrop" id="friendSheetBackdrop"></div>
+    <div class="sheet friend-sheet" role="dialog" aria-label="Find a friend">
+      <div class="fs-top">
+        <label class="fs-search">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+          <input id="fsInput" type="search" placeholder="Search for a person" autocomplete="off" autocapitalize="words" enterkeyhint="search" aria-label="Search for a person">
+        </label>
+        <button class="sheet-close" id="friendSheetClose" aria-label="Close">
+          <svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13"/></svg>
+        </button>
+      </div>
+      <div class="fs-head">
+        <h2 id="fsCountry"></h2>
+        <span class="fs-count" id="fsCount"></span>
+      </div>
+      <div class="fs-list" id="fsList"></div>
     </div>
   </div>
 
@@ -4359,6 +4408,7 @@ window.TakeoffScene = {
     let countries = [], projection = null, path = null, borders = null, grat = null;
     let all = null, selected = null, size = { w: 0, h: 0 };
     let autoRotate = true, dragging = false, tween = null;
+    let baseScale = 1, zoom = 1, shiftY = 0, friendOpen = false;
     const sphere = { type: 'Sphere' };
     let home = null, fly = null, pending = null, flToken = 0;
 
@@ -4376,7 +4426,13 @@ window.TakeoffScene = {
       canvas.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       size = { w, h };
-      projection.translate([w / 2, h / 2]).scale(Math.min(w, h) / 2 - 16);
+      baseScale = Math.min(w, h) / 2 - 16;
+      applyView();
+    }
+
+    // Globe size and position: zoom 1 is the whole globe; friend mode zooms in and lifts it above the sheet
+    function applyView() {
+      projection.scale(baseScale * zoom).translate([size.w / 2, size.h / 2 + shiftY]);
     }
 
     function draw() {
@@ -4427,13 +4483,21 @@ window.TakeoffScene = {
       }
       if (tween) {
         const t = Math.min(1, (now - tween.start) / tween.dur);
-        const e = 1 - Math.pow(1 - t, 3);
+        const soft = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;   // slow start, slow landing
+        let er, ez;
+        if (tween.gentle) {
+          er = soft(Math.min(1, t / 0.75));              // turn towards the country first...
+          ez = soft(Math.max(0, (t - 0.15) / 0.85));     // ...and glide in while it is still turning
+        } else { er = ez = 1 - Math.pow(1 - t, 3); }
         projection.rotate([
-          tween.from[0] + (tween.to[0] - tween.from[0]) * e,
-          tween.from[1] + (tween.to[1] - tween.from[1]) * e,
+          tween.from[0] + (tween.to[0] - tween.from[0]) * er,
+          tween.from[1] + (tween.to[1] - tween.from[1]) * er,
           0
         ]);
-        if (t >= 1) tween = null;
+        zoom = tween.z0 + (tween.z1 - tween.z0) * ez;
+        shiftY = tween.y0 + (tween.y1 - tween.y0) * ez;
+        applyView();
+        if (t >= 1) { const done = tween.done; tween = null; if (done) done(); }
       } else if (autoRotate && !dragging) {
         const r = projection.rotate();
         projection.rotate([r[0] + 0.15, r[1], r[2]]);
@@ -4441,22 +4505,28 @@ window.TakeoffScene = {
       draw();
     }
 
-    function flyTo(feature) {
-      const c = d3.geoCentroid(feature);
+    function flyTo(feature, view, done) {
+      const c = view ? view.center : d3.geoCentroid(feature);
       const from = projection.rotate();
       const to = [-c[0], -c[1], 0];
       let d = to[0] - from[0];
       d = ((d + 540) % 360) - 180;
       to[0] = from[0] + d;
-      tween = { from, to, start: performance.now(), dur: 900 };
+      tween = { from, to, start: performance.now(), dur: view ? 3400 : 900, gentle: !!view, done, z0: zoom, z1: view ? view.k : 1, y0: shiftY, y1: view ? view.y : 0 };
+    }
+
+    function zoomOut() {
+      const r = projection.rotate();
+      tween = { from: r.slice(), to: r.slice(), start: performance.now(), dur: 800, z0: zoom, z1: 1, y0: shiftY, y1: 0 };
     }
 
     function select(country) {
       selected = country;
       autoRotate = false;
-      actions.hidden = false;
+      actions.hidden = true;
       updateTravel();
-      flyTo(country.feature);
+      if (friendOpen) showFriends(country);   // sheet already up: switch it to the new country
+      else flyTo(country.feature);
     }
 
     function showResults(q) {
@@ -4510,6 +4580,7 @@ window.TakeoffScene = {
       selected = null;
       actions.hidden = true;
       autoRotate = true;
+      if (friendOpen) setFriendSheet(false);
       input.focus();
     });
 
@@ -4518,7 +4589,8 @@ window.TakeoffScene = {
     canvas.addEventListener('pointerdown', e => {
       if (!projection) return;
       canvas.setPointerCapture(e.pointerId);
-      dragging = true; autoRotate = false; tween = null;
+      dragging = true; autoRotate = false;
+      if (tween) { const d = tween.done; tween = null; if (d) d(); }
       last = [e.clientX, e.clientY]; moved = 0;
       results.hidden = true; input.blur();
     });
@@ -4565,8 +4637,8 @@ window.TakeoffScene = {
     function updateTravel() {
       const here = !!selected && !!home && selected.name === home.name;
       travelBtn.disabled = !selected || here || !!fly;
-      actions.hidden = !selected || !!fly;
-      goldBtn.hidden = !selected || !!fly || !ownedIn(selected.name);
+      actions.hidden = !selected || !!fly || friendOpen;
+      goldBtn.hidden = !selected || !!fly || friendOpen || !ownedIn(selected.name);
       flightBar.hidden = !fly;
       if (window.FlightViews) window.FlightViews.setFlying(!!fly && !landing);
       const label = here ? "You're here" : 'Travel';
@@ -4718,6 +4790,176 @@ window.TakeoffScene = {
         pending = null;
       };
       if (window.TakeoffScene) { takeoffEl.classList.add('show'); window.TakeoffScene.play(go); } else go();
+    });
+
+
+    // ---- Find a friend: zoom into the picked country and list the people who live there ----
+    const FS_H = 0.5;   // sheet takes this share of the screen height (matches .friend-sheet in CSS)
+    const app = document.querySelector('.app');
+    const fsInput = document.getElementById('fsInput');
+    const fsList = document.getElementById('fsList');
+    const fsCountry = document.getElementById('fsCountry');
+    const fsCount = document.getElementById('fsCount');
+    let friendCountry = null, friendTok = 0, friendRows = [], friendState = 'idle';
+    let worldRows = [], worldState = 'idle', worldTok = 0, worldTimer = null;
+
+    const esc = t => String(t).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+    const hueOf = name => { let h = 0; for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) % 360; return h; };
+    const card = (p, showCountry, tap) => {
+      const hue = hueOf(p.name);
+      const sub = showCountry ? `<div class="fs-where">${esc(p.country)}</div>` : '';
+      const tag = tap ? 'button' : 'div';
+      return `<${tag} class="fs-card"${tap ? ` type="button" data-country="${esc(p.country)}"` : ''}><div class="fs-av" style="background:linear-gradient(145deg,hsl(${hue} 65% 56%),hsl(${(hue + 40) % 360} 65% 38%))">${esc(p.name.charAt(0).toUpperCase())}</div><div class="fs-name">${esc(p.name)}${sub}</div><div class="fs-worth"><span>Net worth</span><b>${naira(p.worth)}</b></div></${tag}>`;
+    };
+    const retryBtn = '<br><button type="button" class="fs-retry" data-retry="1">Try again</button>';
+
+    function renderFriends() {
+      const q = fsInput.value.trim();
+      // Searching: look through every real player on the planet
+      if (q.length >= 2) {
+        fsCountry.textContent = 'Whole world';
+        if (worldState === 'loading' || worldState === 'idle') { fsCount.textContent = ''; fsList.innerHTML = '<div class="fs-empty">Searching the world...</div>'; return; }
+        if (worldState === 'error') { fsCount.textContent = ''; fsList.innerHTML = `<div class="fs-empty">Could not search. Check your internet.${retryBtn}</div>`; return; }
+        fsCount.textContent = worldRows.length + (worldRows.length === 1 ? ' person' : ' people');
+        fsList.innerHTML = worldRows.length
+          ? worldRows.map(p => card(p, true, true)).join('')
+          : `<div class="fs-empty">No player named “${esc(q)}” found anywhere in the world.</div>`;
+        return;
+      }
+      fsCountry.textContent = friendCountry.name;
+      if (friendState === 'loading' || friendState === 'idle') { fsCount.textContent = ''; fsList.innerHTML = `<div class="fs-empty">Looking for players in ${esc(friendCountry.name)}...</div>`; return; }
+      if (friendState === 'error') { fsCount.textContent = ''; fsList.innerHTML = `<div class="fs-empty">Could not load players. Check your internet.${retryBtn}</div>`; return; }
+      fsCount.textContent = friendRows.length + (friendRows.length === 1 ? ' person' : ' people');
+      fsList.innerHTML = friendRows.length
+        ? friendRows.map(p => card(p, false, false)).join('')
+        : '<div class="fs-empty">No players live here yet.<br>Search above to find someone in another country.</div>';
+    }
+
+    // Real players only: the database returns username, country and net worth, nothing else
+    async function loadFriends(name, tok) {
+      friendState = 'loading';
+      const sbc = window.hustleSb;
+      try {
+        if (!sbc) throw new Error('offline');
+        const r = await sbc.rpc('friends_in_country', { p_country: name });
+        if (r.error) throw r.error;
+        if (tok !== friendTok) return;
+        friendRows = (r.data || []).map(x => ({ name: x.username, country: name, worth: Number(x.worth) || 0 }));
+        friendState = 'ok';
+      } catch (e) {
+        if (tok !== friendTok) return;
+        friendRows = []; friendState = 'error';
+      }
+      renderFriends();
+    }
+    async function searchWorld(q) {
+      const tok = ++worldTok;
+      worldState = 'loading';
+      renderFriends();
+      const sbc = window.hustleSb;
+      try {
+        if (!sbc) throw new Error('offline');
+        const r = await sbc.rpc('find_players', { q });
+        if (r.error) throw r.error;
+        if (tok !== worldTok) return;
+        worldRows = (r.data || []).map(x => ({ name: x.username, country: x.country, worth: Number(x.worth) || 0 }));
+        worldState = 'ok';
+      } catch (e) {
+        if (tok !== worldTok) return;
+        worldRows = []; worldState = 'error';
+      }
+      renderFriends();
+    }
+
+    // Biggest piece of the country (so far-away islands do not stretch the zoom), centred in the space above the sheet
+    function friendView(country) {
+      const f = country.feature;
+      let part = f;
+      if (f.geometry.type === 'MultiPolygon') {
+        let best = -1;
+        f.geometry.coordinates.forEach(coords => {
+          const poly = { type: 'Polygon', coordinates: coords };
+          const a = d3.geoArea(poly);
+          if (a > best) { best = a; part = { type: 'Feature', properties: {}, geometry: poly }; }
+        });
+      }
+      const b = d3.geoBounds(part);
+      let cx = (b[0][0] + b[1][0]) / 2;
+      if (b[0][0] > b[1][0]) cx += 180;
+      if (cx > 180) cx -= 360;
+      const cy = (b[0][1] + b[1][1]) / 2;
+      const tmp = d3.geoOrthographic().rotate([-cx, -cy, 0]).translate([0, 0]).scale(baseScale).clipAngle(90);
+      const pb = d3.geoPath(tmp).bounds(part);
+      const bw = pb[1][0] - pb[0][0], bh = pb[1][1] - pb[0][1];
+      const wr = wrap.getBoundingClientRect(), ar = app.getBoundingClientRect();
+      const areaH = Math.max(140, ar.top + ar.height * (1 - FS_H) - wr.top);
+      let k = 9;
+      if (isFinite(bw) && isFinite(bh) && bw > 0 && bh > 0) k = Math.min(size.w * 0.7 / bw, areaH * 0.7 / bh);
+      k = Math.max(1, Math.min(9, k));
+      return { center: [cx, cy], k, y: areaH / 2 - size.h / 2 };
+    }
+
+    const setFriendSheet = bindSheet('friendSheetLayer', null, 'friendSheetClose', 'friendSheetBackdrop', () => {
+      friendOpen = false;
+      friendTok++; worldTok++;
+      clearTimeout(worldTimer);
+      page.classList.remove('friend-open');
+      fsInput.value = '';
+      fsInput.blur();
+      if (projection) zoomOut();
+    });
+
+    // Zoom in gently first, then the sheet slides up once the country is in view
+    function showFriends(country) {
+      friendCountry = country;
+      const tok = ++friendTok;
+      autoRotate = false;
+      fsInput.value = '';
+      worldTok++; clearTimeout(worldTimer);
+      friendRows = []; friendState = 'loading';
+      renderFriends();
+      fsList.scrollTop = 0;
+      loadFriends(country.name, tok);   // fetch real players while the globe is turning
+      const arrived = () => {
+        if (tok !== friendTok) return;
+        friendOpen = true;
+        page.classList.add('friend-open');
+        setFriendSheet(true);
+      };
+      if (friendOpen) setFriendSheet(true);   // sheet already up: just swap the country
+      flyTo(country.feature, friendView(country), arrived);
+    }
+
+    document.getElementById('friendBtn').addEventListener('click', () => { if (selected && projection) showFriends(selected); });
+    fsInput.addEventListener('input', () => {
+      clearTimeout(worldTimer);
+      const q = fsInput.value.trim();
+      worldTok++;
+      if (q.length < 2) { renderFriends(); return; }
+      worldState = 'loading';
+      renderFriends();
+      worldTimer = setTimeout(() => searchWorld(q), 350);
+    });
+    fsInput.addEventListener('keydown', e => {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      fsInput.blur();
+      const q = fsInput.value.trim();
+      if (q.length >= 2) { clearTimeout(worldTimer); searchWorld(q); }
+    });
+    fsList.addEventListener('click', e => {
+      if (e.target.closest('[data-retry]')) {
+        const q = fsInput.value.trim();
+        if (q.length >= 2) searchWorld(q); else loadFriends(friendCountry.name, friendTok);
+        return;
+      }
+      // Tap a search result: fly to the country where that person lives
+      const b = e.target.closest('[data-country]');
+      if (!b) return;
+      const c = countries.find(x => x.name === b.dataset.country);
+      if (!c) return;
+      input.value = c.name; clearBtn.hidden = false;
+      select(c);
     });
 
     Promise.all([
@@ -6864,13 +7106,6 @@ window.TakeoffScene = {
   }
   addTabArrows(gid('goldTabs'));
   addTabArrows($('achTabs'));
-  // Find a friend is not built yet
-  let mapSoonTimer;
-  $('friendBtn').addEventListener('click', () => {
-    $('mapSoon').classList.add('show');
-    clearTimeout(mapSoonTimer);
-    mapSoonTimer = setTimeout(() => $('mapSoon').classList.remove('show'), 1600);
-  });
 </script>
 <script>
 /* Install the app (PWA): register the service worker and keep the Install bar up until the app is installed */
