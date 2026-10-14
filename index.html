@@ -16,20 +16,6 @@
   window.__deferredInstall = null;
   window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); window.__deferredInstall = e; window.dispatchEvent(new Event('installready')); });
 </script>
-<script>
-  // Desktop mode / laptop: scale the phone layout up so it fills the screen. Phones stay at 1.
-  (function () {
-    function fit() {
-      var w = window.innerWidth, h = window.innerHeight;
-      var z = w >= 600 ? Math.max(1, Math.min(w / 480, h / 720)) : 1;
-      z = Math.round(z * 100) / 100;
-      window.__uiZoom = z;
-      document.documentElement.style.setProperty('--z', z);
-    }
-    fit();
-    window.addEventListener('resize', fit);
-  })();
-</script>
 <title>Hustle Hard</title>
 <style>
   :root {
@@ -67,11 +53,16 @@
   .app {
     position: relative;
     max-width: 480px;
-    zoom: var(--z, 1);
     height: 100%;
     margin: 0 auto;
     background: var(--bg);
     overflow: hidden;
+  }
+
+
+  /* Laptop / desktop: fill the screen instead of a 480px column. Phones are untouched. */
+  @media (min-width: 900px) and (min-height: 560px) {
+    .app { max-width: none; }
   }
 
   /* Pages (blank for now) */
@@ -4620,8 +4611,7 @@ window.TakeoffScene = {
     });
     canvas.addEventListener('pointermove', e => {
       if (!dragging) return;
-      const uz = window.__uiZoom || 1;
-      const dx = (e.clientX - last[0]) / uz, dy = (e.clientY - last[1]) / uz;
+      const dx = e.clientX - last[0], dy = e.clientY - last[1];
       last = [e.clientX, e.clientY];
       moved += Math.abs(dx) + Math.abs(dy);
       const k = 57.3 / projection.scale();
@@ -4633,7 +4623,7 @@ window.TakeoffScene = {
       dragging = false;
       if (moved < 6) {
         const box = canvas.getBoundingClientRect();
-        const p = projection.invert([(e.clientX - box.left) / (window.__uiZoom || 1), (e.clientY - box.top) / (window.__uiZoom || 1)]);
+        const p = projection.invert([e.clientX - box.left, e.clientY - box.top]);
         if (p && isFinite(p[0]) && isFinite(p[1])) {
           const hit = countries.find(c => d3.geoContains(c.feature, p));
           if (hit) { input.value = hit.name; clearBtn.hidden = false; select(hit); }
@@ -4925,8 +4915,8 @@ window.TakeoffScene = {
       const tmp = d3.geoOrthographic().rotate([-cx, -cy, 0]).translate([0, 0]).scale(baseScale).clipAngle(90);
       const pb = d3.geoPath(tmp).bounds(part);
       const bw = pb[1][0] - pb[0][0], bh = pb[1][1] - pb[0][1];
-      const wr = wrap.getBoundingClientRect(), ar = app.getBoundingClientRect(), uz = window.__uiZoom || 1;
-      const areaH = Math.max(140, (ar.top + ar.height * (1 - FS_H) - wr.top) / uz);
+      const wr = wrap.getBoundingClientRect(), ar = app.getBoundingClientRect();
+      const areaH = Math.max(140, ar.top + ar.height * (1 - FS_H) - wr.top);
       let k = 9;
       if (isFinite(bw) && isFinite(bh) && bw > 0 && bh > 0) k = Math.min(size.w * 0.7 / bw, areaH * 0.7 / bh);
       k = Math.max(1, Math.min(9, k));
