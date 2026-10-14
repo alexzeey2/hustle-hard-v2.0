@@ -2125,7 +2125,7 @@
     <div class="sick-bottom">
       <h3 id="sickTitle"></h3>
       <p id="sickText"></p>
-      <div class="sick-bal">Money available (bank + locked) <b id="sickBal"></b></div>
+      <div class="sick-bal">Money available (bank) <b id="sickBal"></b></div>
       <div class="sick-note" id="sickNote" hidden>Not enough money. Tap Help to get more</div>
       <div class="sick-actions" id="sickMain">
         <button class="sick-btn pay" id="sickPay"></button>
@@ -5233,9 +5233,11 @@ window.TakeoffScene = {
   const FREE_LIMIT = 500000;
   let premium = window.hustlePremium || null;   // from the server, never from the save
   const bankLimit = () => (premium ? premium.limit : FREE_LIMIT);
+  // Loan taken for treatment and not spent yet: the bank may hold it, so it is not pushed into Locked money
+  let sickHold = typeof saved.sickHold === 'number' ? saved.sickHold : 0;
   // Anything above the bank limit goes to Locked money
   function enforceLimit() {
-    const over = wallet.bank - bankLimit();
+    const over = wallet.bank - Math.max(bankLimit(), sickHold);
     if (over > 0) { wallet.bank -= over; wallet.locked += over; }
   }
   // Move locked money into the bank as far as the limit allows
@@ -5319,7 +5321,7 @@ window.TakeoffScene = {
   function hungerClock() { const f = activeFlight(); return f ? f.start + f.dur : Date.now(); }
   const hunger = () => Math.max(0, Math.min(100, hungerBase - Math.max(0, Date.now() - hungerAt) * HUNGER_PER_MS));
   function save() {
-    try { gameStore.setItem(STORE, JSON.stringify({ bizAll, work, workMs, workAt, bank: wallet.bank, locked: wallet.locked, earned: wallet.earned, day: today, premium, hunger: hunger(), hungerAt: Date.now(), food, sick, lastIllness, sickCost, debt, holdings, unlocked })); } catch (e) {}
+    try { gameStore.setItem(STORE, JSON.stringify({ bizAll, work, workMs, workAt, bank: wallet.bank, locked: wallet.locked, earned: wallet.earned, day: today, premium, hunger: hunger(), hungerAt: Date.now(), food, sick, lastIllness, sickCost, sickHold, debt, holdings, unlocked })); } catch (e) {}
   }
 
   // Flight in progress (stored by the map), or null
@@ -5987,8 +5989,8 @@ window.TakeoffScene = {
   const sickPage = $('sickPage');
   const illness = () => ILLNESSES.find(i => i.id === sick) || ILLNESSES[0];
   function renderSick() {
-    $('sickBal').textContent = naira(wallet.bank + wallet.locked);
-    const need = Math.max(0, (sickCost || illness().cost) - (wallet.bank + wallet.locked));
+    $('sickBal').textContent = naira(wallet.bank);
+    const need = Math.max(0, (sickCost || illness().cost) - wallet.bank);
     $('sickLoan').textContent = need > 0 ? 'Take a loan of ' + naira(need) : 'Take a loan';
   }
   function showSick() {
@@ -6014,14 +6016,18 @@ window.TakeoffScene = {
     showSick();
     save();
   }
+  const SICK_REWARD = 1500000;   // given when a loan + your own money wipes your bank to pay for treatment
   $('sickPay').addEventListener('click', () => {
     const ill = illness();
-    // Treatment can be paid from your bank and Locked money together
+    // Treatment is paid from the bank only, so Locked money always stays locked
     const cost = sickCost || ill.cost;
-    if (wallet.bank + wallet.locked < cost) { needHelp(cost, 'treatment for ' + (illness().name || 'your illness'), wallet.bank + wallet.locked); return; }
-    const fromBank = Math.min(wallet.bank, cost);
-    wallet.bank -= fromBank;
-    wallet.locked -= cost - fromBank;
+    if (wallet.bank < cost) { needHelp(cost, 'treatment for ' + (illness().name || 'your illness')); return; }
+    wallet.bank -= cost;
+    const wiped = sickHold > 0 && wallet.bank === 0;   // paid with a loan and the bank is now empty
+    sickHold = 0;
+    if (wiped) wallet.bank += SICK_REWARD;
+    enforceLimit();   // no plan: ₦500,000 stays in the bank, the other ₦1,000,000 goes to Locked money
+    const rewardBank = wiped ? wallet.bank : 0;
     refillFromLocked();
     renderWallet();
     sick = null;
@@ -6033,7 +6039,8 @@ window.TakeoffScene = {
     sickPage.setAttribute('aria-hidden', 'true');
     renderHunger();
     save();
-    showNotice('Treatment complete', `You paid ${naira(cost)} for treatment and you are recovering. Eat something soon.`, false);
+    const rewardMsg = wiped ? ` Your bank was wiped, so you received ${naira(SICK_REWARD)}: ${naira(rewardBank)} in your bank` + (SICK_REWARD - rewardBank > 0 ? ` and ${naira(SICK_REWARD - rewardBank)} in Locked money.` : '.') : '';
+    showNotice('Treatment complete', `You paid ${naira(cost)} for treatment and you are recovering. Eat something soon.` + rewardMsg, false);
   });
   $('sickHelp').addEventListener('click', () => { $('sickMain').hidden = true; $('sickHelpPanel').hidden = false; });
   $('sickBack').addEventListener('click', () => { $('sickHelpPanel').hidden = true; $('sickMain').hidden = false; });
@@ -6046,12 +6053,13 @@ window.TakeoffScene = {
 
   // Take a loan for exactly what is missing; it is added to any debt you already have
   $('sickLoan').addEventListener('click', () => {
-    const need = (sickCost || illness().cost) - (wallet.bank + wallet.locked);
+    const need = (sickCost || illness().cost) - wallet.bank;
     if (need <= 0) { showNotice('No loan needed', 'You already have enough money to pay for your treatment.', false); return; }
     if (debt.owed <= 0) { debt.paid = 0; debt.next = Date.now() + LOAN_MS; }
     else if (!debt.next) debt.next = Date.now() + LOAN_MS;
     debt.owed += need;
     wallet.bank += need;
+    sickHold = sickCost || illness().cost;   // the bank holds the loan until the treatment is paid
     enforceLimit();
     renderWallet();
     renderSick();
