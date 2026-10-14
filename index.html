@@ -5529,8 +5529,9 @@ window.TakeoffScene = {
   const fmtHM = ms => { const m = Math.floor(ms / 60000); return Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + 'm'; };
   function renderSkillGate() { document.getElementById('skillLock').hidden = skillsUnlocked(); }
   // Hunger and food. Hunger is stored as a value plus a timestamp, so it keeps draining while the app is closed.
-  const HUNGER_MINUTES = 50;                      // full to empty (25 min until the card, 25 min until you fall ill)
+  const HUNGER_MINUTES = 180;                     // full to empty (90 min until the card, 90 min until you fall ill)
   const HUNGER_PER_MS = 100 / (HUNGER_MINUTES * 60000);
+  const AWAY_RATE = 0.25;                         // hunger drains at a quarter speed while the app is closed
   const HUNGER_LOW = 50, HUNGER_VERY_LOW = 10;
   const FOODS = [
     { id: 'bread', name: 'Bread', emoji: '🍞', gain: 6, start: 2, local: 500 },
@@ -5553,7 +5554,7 @@ window.TakeoffScene = {
     // Time spent on a plane doesn't count.
     let from = saved.hungerAt;
     try { const sf = JSON.parse(gameStore.getItem('lifesim.flight')); if (sf && sf.start && sf.dur) from = Math.max(from, sf.start + sf.dur); } catch (e) {}
-    hungerBase = Math.max(Math.min(saved.hunger, 5), saved.hunger - Math.max(0, Date.now() - from) * HUNGER_PER_MS);
+    hungerBase = Math.max(Math.min(saved.hunger, 30), saved.hunger - Math.max(0, Date.now() - from) * HUNGER_PER_MS * AWAY_RATE);
   }
   const ILLNESSES = [
     { id: 'malnutrition', name: 'Severe Malnutrition', cost: 2500000, desc: 'Your body has run out of fuel and is breaking down.' },
@@ -7147,7 +7148,11 @@ window.TakeoffScene = {
       el.querySelector('.ji-left').textContent = fmtLeft(e - now);
     };
     ctState.list.forEach(c => paint(c.id, c.starts_at, c.ends_at));
-    ctState.sent.forEach(c => paint(c.id, c.created_at, c.expires_at));
+    ctState.sent.forEach(c => {
+      paint(c.id, c.created_at, c.expires_at);
+      const f = box.querySelector(`.ct-item[data-id="${c.id}"] .ji-fill`);
+      if (f) f.style.width = '0%';   // the bar only starts moving once they accept and it becomes a running contract
+    });
   }
   // When the time is up the contract leaves the list, and the payout is collected
   function ctTick() {
