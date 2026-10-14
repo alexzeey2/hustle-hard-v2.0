@@ -4565,6 +4565,10 @@ window.TakeoffScene = {
       return matches;
     }
 
+    // Keep the input focused while tapping a result, so the keyboard doesn't close and shift the list before the tap lands
+    results.addEventListener('pointerdown', e => e.preventDefault());
+    results.addEventListener('mousedown', e => e.preventDefault());
+
     input.addEventListener('input', () => {
       clearBtn.hidden = !input.value;
       showResults(input.value);
