@@ -493,6 +493,7 @@
 
   /* Find a friend sheet: half-height so the zoomed country stays visible above it */
   .friend-layer { pointer-events: none; }
+  body.phone-open .friend-layer { visibility: hidden !important; }
   .friend-layer .sheet-backdrop { display: none; }
   .friend-sheet { height: 50%; max-height: none; display: flex; flex-direction: column; overflow: hidden; padding: 16px 16px calc(14px + env(safe-area-inset-bottom)); pointer-events: auto; box-shadow: 0 -10px 30px rgba(0, 0, 0, .45); }
   .friend-sheet::before { display: none; }
@@ -4172,6 +4173,7 @@ window.TakeoffScene = {
   function setPhone(open) {
     phoneLayer.classList.toggle('open', open);
     phoneLayer.setAttribute('aria-hidden', String(!open));
+    document.body.classList.toggle('phone-open', open);
     bankBtn.setAttribute('aria-pressed', String(open));
     if (typeof renderDock === 'function') renderDock();
   }
@@ -4805,11 +4807,11 @@ window.TakeoffScene = {
 
     const esc = t => String(t).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
     const hueOf = name => { let h = 0; for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) % 360; return h; };
-    const card = (p, showCountry, tap) => {
+    const card = (p, showCountry) => {
       const hue = hueOf(p.name);
-      const sub = showCountry ? `<div class="fs-where">${esc(p.country)}</div>` : '';
-      const tag = tap ? 'button' : 'div';
-      return `<${tag} class="fs-card"${tap ? ` type="button" data-country="${esc(p.country)}"` : ''}><div class="fs-av" style="background:linear-gradient(145deg,hsl(${hue} 65% 56%),hsl(${(hue + 40) % 360} 65% 38%))">${esc(p.name.charAt(0).toUpperCase())}</div><div class="fs-name">${esc(p.name)}${sub}</div><div class="fs-worth"><span>Net worth</span><b>${naira(p.worth)}</b></div></${tag}>`;
+      const sub = showCountry ? `<div class="fs-where" data-fly="${esc(p.country)}">${esc(p.country)} ›</div>` : '';
+      const tag = 'button';
+      return `<${tag} class="fs-card" type="button" data-user="${esc(p.name)}" aria-label="Message ${esc(p.name)}"><div class="fs-av" style="background:linear-gradient(145deg,hsl(${hue} 65% 56%),hsl(${(hue + 40) % 360} 65% 38%))">${esc(p.name.charAt(0).toUpperCase())}</div><div class="fs-name">${esc(p.name)}${sub}</div><div class="fs-worth"><span>Net worth</span><b>${naira(p.worth)}</b></div></${tag}>`;
     };
     const retryBtn = '<br><button type="button" class="fs-retry" data-retry="1">Try again</button>';
 
@@ -4822,7 +4824,7 @@ window.TakeoffScene = {
         if (worldState === 'error') { fsCount.textContent = ''; fsList.innerHTML = `<div class="fs-empty">Could not search. Check your internet.${retryBtn}</div>`; return; }
         fsCount.textContent = worldRows.length + (worldRows.length === 1 ? ' person' : ' people');
         fsList.innerHTML = worldRows.length
-          ? worldRows.map(p => card(p, true, true)).join('')
+          ? worldRows.map(p => card(p, true)).join('')
           : `<div class="fs-empty">No player named “${esc(q)}” found anywhere in the world.</div>`;
         return;
       }
@@ -4831,7 +4833,7 @@ window.TakeoffScene = {
       if (friendState === 'error') { fsCount.textContent = ''; fsList.innerHTML = `<div class="fs-empty">Could not load players. Check your internet.${retryBtn}</div>`; return; }
       fsCount.textContent = friendRows.length + (friendRows.length === 1 ? ' person' : ' people');
       fsList.innerHTML = friendRows.length
-        ? friendRows.map(p => card(p, false, false)).join('')
+        ? friendRows.map(p => card(p, false)).join('')
         : '<div class="fs-empty">No players live here yet.<br>Search above to find someone in another country.</div>';
     }
 
@@ -4953,13 +4955,18 @@ window.TakeoffScene = {
         if (q.length >= 2) searchWorld(q); else loadFriends(friendCountry.name, friendTok);
         return;
       }
-      // Tap a search result: fly to the country where that person lives
-      const b = e.target.closest('[data-country]');
+      // Tap the country under a search result: fly to it
+      const fly = e.target.closest('[data-fly]');
+      if (fly) {
+        const c = countries.find(x => x.name === fly.dataset.fly);
+        if (c) { input.value = c.name; clearBtn.hidden = false; select(c); }
+        return;
+      }
+      // Tap a person: open a chat with them
+      const b = e.target.closest('[data-user]');
       if (!b) return;
-      const c = countries.find(x => x.name === b.dataset.country);
-      if (!c) return;
-      input.value = c.name; clearBtn.hidden = false;
-      select(c);
+      fsInput.blur();
+      if (window.hustleChat) window.hustleChat(b.dataset.user);
     });
 
     Promise.all([
@@ -6941,6 +6948,9 @@ window.TakeoffScene = {
     setMsgApp(true);
     msgOpen(x.from_name, x);
   });
+
+  // Find a friend uses this to open a chat with the person you tapped
+  window.hustleChat = name => { if (!name) return; setMsgApp(true); msgOpen(name); };
 
   const planInfo = {
     300: { name: 'Millionaire plan', limit: 50000000, days: 7 },
