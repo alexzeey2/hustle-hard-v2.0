@@ -4178,7 +4178,7 @@ window.TakeoffScene = {
     if (typeof renderDock === 'function') renderDock();
   }
 
-  bankBtn.addEventListener('click', () => setPhone(true));
+  bankBtn.addEventListener('click', () => setPhone(!phoneLayer.classList.contains('open')));
   // Inside an app the top button says Back and returns to the home screen; otherwise it closes the phone
   document.getElementById('closePhone').addEventListener('click', () => {
     if (opayApp.classList.contains('open') && opBack()) return;   // inside Opay, Back first steps back within the app
