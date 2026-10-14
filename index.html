@@ -744,7 +744,7 @@
   .popup-btn.hh-msg { flex: 1 1 100%; order: 3; color: var(--purple-light); }
   .popup-btn.hh-msg svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .msg-dot { position: absolute; top: -6px; right: -8px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; display: grid; place-items: center; background: #ef4444; border: 2px solid #232323; color: #fff; font: 800 11px system-ui, sans-serif; }
-  .msg-navdot { position: absolute; top: 9px; left: calc(50% + 8px); width: 10px; height: 10px; border-radius: 50%; background: #ef4444; border: 2px solid var(--surface); }
+  .msg-navdot { position: absolute; top: 4px; left: calc(50% + 2px); min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; display: grid; place-items: center; background: #ef4444; border: 2px solid var(--surface); color: #fff; font: 800 11px system-ui, sans-serif; font-style: normal; line-height: 1; }
   .msg-app [hidden] { display: none !important; }
   .msg-app input { font-family: inherit; -webkit-user-select: text; user-select: text; }
   .msg-view { flex: 1; min-height: 0; display: flex; flex-direction: column; }
@@ -781,6 +781,21 @@
   .msg-send { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--purple); }
   .msg-send:disabled { opacity: .5; }
   .msg-send svg { width: 20px; height: 20px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  .msg-money { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--surface-2); border: 1px solid var(--line); color: #34d399; font-size: 20px; font-weight: 800; }
+  .msg-pay { position: absolute; inset: 0; z-index: 8; display: flex; align-items: flex-end; background: rgba(0, 0, 0, .6); }
+  .msg-pay-card { width: 100%; padding: 18px 16px 40px; border-radius: 22px 22px 0 0; background: var(--bg); border-top: 1px solid var(--line); }
+  .msg-pay-card h3 { margin: 0; font-size: 17px; font-weight: 800; }
+  .msg-pay-bal { margin: 4px 0 14px; font-size: 13px; color: var(--muted); }
+  .msg-pay-box { display: flex; align-items: center; gap: 6px; height: 54px; padding: 0 14px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); }
+  .msg-pay-box:focus-within { border-color: var(--purple-light); }
+  .msg-pay-box span { font-size: 22px; font-weight: 800; color: var(--muted); }
+  .msg-pay-box input { flex: 1; min-width: 0; height: 100%; background: transparent; border: 0; outline: none; color: var(--text); font-size: 24px; font-weight: 800; }
+  .msg-pay-btns { display: flex; gap: 10px; margin-top: 14px; }
+  .msg-pay-btns button { flex: 1; height: 50px; border-radius: 14px; font-size: 16px; font-weight: 800; }
+  #msgPayCancel { background: var(--surface-2); color: var(--text); }
+  #msgPayGo { background: var(--purple); color: #fff; }
+  #msgPayGo:disabled { background: #2b2447; color: #6f6896; }
 
   /* Coming soon cards */
   .soon-card .lock-badge, .soon-card .job-title, .soon-card .job-desc { opacity: .45; }
@@ -1728,8 +1743,18 @@
       <div class="msg-scroll" id="msgScroll"></div>
       <p class="msg-err" id="msgErr" hidden></p>
       <div class="msg-compose">
+        <button class="msg-money" id="msgMoney" type="button" aria-label="Send money">₦</button>
         <input class="msg-input" id="msgInput" type="text" maxlength="500" placeholder="Message" autocomplete="off">
         <button class="msg-send" id="msgSend" type="button" aria-label="Send"><svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
+      </div>
+    </div>
+    <div class="msg-pay" id="msgPay" hidden>
+      <div class="msg-pay-card">
+        <h3 id="msgPayTo">Send money</h3>
+        <div class="msg-pay-bal">Available balance <b id="msgPayBal">₦0</b></div>
+        <div class="msg-pay-box"><span>₦</span><input id="msgPayAmt" inputmode="numeric" placeholder="0" autocomplete="off"></div>
+        <p class="msg-err" id="msgPayErr" hidden style="margin-top:8px"></p>
+        <div class="msg-pay-btns"><button id="msgPayCancel" type="button">Cancel</button><button id="msgPayGo" type="button" disabled>Send</button></div>
       </div>
     </div>
   </div>
@@ -6465,7 +6490,7 @@ window.TakeoffScene = {
   function msgBadge() {
     const n = msg.unread, dot = $('msgDot');
     dot.hidden = n === 0; dot.textContent = n > 9 ? '9+' : String(n);
-    $('msgNavDot').hidden = n === 0;
+    $('msgNavDot').hidden = n === 0; $('msgNavDot').textContent = n > 9 ? '9+' : String(n);
   }
   function msgDrawList() {
     $('msgList').innerHTML = msg.convs.length
@@ -6501,6 +6526,7 @@ window.TakeoffScene = {
     msgPage.setAttribute('aria-hidden', String(!open));
     if (open) { opayApp.classList.remove('open'); setFood(false); setLoanApp(false); setPhone(true); msgShowList(); msgPoll(); }
     else { msg.who = ''; }
+    if (!msgPayBusy) $('msgPay').hidden = true;
     updateCloseBtn();
   }
   sheetClosers.push(open => { if (!open) setMsgApp(false); });
@@ -6594,6 +6620,71 @@ window.TakeoffScene = {
   }
   $('msgSend').addEventListener('click', msgSend);
   $('msgInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); msgSend(); } });
+  // Send money from inside a chat (works like the Send money button, then drops a note in the chat)
+  let msgPayBusy = false;
+  const msgPayAmt = () => Number($('msgPayAmt').value.replace(/\D/g, '')) || 0;
+  function msgPayOpen() {
+    if (!msg.who) return;
+    $('msgPayTo').textContent = 'Send money to ' + msg.who;
+    $('msgPayBal').textContent = naira(wallet.bank);
+    $('msgPayAmt').value = ''; $('msgPayErr').hidden = true;
+    $('msgPayGo').disabled = true; $('msgPayGo').textContent = 'Send'; $('msgPayCancel').disabled = false;
+    $('msgPay').hidden = false;
+    setTimeout(() => $('msgPayAmt').focus(), 60);
+  }
+  function msgPayClose() { if (!msgPayBusy) $('msgPay').hidden = true; }
+  function msgPayFail(amt, text) {
+    wallet.bank += amt; enforceLimit(); renderWallet(); save();
+    msgPayBusy = false; opBusy = false;
+    $('msgPayGo').textContent = 'Send'; $('msgPayGo').disabled = msgPayAmt() <= 0; $('msgPayCancel').disabled = false;
+    $('msgPayBal').textContent = naira(wallet.bank);
+    $('msgPayErr').textContent = text; $('msgPayErr').hidden = false;
+  }
+  function msgPayTry(to, amt, key, left) {
+    const retry = () => { if (left > 0) setTimeout(() => msgPayTry(to, amt, key, left - 1), 1500); else msgPayFail(amt, 'No connection. Nothing was taken from you.'); };
+    window.hustleSb.rpc('send_money', { p_to: to, p_amount: amt, p_key: key }).then(r => {
+      if (!r.error) {
+        refillFromLocked(); renderWallet(); save();
+        if (window.hustleFlush) window.hustleFlush();
+        opTx.unshift({ name: opEsc(to), bank: BANK_NAME, amt }); renderOpTx();
+        msgPayBusy = false; opBusy = false;
+        $('msgPay').hidden = true;
+        showNotice('Money sent', `You sent ${naira(amt)} to ${to}.`, false);
+        // Leave a note in the chat so both of you can see it
+        window.hustleSb.rpc('send_message', { p_to: to, p_body: `💸 Sent ${naira(amt)}` }).then(() => { if (msg.who === to) msgLoad(false); msgPoll(); }, () => {});
+        return;
+      }
+      if (r.error.code === 'P0001') {
+        const m = String(r.error.message || '');
+        msgPayFail(amt, /too_fast/.test(m) ? 'Too many transfers. Wait one minute.'
+          : /user_not_found/.test(m) ? 'Player not found.'
+          : /cannot_send_to_self/.test(m) ? 'You cannot send money to yourself.'
+          : /bad_amount/.test(m) ? 'That amount is not allowed.'
+          : 'Transfer failed. Nothing was taken from you.');
+        return;
+      }
+      retry();
+    }).catch(retry);
+  }
+  $('msgMoney').addEventListener('click', msgPayOpen);
+  $('msgPayCancel').addEventListener('click', msgPayClose);
+  $('msgPay').addEventListener('click', e => { if (e.target === $('msgPay')) msgPayClose(); });
+  $('msgPayAmt').addEventListener('input', () => {
+    const v = msgPayAmt();
+    $('msgPayAmt').value = v ? v.toLocaleString('en-NG') : '';
+    $('msgPayErr').hidden = true;
+    $('msgPayGo').disabled = v <= 0;
+  });
+  $('msgPayGo').addEventListener('click', () => {
+    const amt = msgPayAmt(), to = msg.who;
+    if (msgPayBusy || opBusy || !to || amt <= 0 || !window.hustleSb) return;
+    if (amt > wallet.bank) { $('msgPay').hidden = true; needHelp(amt, 'sending money to ' + to); return; }
+    msgPayBusy = true; opBusy = true;
+    $('msgPayGo').disabled = true; $('msgPayGo').textContent = 'Sending...'; $('msgPayCancel').disabled = true;
+    wallet.bank -= amt; renderWallet();
+    msgPayTry(to, amt, uuid4(), 2);
+  });
+
   setTimeout(msgPoll, 4000);
   setInterval(msgPoll, 8000);
   setInterval(() => { if (msgPage.classList.contains('open') && msg.who && document.visibilityState !== 'hidden') msgLoad(false); }, 4000);
@@ -6782,7 +6873,12 @@ window.TakeoffScene = {
 <script>
 /* Install the app (PWA): register the service worker and keep the Install bar up until the app is installed */
 (function () {
-  if ('serviceWorker' in navigator) window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+  if ('serviceWorker' in navigator) window.addEventListener('load', function () {
+    var hadController = !!navigator.serviceWorker.controller, reloaded = false;
+    // When a new version takes over, reload once so players always get the latest game
+    navigator.serviceWorker.addEventListener('controllerchange', function () { if (hadController && !reloaded) { reloaded = true; location.reload(); } });
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(function (reg) { reg.update(); }).catch(function () {});
+  });
   var bar = document.getElementById('installBar'), app = document.querySelector('.app');
   var help = document.getElementById('installHelp'), steps = document.getElementById('ihSteps');
   var KEY = 'hustle.pwa';   // only remembers "this phone already installed it"

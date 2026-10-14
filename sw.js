@@ -1,10 +1,8 @@
-const CACHE = 'hustle-hard-v1';
-const SHELL = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
-const BYPASS = ['supabase.co', 'paystack.co', 'open-meteo.com', 'ipwho.is'];
+// Always load the newest version from the internet first.
+// The saved copy is only used when the phone is offline.
+const CACHE = 'game-v2';
 
-self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
-});
+self.addEventListener('install', () => self.skipWaiting());
 
 self.addEventListener('activate', e => {
   e.waitUntil(
@@ -16,32 +14,14 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   const req = e.request;
-  if (req.method !== 'GET') return;
-  const url = new URL(req.url);
-  if (BYPASS.some(h => url.hostname.endsWith(h))) return;
-
-  if (req.mode === 'navigate') {
-    e.respondWith(
-      fetch(req)
-        .then(res => {
-          const copy = res.clone();
-          caches.open(CACHE).then(c => c.put('./index.html', copy));
-          return res;
-        })
-        .catch(() => caches.match('./index.html'))
-    );
-    return;
-  }
-
+  if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
   e.respondWith(
-    caches.match(req).then(hit =>
-      hit || fetch(req).then(res => {
-        if (res.ok || res.type === 'opaque') {
-          const copy = res.clone();
-          caches.open(CACHE).then(c => c.put(req, copy));
-        }
+    fetch(req)
+      .then(res => {
+        const copy = res.clone();
+        caches.open(CACHE).then(c => c.put(req, copy)).catch(() => {});
         return res;
-      }).catch(() => hit)
-    )
+      })
+      .catch(() => caches.match(req))
   );
 });
