@@ -723,6 +723,16 @@
   .bs-total { font-weight: 800; }
   .bs-earn { margin: 12px 0 0; font-size: 13px; color: var(--muted); }
   .popup-btn:disabled { opacity: .5; }
+  .popup-btn.hh-go { background: var(--purple); border-color: var(--purple); color: #fff; font-weight: 800; }
+  .hh-search { width: 100%; height: 46px; margin-top: 14px; padding: 0 14px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text); font: 600 15px system-ui, sans-serif; outline: none; }
+  .hh-rows { margin-top: 10px; max-height: 190px; overflow-y: auto; display: grid; gap: 6px; text-align: left; scrollbar-width: none; }
+  .hh-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); color: var(--text); font-size: 15px; font-weight: 700; text-align: left; }
+  .hh-row i { width: 30px; height: 30px; border-radius: 50%; background: #6d28d9; display: grid; place-items: center; font-style: normal; font-size: 13px; color: #fff; }
+  .hh-empty { padding: 10px; font-size: 13px; color: var(--muted); text-align: center; }
+  .hh-err { color: #f87171 !important; }
+  .hh-toast { position: absolute; top: calc(env(safe-area-inset-top) + 76px); right: 0; z-index: 94; max-width: 88%; padding: 12px 16px; border-radius: 14px 0 0 14px; background: linear-gradient(90deg, #4c1d95, #6d28d9); color: #fff; font-size: 14px; font-weight: 700; line-height: 1.35; text-align: left; box-shadow: 0 8px 24px rgba(0, 0, 0, .4); transform: translateX(110%); transition: transform .35s cubic-bezier(.2, .8, .2, 1); cursor: pointer; }
+  .hh-toast.show { transform: translateX(0); }
+  .hh-toast small { display: block; margin-top: 2px; font-size: 12px; font-weight: 600; opacity: .85; }
 
   /* Coming soon cards */
   .soon-card .lock-badge, .soon-card .job-title, .soon-card .job-desc { opacity: .45; }
@@ -1987,6 +1997,45 @@
       <p class="popup-note" id="noticeNote" hidden>Test mode: no real money was charged.</p>
       <div class="popup-actions">
         <button class="popup-btn" id="noticeOk">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hh-toast" id="hhToast" role="button" tabindex="0"><span id="hhToastText"></span><small>Tap to respond</small></div>
+
+  <div class="popup" id="hhAsk" aria-hidden="true" style="z-index: 97;">
+    <div class="popup-backdrop" id="hhAskBackdrop"></div>
+    <div class="popup-card" role="dialog" aria-label="Not enough money">
+      <div id="hhAskMain">
+        <div class="popup-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5h.01"/></svg></div>
+        <h3>Not enough money</h3>
+        <p id="hhAskText"></p>
+        <div class="popup-actions">
+          <button class="popup-btn hh-go" id="hhAskFriend" type="button">Ask a friend</button>
+          <button class="popup-btn" id="hhAskClose" type="button">Close</button>
+        </div>
+      </div>
+      <div id="hhAskPick" hidden>
+        <h3>Ask a friend</h3>
+        <p id="hhPickText"></p>
+        <input class="hh-search" id="hhSearch" type="text" placeholder="Search a username" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <div class="hh-rows" id="hhRows"></div>
+        <p class="hh-err" id="hhPickErr" hidden></p>
+        <div class="popup-actions"><button class="popup-btn" id="hhPickBack" type="button">Back</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="popup" id="hhReq" aria-hidden="true" style="z-index: 97;">
+    <div class="popup-backdrop" id="hhReqBackdrop"></div>
+    <div class="popup-card" role="dialog" aria-label="Help request">
+      <div class="popup-icon ok"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div>
+      <h3 id="hhReqTitle"></h3>
+      <p id="hhReqText"></p>
+      <p class="hh-err" id="hhReqErr" hidden></p>
+      <div class="popup-actions">
+        <button class="popup-btn hh-go" id="hhSend" type="button">Send</button>
+        <button class="popup-btn" id="hhReject" type="button">Reject</button>
       </div>
     </div>
   </div>
@@ -5359,7 +5408,7 @@ window.TakeoffScene = {
       bsPaying = false;
       if (biz[b.id]) return;
       setBizStart(false);
-      if (wallet.bank < b.cost) { showNotice('Not enough money', `Starting ${b.title} costs ${naira(b.cost)}. You have ${naira(wallet.bank)} in your bank.`, false, false, true); return; }
+      if (wallet.bank < b.cost) { needHelp(b.cost, 'starting ' + b.title); return; }
       wallet.bank -= b.cost;
       refillFromLocked();
       biz[b.id] = { level: 1, start: Date.now() };
@@ -5377,7 +5426,7 @@ window.TakeoffScene = {
     } else if (e.target.closest('.biz-hire')) {
       const st = biz[b.id]; if (!st || st.manager) return;
       const cost = managerCost(b);
-      if (wallet.bank < cost) { showNotice('Not enough money', `Hiring a manager for ${b.title} costs ${naira(cost)}. You have ${naira(wallet.bank)} in your bank.`, false, false, true); return; }
+      if (wallet.bank < cost) { needHelp(cost, 'hiring a manager for ' + b.title); return; }
       wallet.bank -= cost;
       refillFromLocked();
       st.manager = true;
@@ -5389,7 +5438,7 @@ window.TakeoffScene = {
     } else if (e.target.closest('.biz-boost')) {
       const st = biz[b.id]; if (!st || st.level >= BIZ_MAX) return;
       const cost = boostCost(b, st.level);
-      if (wallet.bank < cost) { showNotice('Not enough money', `Boosting ${b.title} costs ${naira(cost)}. You have ${naira(wallet.bank)} in your bank.`, false, false, true); return; }
+      if (wallet.bank < cost) { needHelp(cost, 'boosting ' + b.title); return; }
       wallet.bank -= cost;
       refillFromLocked();
       st.level++;
@@ -5563,9 +5612,7 @@ window.TakeoffScene = {
     const f = FOODS.find(x => x.id === btn.dataset.id);
     if (!f) return;
     if (wallet.bank < f.local) {
-      $('mkNote').hidden = false;
-      clearTimeout(mkNoteTimer);
-      mkNoteTimer = setTimeout(() => { $('mkNote').hidden = true; }, 2500);
+      needHelp(f.local, 'buying ' + f.name);
       return;
     }
     wallet.bank -= f.local;
@@ -5612,7 +5659,7 @@ window.TakeoffScene = {
     const ill = illness();
     // Treatment can be paid from your bank and Locked money together
     const cost = sickCost || ill.cost;
-    if (wallet.bank + wallet.locked < cost) { $('sickNote').hidden = false; return; }
+    if (wallet.bank + wallet.locked < cost) { needHelp(cost, 'treatment for ' + (illness().name || 'your illness'), wallet.bank + wallet.locked); return; }
     const fromBank = Math.min(wallet.bank, cost);
     wallet.bank -= fromBank;
     wallet.locked -= cost - fromBank;
@@ -6157,6 +6204,147 @@ window.TakeoffScene = {
   const hideNotice = () => { noticePopup.classList.remove('show'); noticePopup.setAttribute('aria-hidden', 'true'); };
   document.getElementById('noticeOk').addEventListener('click', hideNotice);
   document.getElementById('noticeBackdrop').addEventListener('click', hideNotice);
+
+  // ---- Not enough money: ask a friend to pay, and answer friends who ask you ----
+  const hq = id => document.getElementById(id);
+  const hh = { need: 0, why: '', tok: 0, busy: false, sending: false, queue: [], seen: new Set(), toastReq: null, openReq: null, toastT: 0, srchT: 0 };
+  const hhOpen = el => { el.classList.add('show'); el.setAttribute('aria-hidden', 'false'); };
+  const hhShut = el => { el.classList.remove('show'); el.setAttribute('aria-hidden', 'true'); };
+
+  // 1) You cannot afford something: Ask a friend / Close
+  function needHelp(cost, why, have) {
+    const bal = typeof have === 'number' ? have : wallet.bank;
+    hh.need = Math.max(cost - bal, 1); hh.why = why;
+    hq('hhAskText').textContent = `You need ${naira(cost)} for ${why}. You have ${naira(bal)}, so you are short by ${naira(hh.need)}.`;
+    hq('hhAskMain').hidden = false; hq('hhAskPick').hidden = true;
+    hhOpen(hq('hhAsk'));
+  }
+  hq('hhAskClose').addEventListener('click', () => hhShut(hq('hhAsk')));
+  hq('hhAskBackdrop').addEventListener('click', () => hhShut(hq('hhAsk')));
+  hq('hhAskFriend').addEventListener('click', () => {
+    hq('hhAskMain').hidden = true; hq('hhAskPick').hidden = false;
+    hq('hhPickText').textContent = `Ask for ${naira(hh.need)} for ${hh.why}.`;
+    hq('hhSearch').value = ''; hq('hhRows').innerHTML = ''; hq('hhPickErr').hidden = true;
+    setTimeout(() => hq('hhSearch').focus(), 50);
+  });
+  hq('hhPickBack').addEventListener('click', () => { hq('hhAskMain').hidden = false; hq('hhAskPick').hidden = true; });
+  hq('hhSearch').addEventListener('input', () => { clearTimeout(hh.srchT); hh.srchT = setTimeout(hhSearch, 300); });
+  function hhSearch() {
+    const q = hq('hhSearch').value.trim(), tok = ++hh.tok, rows = hq('hhRows');
+    hq('hhPickErr').hidden = true;
+    if (q.length < 2) { rows.innerHTML = ''; return; }
+    const sb = window.hustleSb;
+    if (!sb) return;
+    rows.innerHTML = '<div class="hh-empty">Searching...</div>';
+    sb.rpc('search_usernames', { q }).then(r => {
+      if (tok !== hh.tok) return;
+      if (r.error) { rows.innerHTML = '<div class="hh-empty">Could not search. Check your internet.</div>'; return; }
+      const names = (r.data || []).map(x => x.username);
+      rows.innerHTML = names.length
+        ? names.map(u => `<button class="hh-row" type="button" data-u="${opEsc(u)}"><i>${opEsc(u.charAt(0).toUpperCase())}</i><span>${opEsc(u)}</span></button>`).join('')
+        : '<div class="hh-empty">No player found</div>';
+    }).catch(() => { rows.innerHTML = '<div class="hh-empty">Could not search. Check your internet.</div>'; });
+  }
+  hq('hhRows').addEventListener('click', e => {
+    const b = e.target.closest('.hh-row');
+    if (!b || hh.busy || !window.hustleSb) return;
+    const to = b.dataset.u, err = hq('hhPickErr');
+    hh.busy = true; err.hidden = true;
+    window.hustleSb.rpc('ask_for_help', { p_to: to, p_amount: hh.need, p_reason: hh.why }).then(r => {
+      hh.busy = false;
+      if (r.error) {
+        const m = String(r.error.message || '');
+        err.textContent = /cannot_ask_self/.test(m) ? 'You cannot ask yourself.'
+          : /user_not_found/.test(m) ? 'Player not found.'
+          : /already_asked/.test(m) ? 'You already asked this player. Wait for their answer.'
+          : /too_fast/.test(m) ? 'Too many requests. Wait one minute.'
+          : 'Could not send the request. Try again.';
+        err.hidden = false; return;
+      }
+      hhShut(hq('hhAsk'));
+      showNotice('Request sent', `${to} will see that you need ${naira(hh.need)} for ${hh.why}.`, false);
+    }).catch(() => { hh.busy = false; err.textContent = 'No connection. Try again.'; err.hidden = false; });
+  });
+
+  // 2) A friend asks you: a message slides in from the side
+  function hhPoll() {
+    const sb = window.hustleSb;
+    if (!sb || document.visibilityState === 'hidden') return;
+    sb.rpc('my_help_requests').then(r => {
+      if (r.error || !Array.isArray(r.data)) return;
+      r.data.forEach(x => { if (!hh.seen.has(x.id) && !hh.queue.some(q => q.id === x.id)) hh.queue.push(x); });
+      hhNext();
+    }).catch(() => {});
+  }
+  function hhNext() {
+    if (hh.toastReq || hh.openReq || !hh.queue.length) return;
+    const x = hh.queue.shift();
+    hh.seen.add(x.id); hh.toastReq = x;
+    hq('hhToastText').textContent = `${x.from_name} needs ${naira(Number(x.amount))} for ${x.reason || 'something'}`;
+    hq('hhToast').classList.add('show');
+    clearTimeout(hh.toastT);
+    hh.toastT = setTimeout(() => { hhHideToast(); setTimeout(hhNext, 600); }, 12000);
+  }
+  function hhHideToast() { clearTimeout(hh.toastT); hq('hhToast').classList.remove('show'); hh.toastReq = null; }
+  hq('hhToast').addEventListener('click', () => {
+    const x = hh.toastReq;
+    if (!x) return;
+    hhHideToast();
+    hh.openReq = x;
+    hq('hhReqTitle').textContent = `${x.from_name} needs help`;
+    hq('hhReqText').textContent = `${x.from_name} needs ${naira(Number(x.amount))} for ${x.reason || 'something'}. Do you want to send it?`;
+    hq('hhReqErr').hidden = true;
+    hq('hhSend').textContent = 'Send'; hq('hhSend').disabled = false; hq('hhReject').disabled = false;
+    hhOpen(hq('hhReq'));
+  });
+  const hhCloseReq = () => { hhShut(hq('hhReq')); hh.openReq = null; setTimeout(hhNext, 600); };
+  hq('hhReqBackdrop').addEventListener('click', () => { if (!hh.sending) hhCloseReq(); });
+  hq('hhReject').addEventListener('click', () => {
+    const x = hh.openReq;
+    if (!x || hh.sending) return;
+    if (window.hustleSb) window.hustleSb.rpc('answer_help', { p_id: x.id, p_accept: false }).then(() => {}, () => {});
+    hhCloseReq();
+  });
+  function hhSendFail(amt, msg) {
+    wallet.bank += amt; enforceLimit(); renderWallet(); save();
+    hh.sending = false;
+    hq('hhSend').textContent = 'Send'; hq('hhSend').disabled = false; hq('hhReject').disabled = false;
+    hq('hhReqErr').textContent = msg; hq('hhReqErr').hidden = false;
+  }
+  function hhSendTry(x, amt, key, left) {
+    const retry = () => { if (left > 0) setTimeout(() => hhSendTry(x, amt, key, left - 1), 1500); else hhSendFail(amt, 'No connection. Nothing was taken from you.'); };
+    window.hustleSb.rpc('send_money', { p_to: x.from_name, p_amount: amt, p_key: key }).then(r => {
+      if (!r.error) {
+        refillFromLocked(); renderWallet(); save();
+        if (window.hustleFlush) window.hustleFlush();
+        opTx.unshift({ name: opEsc(x.from_name), bank: BANK_NAME, amt }); renderOpTx();
+        window.hustleSb.rpc('answer_help', { p_id: x.id, p_accept: true }).then(() => {}, () => {});
+        hh.sending = false;
+        hhCloseReq();
+        showNotice('Money sent', `You sent ${naira(amt)} to ${x.from_name}.`, false);
+        return;
+      }
+      if (r.error.code === 'P0001') {
+        const m = String(r.error.message || '');
+        hhSendFail(amt, /too_fast/.test(m) ? 'Too many transfers. Wait one minute.' : /user_not_found/.test(m) ? 'Player not found.' : 'Transfer failed. Nothing was taken from you.');
+        return;
+      }
+      retry();
+    }).catch(retry);
+  }
+  hq('hhSend').addEventListener('click', () => {
+    const x = hh.openReq;
+    if (!x || hh.sending || !window.hustleSb) return;
+    const amt = Number(x.amount);
+    if (amt > wallet.bank) { hq('hhReqErr').textContent = `You only have ${naira(wallet.bank)} in your bank.`; hq('hhReqErr').hidden = false; return; }
+    hh.sending = true;
+    hq('hhSend').textContent = 'Sending...'; hq('hhSend').disabled = true; hq('hhReject').disabled = true;
+    hq('hhReqErr').hidden = true;
+    wallet.bank -= amt; renderWallet();
+    hhSendTry(x, amt, uuid4(), 2);
+  });
+  setTimeout(hhPoll, 3000);
+  setInterval(hhPoll, 8000);
 
   const planInfo = {
     300: { name: 'Millionaire plan', limit: 50000000, days: 7 },
