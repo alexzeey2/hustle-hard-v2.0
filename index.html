@@ -6344,8 +6344,37 @@ window.TakeoffScene = {
     steps.innerHTML = isIOS
       ? '<li>Tap the <b>Share</b> button at the bottom of Safari.</li><li>Scroll down and tap <b>Add to Home Screen</b>.</li><li>Tap <b>Add</b>.</li>'
       : '<li>Tap the <b>⋮ menu</b> at the top right of your browser.</li><li>Tap <b>Install app</b> or <b>Add to Home screen</b>.</li><li>Tap <b>Install</b>.</li>';
+    steps.innerHTML += '<li id="ihDiag" style="list-style:none;margin:12px 0 0 -22px;font-size:12px;line-height:1.7;opacity:.9">Checking why install is not available...</li>';
     help.hidden = false;
+    runInstallDiag(document.getElementById('ihDiag'));
   });
+  function runInstallDiag(el) {
+    var out = [];
+    var add = function (ok, t) { out.push((ok ? '✅ ' : '❌ ') + t); el.innerHTML = out.join('<br>'); };
+    var probe = function (path, label, okType) {
+      return fetch(path, { cache: 'no-store', credentials: 'include' }).then(function (r) {
+        var ct = (r.headers.get('content-type') || '').split(';')[0] || 'unknown';
+        var good = r.ok && ct.indexOf(okType) !== -1;
+        add(good, label + ': ' + r.status + ' ' + ct);
+        return good ? r : null;
+      }).catch(function () { add(false, label + ': could not load'); return null; });
+    };
+    add(location.protocol === 'https:', 'HTTPS');
+    probe('manifest.json', 'manifest.json', 'json').then(function (r) {
+      if (!r) return;
+      return r.json().then(function (m) {
+        var sizes = (m.icons || []).map(function (i) { return i.sizes; }).join(',');
+        add(sizes.indexOf('192') !== -1 && sizes.indexOf('512') !== -1, 'manifest icons: ' + (sizes || 'none'));
+      }).catch(function () { add(false, 'manifest.json is not valid JSON'); });
+    }).then(function () { return probe('icon-192.png', 'icon-192.png', 'image'); })
+      .then(function () { return probe('icon-512.png', 'icon-512.png', 'image'); })
+      .then(function () { return probe('sw.js', 'sw.js', 'javascript'); })
+      .then(function () { return navigator.serviceWorker ? navigator.serviceWorker.getRegistration() : null; })
+      .then(function (reg) {
+        add(!!(reg && (reg.active || reg.waiting || reg.installing)), 'service worker registered');
+        add(!!window.__deferredInstall, 'Chrome install prompt received');
+      }).catch(function () {});
+  }
   document.getElementById('ihOk').addEventListener('click', function () { help.hidden = true; });
 })();
 </script>
