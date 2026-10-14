@@ -730,8 +730,13 @@
   .hh-row i { width: 30px; height: 30px; border-radius: 50%; background: #6d28d9; display: grid; place-items: center; font-style: normal; font-size: 13px; color: #fff; }
   .hh-empty { padding: 10px; font-size: 13px; color: var(--muted); text-align: center; }
   .hh-err { color: #f87171 !important; }
-  .hh-toast { position: absolute; top: calc(env(safe-area-inset-top) + 76px); right: 0; z-index: 94; max-width: 88%; padding: 12px 16px; border-radius: 14px 0 0 14px; background: linear-gradient(90deg, #4c1d95, #6d28d9); color: #fff; font-size: 14px; font-weight: 700; line-height: 1.35; text-align: left; box-shadow: 0 8px 24px rgba(0, 0, 0, .4); transform: translateX(110%); transition: transform .35s cubic-bezier(.2, .8, .2, 1); cursor: pointer; }
+  .hh-toast { position: absolute; top: 209px; right: 0; z-index: 94; max-width: 88%; padding: 12px 16px; border-radius: 14px 0 0 14px; background: linear-gradient(90deg, #4c1d95, #6d28d9); color: #fff; font-size: 14px; font-weight: 700; line-height: 1.35; text-align: left; box-shadow: 0 8px 24px rgba(0, 0, 0, .4); transform: translateX(110%); transition: transform .35s cubic-bezier(.2, .8, .2, 1); cursor: pointer; }
   .hh-toast.show { transform: translateX(0); }
+  .hh-fab { position: absolute; right: 12px; top: 215px; z-index: 93; width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(135deg, #6d28d9, #a855f7); color: #fff; font: 800 22px system-ui, sans-serif; box-shadow: 0 8px 20px rgba(0, 0, 0, .45); }
+  .hh-fab[hidden] { display: none; }
+  .hh-badge { position: absolute; top: -5px; right: -5px; min-width: 21px; height: 21px; padding: 0 5px; border-radius: 11px; display: grid; place-items: center; background: #ef4444; border: 2px solid #0f0b1f; color: #fff; font: 800 12px system-ui, sans-serif; }
+  .hh-fab.pop { animation: hhPop .6s ease; }
+  @keyframes hhPop { 0% { transform: scale(.6); } 50% { transform: scale(1.18); } 100% { transform: scale(1); } }
   .hh-toast small { display: block; margin-top: 2px; font-size: 12px; font-weight: 600; opacity: .85; }
 
   /* Coming soon cards */
@@ -2002,6 +2007,7 @@
   </div>
 
   <div class="hh-toast" id="hhToast" role="button" tabindex="0"><span id="hhToastText"></span><small>Tap to respond</small></div>
+  <button class="hh-fab" id="hhFab" type="button" hidden aria-label="Help requests"><span>₦</span><b class="hh-badge" id="hhBadge">0</b></button>
 
   <div class="popup" id="hhAsk" aria-hidden="true" style="z-index: 97;">
     <div class="popup-backdrop" id="hhAskBackdrop"></div>
@@ -4029,7 +4035,7 @@ window.TakeoffScene = {
 
   // Wallet values (sample numbers for now)
   const naira = n => '₦' + n.toLocaleString('en-NG');
-  const wallet = { bank: 500000, locked: 0, earned: 0 };
+  const wallet = { bank: 500000, locked: 1000000, earned: 0 };
   // Unlocking a job or skill costs 10% of your bank balance, sent to a friend
   const unlockAmount = () => Math.max(1, Math.round(wallet.bank * 0.1));
   // Locked money card: only shown when there is locked money (or just after a plan payment, to show Approved)
@@ -4589,7 +4595,7 @@ window.TakeoffScene = {
       document.getElementById('flBank').textContent = naira(wallet.bank);
       document.getElementById('flAfter').textContent = naira(Math.max(0, wallet.bank - cost));
       flPay.textContent = 'Pay ' + naira(cost);
-      flPay.disabled = broke;
+      flPay.disabled = false;
       flNote.hidden = !broke;
       flSheet(true);
     });
@@ -4598,7 +4604,7 @@ window.TakeoffScene = {
       if (!pending || flPay.disabled) return;
       const dest = pending;
       const cost = costFor(dest);
-      if (cost > wallet.bank) return;
+      if (cost > wallet.bank) { needHelp(cost, 'your flight to ' + dest.name); return; }
       wallet.bank -= cost;
       refillFromLocked();
       renderWallet();
@@ -4742,7 +4748,7 @@ window.TakeoffScene = {
     document.getElementById('busBank').textContent = naira(wallet.bank);
     document.getElementById('busAfter').textContent = naira(Math.max(0, wallet.bank - BUS_FARE));
     busNote.hidden = !broke;
-    busPay.disabled = broke;
+    busPay.disabled = false;
     busPay.textContent = 'Pay ' + naira(BUS_FARE);
     setBusSheet(true);
   }
@@ -4831,7 +4837,8 @@ window.TakeoffScene = {
   }
 
   busPay.addEventListener('click', () => {
-    if (busPay.disabled || busBusy || wallet.bank < BUS_FARE) return;
+    if (busPay.disabled || busBusy) return;
+    if (wallet.bank < BUS_FARE) { needHelp(BUS_FARE, 'your bus fare'); return; }
     wallet.bank -= BUS_FARE;
     refillFromLocked();
     renderWallet();
@@ -5395,14 +5402,15 @@ window.TakeoffScene = {
     gid('bsAfter').textContent = naira(Math.max(0, wallet.bank - b.cost));
     gid('bsEarn').textContent = `Once it is open it pays ${naira(b.pay)} every ${b.every}, and you can boost it any time.`;
     gid('bsNote').hidden = !broke;
-    gid('bizPay').disabled = broke;
+    gid('bizPay').disabled = false;
     gid('bizPay').textContent = 'Pay ' + naira(b.cost);
     setBizStart(true);
   }
   gid('bizStartCancel').addEventListener('click', () => { if (!bsPaying) setBizStart(false); });
   gid('bizPay').addEventListener('click', () => {
     const b = bsBiz;
-    if (!b || bsPaying || biz[b.id] || wallet.bank < b.cost) return;
+    if (!b || bsPaying || biz[b.id]) return;
+    if (wallet.bank < b.cost) { needHelp(b.cost, 'starting ' + b.title); return; }
     bsPaying = true;
     withSpinner(gid('bizPay'), 'Processing', () => new Promise(r => setTimeout(r, 2000))).then(() => {
       bsPaying = false;
@@ -5834,7 +5842,7 @@ window.TakeoffScene = {
         $('opInvSum').textContent = `After ${opDur(p.ms)} you get ${naira(amt + Math.round(amt * p.pct))} (${opPct(p.pct)}).`;
       }
     }
-    $('opInvBtn').disabled = !(amt >= p.min && amt <= bal);
+    $('opInvBtn').disabled = !(amt >= p.min);
   }
   $('opInvAmt').addEventListener('input', () => {
     const v = opInvAmtValue();
@@ -5852,7 +5860,8 @@ window.TakeoffScene = {
   $('opInvBtn').addEventListener('click', () => {
     if (!opSel) return;
     const p = opSel.p, amt = opInvAmtValue();
-    if (amt < p.min || amt > wallet.bank) return;
+    if (amt < p.min) return;
+    if (amt > wallet.bank) { needHelp(amt, 'investing in ' + p.name); return; }
     const now = Date.now();
     wallet.bank -= amt;
     refillFromLocked();
@@ -6026,7 +6035,7 @@ window.TakeoffScene = {
   $('opSendBtn').addEventListener('click', () => {
     const amt = opAmtValue(), to = opPick;
     if (opBusy || !to || amt <= 0 || !window.hustleSb) return;
-    if (amt > wallet.bank) { $('opSendErr').textContent = 'Insufficient balance. You have ' + naira(wallet.bank) + '.'; $('opSendErr').hidden = false; return; }
+    if (amt > wallet.bank) { needHelp(amt, 'sending money to ' + to); return; }
     if (opUnlock && amt < opUnlock.amt) { $('opSendErr').textContent = 'Send at least ' + naira(opUnlock.amt) + ' to unlock this ' + lists[opUnlock.kind].word + '.'; $('opSendErr').hidden = false; return; }
     const unl = opUnlock;
     opBusy = true;
@@ -6207,7 +6216,7 @@ window.TakeoffScene = {
 
   // ---- Not enough money: ask a friend to pay, and answer friends who ask you ----
   const hq = id => document.getElementById(id);
-  const hh = { need: 0, why: '', tok: 0, busy: false, sending: false, queue: [], seen: new Set(), toastReq: null, openReq: null, toastT: 0, srchT: 0 };
+  const hh = { need: 0, why: '', tok: 0, busy: false, sending: false, queue: [], seen: new Set(), list: [], done: new Set(), toastReq: null, openReq: null, toastT: 0, srchT: 0 };
   const hhOpen = el => { el.classList.add('show'); el.setAttribute('aria-hidden', 'false'); };
   const hhShut = el => { el.classList.remove('show'); el.setAttribute('aria-hidden', 'true'); };
 
@@ -6266,43 +6275,63 @@ window.TakeoffScene = {
     }).catch(() => { hh.busy = false; err.textContent = 'No connection. Try again.'; err.hidden = false; });
   });
 
-  // 2) A friend asks you: a message slides in from the side
+  // 2) A friend asks you: the message slides in, then settles into a request icon with a count
+  const hhBadge = () => {
+    const n = hh.list.length, fab = hq('hhFab');
+    const was = fab.hidden ? 0 : Number(fab.dataset.n || 0);
+    fab.hidden = n === 0; fab.dataset.n = n;
+    hq('hhBadge').textContent = n > 9 ? '9+' : String(n);
+    if (n > was) { fab.classList.remove('pop'); void fab.offsetWidth; fab.classList.add('pop'); }
+  };
   function hhPoll() {
     const sb = window.hustleSb;
     if (!sb || document.visibilityState === 'hidden') return;
     sb.rpc('my_help_requests').then(r => {
       if (r.error || !Array.isArray(r.data)) return;
-      r.data.forEach(x => { if (!hh.seen.has(x.id) && !hh.queue.some(q => q.id === x.id)) hh.queue.push(x); });
+      hh.list = r.data.filter(x => !hh.done.has(x.id));
+      hhBadge();
+      hh.list.forEach(x => { if (!hh.seen.has(x.id) && !hh.queue.some(q => q.id === x.id)) hh.queue.push(x); });
       hhNext();
     }).catch(() => {});
   }
   function hhNext() {
     if (hh.toastReq || hh.openReq || !hh.queue.length) return;
     const x = hh.queue.shift();
+    if (hh.done.has(x.id)) { hhNext(); return; }
     hh.seen.add(x.id); hh.toastReq = x;
     hq('hhToastText').textContent = `${x.from_name} needs ${naira(Number(x.amount))} for ${x.reason || 'something'}`;
     hq('hhToast').classList.add('show');
     clearTimeout(hh.toastT);
-    hh.toastT = setTimeout(() => { hhHideToast(); setTimeout(hhNext, 600); }, 12000);
+    hh.toastT = setTimeout(() => hhCollapse(false), 5000);
   }
-  function hhHideToast() { clearTimeout(hh.toastT); hq('hhToast').classList.remove('show'); hh.toastReq = null; }
-  hq('hhToast').addEventListener('click', () => {
-    const x = hh.toastReq;
-    if (!x) return;
-    hhHideToast();
+  // The message tucks away into the request icon (the count stays until every request is answered)
+  function hhCollapse(noNext) {
+    clearTimeout(hh.toastT);
+    hq('hhToast').classList.remove('show');
+    hh.toastReq = null;
+    if (!noNext) setTimeout(hhNext, 500);
+  }
+  function hhOpenReq(x) {
+    if (!x || hh.openReq) return;
+    hhCollapse(true);
     hh.openReq = x;
+    const n = hh.list.length;
     hq('hhReqTitle').textContent = `${x.from_name} needs help`;
-    hq('hhReqText').textContent = `${x.from_name} needs ${naira(Number(x.amount))} for ${x.reason || 'something'}. Do you want to send it?`;
+    hq('hhReqText').textContent = `${x.from_name} needs ${naira(Number(x.amount))} for ${x.reason || 'something'}. Do you want to send it?` + (n > 1 ? ` (${n} requests waiting)` : '');
     hq('hhReqErr').hidden = true;
     hq('hhSend').textContent = 'Send'; hq('hhSend').disabled = false; hq('hhReject').disabled = false;
     hhOpen(hq('hhReq'));
-  });
+  }
+  hq('hhToast').addEventListener('click', () => hhOpenReq(hh.toastReq));
+  hq('hhFab').addEventListener('click', () => hhOpenReq(hh.list[0]));
+  const hhAnswered = x => { hh.done.add(x.id); hh.list = hh.list.filter(y => y.id !== x.id); hhBadge(); };
   const hhCloseReq = () => { hhShut(hq('hhReq')); hh.openReq = null; setTimeout(hhNext, 600); };
   hq('hhReqBackdrop').addEventListener('click', () => { if (!hh.sending) hhCloseReq(); });
   hq('hhReject').addEventListener('click', () => {
     const x = hh.openReq;
     if (!x || hh.sending) return;
     if (window.hustleSb) window.hustleSb.rpc('answer_help', { p_id: x.id, p_accept: false }).then(() => {}, () => {});
+    hhAnswered(x);
     hhCloseReq();
   });
   function hhSendFail(amt, msg) {
@@ -6320,6 +6349,7 @@ window.TakeoffScene = {
         opTx.unshift({ name: opEsc(x.from_name), bank: BANK_NAME, amt }); renderOpTx();
         window.hustleSb.rpc('answer_help', { p_id: x.id, p_accept: true }).then(() => {}, () => {});
         hh.sending = false;
+        hhAnswered(x);
         hhCloseReq();
         showNotice('Money sent', `You sent ${naira(amt)} to ${x.from_name}.`, false);
         return;
