@@ -836,6 +836,19 @@
   .soon-card .primary-btn:disabled { opacity: .3; }
   .soon-tag { flex: none; font-size: 12px; font-weight: 700; color: var(--purple-light); }
 
+  /* Hustle page: 2-column grid */
+  .hustle-scroll .section { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: stretch; }
+  .hustle-scroll .section-head, .hustle-scroll .section-sub { grid-column: 1 / -1; }
+  .hustle-scroll .section-sub { margin-top: -4px; }
+  .hustle-scroll .job-card { margin-top: 0; padding: 14px; display: flex; flex-direction: column; min-width: 0; }
+  .hustle-scroll .job-top { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .hustle-scroll .job-title { flex: none; font-size: 15px; line-height: 1.25; }
+  .hustle-scroll .job-desc { flex: 1; margin-top: 8px; font-size: 12.5px; }
+  .hustle-scroll .primary-btn { margin-top: 12px; padding: 11px 6px; font-size: 13.5px; }
+  .hustle-scroll .soon-card { grid-column: 1 / -1; }
+  .hustle-scroll .soon-card .job-top { flex-direction: row; align-items: center; gap: 12px; }
+  .hustle-scroll .soon-card .job-title { flex: 1; }
+
   /* Premium sheet */
   .sheet-layer {
     position: absolute; inset: 0; z-index: 50;
@@ -919,7 +932,8 @@
   .fp-empty { padding: 22px 14px; text-align: center; font-size: 13px; line-height: 1.5; color: var(--muted); }
   .fp-err { margin: 10px 0 0; font-size: 13px; }
   /* Business contracts: inbox cards, running list, info */
-  .ct-badge { display: inline-block; min-width: 18px; height: 18px; padding: 0 5px; margin-left: 8px; border-radius: 9px; background: #ef4444; color: #fff; font-size: 11px; font-weight: 800; line-height: 18px; vertical-align: middle; }
+  #contractCard { position: relative; }
+  .ct-badge { position: absolute; top: -7px; right: -7px; z-index: 2; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: #ef4444; color: #fff; border: 2px solid var(--bg); box-sizing: content-box; font-size: 11px; font-weight: 800; line-height: 20px; text-align: center; }
   .ct-badge[hidden] { display: none; }
   .contract-page { padding: 12px; display: grid; align-content: start; gap: 12px; }
   .ct-label { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
@@ -1489,7 +1503,8 @@
               <div class="job-title">Business Contract</div>
             </div>
             <p class="job-desc">Win business contracts and earn big. Get a contract with your friends to make more money.</p>
-            <button class="primary-btn" id="contractOpenBtn">See contract<b class="ct-badge" id="ctBadge" hidden></b></button>
+            <b class="ct-badge" id="ctBadge" hidden></b>
+            <button class="primary-btn" id="contractOpenBtn">See contract</button>
           </div>
 
           <div class="job-card soon-card" data-tier="company">
@@ -7078,7 +7093,7 @@ window.TakeoffScene = {
   // 2) The contracts page: proposals waiting for you (inbox) on top, running contracts below
   function ctRender(force) {
     const box = hq('contractPage'), n = ctState.props.length, badge = hq('ctBadge');
-    badge.hidden = n === 0; badge.textContent = n > 9 ? '9+' : String(n);
+    const cnt = n + ctState.sent.length; badge.hidden = cnt === 0; badge.textContent = cnt > 9 ? '9+' : String(cnt);
     const sig = JSON.stringify([ctState.props.map(p => p.id), ctState.list.map(c => c.id), ctState.sent.map(s => s.id), ctState.busy, ctState.payingId]);
     if (!force && sig === ctState.sig) { ctPaint(); return; }
     ctState.sig = sig;
