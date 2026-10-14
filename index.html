@@ -516,6 +516,9 @@
   .fs-worth b { font-size: 14px; font-weight: 800; color: #f7c948; font-variant-numeric: tabular-nums; }
   button.fs-card { width: 100%; text-align: left; color: inherit; font: inherit; cursor: pointer; }
   .fs-where { margin-top: 2px; font-size: 12px; font-weight: 600; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fs-msg { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--surface-2); color: var(--purple-light); }
+  .fs-msg svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .fs-card.fs-focus { border-color: var(--purple-light); box-shadow: 0 0 0 1px var(--purple-light); }
   .fs-retry { margin-top: 12px; padding: 9px 18px; border-radius: 999px; background: var(--purple-light); color: #fff; font: inherit; font-size: 14px; font-weight: 700; }
   .fs-empty { padding: 22px 12px; text-align: center; font-size: 14px; line-height: 1.5; color: var(--muted); }
   .friend-open .map-info { display: none; }
@@ -4806,16 +4809,23 @@ window.TakeoffScene = {
     const fsList = document.getElementById('fsList');
     const fsCountry = document.getElementById('fsCountry');
     const fsCount = document.getElementById('fsCount');
-    let friendCountry = null, friendTok = 0, friendRows = [], friendState = 'idle';
+    let friendCountry = null, friendTok = 0, friendRows = [], friendState = 'idle', friendFocus = null;
     let worldRows = [], worldState = 'idle', worldTok = 0, worldTimer = null;
 
     const esc = t => String(t).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
     const hueOf = name => { let h = 0; for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) % 360; return h; };
+    const msgIcon = '<span class="fs-msg" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg></span>';
     const card = (p, showCountry) => {
       const hue = hueOf(p.name);
-      const sub = showCountry ? `<div class="fs-where" data-fly="${esc(p.country)}">${esc(p.country)} ›</div>` : '';
-      const tag = 'button';
-      return `<${tag} class="fs-card" type="button" data-user="${esc(p.name)}" aria-label="Message ${esc(p.name)}"><div class="fs-av" style="background:linear-gradient(145deg,hsl(${hue} 65% 56%),hsl(${(hue + 40) % 360} 65% 38%))">${esc(p.name.charAt(0).toUpperCase())}</div><div class="fs-name">${esc(p.name)}${sub}</div><div class="fs-worth"><span>Net worth</span><b>${naira(p.worth)}</b></div></${tag}>`;
+      const av = `<div class="fs-av" style="background:linear-gradient(145deg,hsl(${hue} 65% 56%),hsl(${(hue + 40) % 360} 65% 38%))">${esc(p.name.charAt(0).toUpperCase())}</div>`;
+      const worth = `<div class="fs-worth"><span>Net worth</span><b>${naira(p.worth)}</b></div>`;
+      // World search result: tap anywhere on the card to go to their country
+      if (showCountry) {
+        return `<button class="fs-card" type="button" data-fly="${esc(p.country)}" data-who="${esc(p.name)}" aria-label="Go to ${esc(p.country)}">${av}<div class="fs-name">${esc(p.name)}<div class="fs-where">${esc(p.country)} ›</div></div>${worth}</button>`;
+      }
+      // Inside their country: message icon, tap anywhere on the card to chat
+      const focus = friendFocus === p.name ? ' fs-focus' : '';
+      return `<button class="fs-card${focus}" type="button" data-user="${esc(p.name)}" aria-label="Message ${esc(p.name)}">${av}<div class="fs-name">${esc(p.name)}</div>${worth}${msgIcon}</button>`;
     };
     const retryBtn = '<br><button type="button" class="fs-retry" data-retry="1">Try again</button>';
 
@@ -4839,6 +4849,8 @@ window.TakeoffScene = {
       fsList.innerHTML = friendRows.length
         ? friendRows.map(p => card(p, false)).join('')
         : '<div class="fs-empty">No players live here yet.<br>Search above to find someone in another country.</div>';
+      const f = fsList.querySelector('.fs-focus');
+      if (f) f.scrollIntoView({ block: 'nearest' });
     }
 
     // Real players only: the database returns username, country and net worth, nothing else
@@ -4907,7 +4919,7 @@ window.TakeoffScene = {
 
     const setFriendSheet = bindSheet('friendSheetLayer', null, 'friendSheetClose', 'friendSheetBackdrop', () => {
       friendOpen = false;
-      friendTok++; worldTok++;
+      friendTok++; worldTok++; friendFocus = null;
       clearTimeout(worldTimer);
       page.classList.remove('friend-open');
       fsInput.value = '';
@@ -4963,7 +4975,7 @@ window.TakeoffScene = {
       const fly = e.target.closest('[data-fly]');
       if (fly) {
         const c = countries.find(x => x.name === fly.dataset.fly);
-        if (c) { input.value = c.name; clearBtn.hidden = false; select(c); }
+        if (c) { friendFocus = fly.dataset.who || null; input.value = c.name; clearBtn.hidden = false; select(c); }
         return;
       }
       // Tap a person: open a chat with them
