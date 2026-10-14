@@ -3980,7 +3980,7 @@ window.TakeoffScene = {
 
   // Wallet values (sample numbers for now)
   const naira = n => '₦' + n.toLocaleString('en-NG');
-  const wallet = { bank: 50000, locked: 0, earned: 0 };
+  const wallet = { bank: 500000, locked: 0, earned: 0 };
   // Unlocking a job or skill costs 10% of your bank balance, sent to a friend
   const unlockAmount = () => Math.max(1, Math.round(wallet.bank * 0.1));
   // Locked money card: only shown when there is locked money (or just after a plan payment, to show Approved)
