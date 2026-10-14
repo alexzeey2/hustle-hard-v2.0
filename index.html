@@ -739,6 +739,49 @@
   @keyframes hhPop { 0% { transform: scale(.6); } 50% { transform: scale(1.18); } 100% { transform: scale(1); } }
   .hh-toast small { display: block; margin-top: 2px; font-size: 12px; font-weight: 600; opacity: .85; }
 
+  /* Messages app */
+  #hhReq .popup-actions { flex-wrap: wrap; }
+  .popup-btn.hh-msg { flex: 1 1 100%; order: 3; color: var(--purple-light); }
+  .popup-btn.hh-msg svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .msg-dot { position: absolute; top: -6px; right: -8px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; display: grid; place-items: center; background: #ef4444; border: 2px solid #232323; color: #fff; font: 800 11px system-ui, sans-serif; }
+  .msg-navdot { position: absolute; top: 9px; left: calc(50% + 8px); width: 10px; height: 10px; border-radius: 50%; background: #ef4444; border: 2px solid var(--surface); }
+  .msg-app [hidden] { display: none !important; }
+  .msg-app input { font-family: inherit; -webkit-user-select: text; user-select: text; }
+  .msg-view { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  .msg-search { width: 100%; height: 44px; margin-top: 12px; padding: 0 14px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); color: var(--text); font-size: 16px; font-weight: 600; outline: none; }
+  .msg-search:focus, .msg-input:focus { border-color: var(--purple-light); }
+  .msg-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .msg-row { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); color: var(--text); text-align: left; }
+  .msg-av { flex: none; width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #6d28d9, #a855f7); display: grid; place-items: center; font-style: normal; font-size: 16px; font-weight: 800; color: #fff; }
+  .msg-mid { flex: 1; min-width: 0; }
+  .msg-name { font-size: 15px; font-weight: 800; }
+  .msg-prev { margin-top: 2px; font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .msg-row.unread .msg-prev { color: var(--text); font-weight: 700; }
+  .msg-meta { flex: none; display: grid; justify-items: end; gap: 6px; font-size: 11px; color: var(--muted); }
+  .msg-count { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; display: grid; place-items: center; background: var(--purple); color: #fff; font-size: 11px; font-weight: 800; }
+  .msg-empty { padding: 28px 12px; text-align: center; font-size: 14px; line-height: 1.5; color: var(--muted); }
+  .msg-keep { margin: 12px 0 0; font-size: 12px; text-align: center; color: var(--muted); }
+  .msg-th-head { display: flex; align-items: center; gap: 10px; }
+  .msg-back { flex: none; width: 34px; height: 34px; border-radius: 50%; background: var(--surface-2); border: 1px solid var(--line); display: grid; place-items: center; font-size: 22px; line-height: 1; color: var(--text); padding-bottom: 3px; }
+  .msg-th-name { flex: 1; min-width: 0; font-size: 18px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .msg-reqbar { margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: rgba(109, 40, 217, .18); border: 1px solid var(--purple); display: flex; align-items: center; gap: 10px; font-size: 13px; line-height: 1.35; }
+  .msg-reqbar span { flex: 1; }
+  .msg-reqbar button { flex: none; height: 32px; padding: 0 12px; border-radius: 10px; background: var(--purple); color: #fff; font-size: 13px; font-weight: 800; }
+  .msg-scroll { flex: 1; min-height: 0; overflow-y: auto; margin: 10px -14px 0; padding: 0 14px 8px; display: flex; flex-direction: column; gap: 6px; scrollbar-width: none; }
+  .msg-scroll::-webkit-scrollbar { display: none; }
+  .msg-scroll .msg-empty { margin: auto 0; }
+  .msg-b { max-width: 78%; padding: 9px 12px; border-radius: 16px; font-size: 14px; line-height: 1.4; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .msg-b.them { align-self: flex-start; background: var(--surface-2); border: 1px solid var(--line); border-bottom-left-radius: 4px; }
+  .msg-b.me { align-self: flex-end; background: var(--purple); color: #fff; border-bottom-right-radius: 4px; }
+  .msg-b.pending { opacity: .6; }
+  .msg-b time { display: block; margin-top: 3px; font-size: 10px; opacity: .7; }
+  .msg-err { margin: 0 0 6px; font-size: 12px; color: #f87171; }
+  .msg-compose { flex: none; display: flex; gap: 8px; padding: 8px 0 36px; }
+  .msg-input { flex: 1; min-width: 0; height: 44px; padding: 0 16px; border-radius: 22px; background: var(--surface); border: 1px solid var(--line); color: var(--text); font-size: 16px; font-weight: 600; outline: none; }
+  .msg-send { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--purple); }
+  .msg-send:disabled { opacity: .5; }
+  .msg-send svg { width: 20px; height: 20px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
   /* Coming soon cards */
   .soon-card .lock-badge, .soon-card .job-title, .soon-card .job-desc { opacity: .45; }
   .soon-card .primary-btn:disabled { opacity: .3; }
@@ -1424,8 +1467,8 @@
               <div class="app-icon emoji" style="background: linear-gradient(145deg, #34d399, #059669)">💼</div>
               Jobs
             </div>
-            <div class="phone-app" data-soon role="button" tabindex="0">
-              <div class="app-icon emoji" style="background: linear-gradient(145deg, #60a5fa, #2563eb)">💬</div>
+            <div class="phone-app" id="msgIcon" role="button" tabindex="0">
+              <div class="app-icon emoji" style="background: linear-gradient(145deg, #60a5fa, #2563eb)">💬<span class="msg-dot" id="msgDot" hidden>0</span></div>
               Messages
             </div>
             <div class="phone-app" data-soon role="button" tabindex="0">
@@ -1658,6 +1701,36 @@
         <div class="ln-row"><span>Next deduction (35% of bank)</span><b id="lnTake">-</b></div>
       </div>
       <p class="ln-note" id="lnNote">You have no debt. If you ever fall ill and cannot afford treatment, tap Help and take a loan for exactly what you need.</p>
+    </div>
+  </div>
+  <!-- Messages app (opens inside the phone) -->
+  <div class="bank-ui food-app msg-app" id="msgPage" aria-label="Messages" aria-hidden="true">
+    <div class="sb-space"></div>
+    <div class="msg-view" id="msgListView">
+      <div class="fp-head">
+        <h2>Messages</h2>
+        <button class="sheet-close" id="msgClose" aria-label="Close">
+          <svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13"/></svg>
+        </button>
+      </div>
+      <input class="msg-search" id="msgSearch" type="text" placeholder="Search a username to message" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <div class="fp-body">
+        <div class="msg-list" id="msgList"></div>
+        <p class="msg-keep">Messages are deleted from the server after 3 days.</p>
+      </div>
+    </div>
+    <div class="msg-view" id="msgThread" hidden>
+      <div class="msg-th-head">
+        <button class="msg-back" id="msgBack" type="button" aria-label="Back to messages">‹</button>
+        <div class="msg-th-name" id="msgThName"></div>
+      </div>
+      <div class="msg-reqbar" id="msgReqBar" hidden><span id="msgReqText"></span><button id="msgReqBtn" type="button">Answer</button></div>
+      <div class="msg-scroll" id="msgScroll"></div>
+      <p class="msg-err" id="msgErr" hidden></p>
+      <div class="msg-compose">
+        <input class="msg-input" id="msgInput" type="text" maxlength="500" placeholder="Message" autocomplete="off">
+        <button class="msg-send" id="msgSend" type="button" aria-label="Send"><svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
+      </div>
     </div>
   </div>
         <div class="sb statusbar">
@@ -2042,6 +2115,7 @@
       <div class="popup-actions">
         <button class="popup-btn hh-go" id="hhSend" type="button">Send</button>
         <button class="popup-btn" id="hhReject" type="button">Reject</button>
+        <button class="popup-btn hh-msg" id="hhMsg" type="button"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.6A8 8 0 1 1 21 12z"/></svg>Message</button>
       </div>
     </div>
   </div>
@@ -2098,7 +2172,7 @@
     </button>
     <button id="bankBtn" aria-pressed="false">
       <svg viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg>
-      Phone
+      Phone<i class="msg-navdot" id="msgNavDot" hidden></i>
     </button>
     <button data-page="map">
       <svg viewBox="0 0 24 24"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/></svg>
@@ -4030,7 +4104,8 @@ window.TakeoffScene = {
   // Inside an app the top button says Back and returns to the home screen; otherwise it closes the phone
   document.getElementById('closePhone').addEventListener('click', () => {
     if (opayApp.classList.contains('open') && opBack()) return;   // inside Opay, Back first steps back within the app
-    if (opayApp.classList.contains('open') || document.getElementById('foodPage').classList.contains('open') || document.getElementById('loanPage').classList.contains('open')) goHome(); else setPhone(false);
+    if (document.getElementById('msgPage').classList.contains('open') && msgBack()) return;   // inside a chat, Back returns to the chat list
+    if (opayApp.classList.contains('open') || document.getElementById('foodPage').classList.contains('open') || document.getElementById('loanPage').classList.contains('open') || document.getElementById('msgPage').classList.contains('open')) goHome(); else setPhone(false);
   });
 
   // Wallet values (sample numbers for now)
@@ -4207,12 +4282,12 @@ window.TakeoffScene = {
   const closeIcon = document.getElementById('closeIcon');
   const closeLabel = document.getElementById('closeLabel');
   function updateCloseBtn() {
-    const inApp = opayApp.classList.contains('open') || document.getElementById('foodPage').classList.contains('open') || loanPage.classList.contains('open');
+    const inApp = opayApp.classList.contains('open') || document.getElementById('foodPage').classList.contains('open') || loanPage.classList.contains('open') || document.getElementById('msgPage').classList.contains('open');
     closeLabel.textContent = inApp ? 'Back' : 'Close';
     closeIcon.innerHTML = inApp ? '<path d="M13 8H3M7 4L3 8l4 4"/>' : '<path d="M3 3l10 10M13 3L3 13"/>';
   }
-  const openOpay = () => { opShow('home'); document.getElementById('foodPage').classList.remove('open'); loanPage.classList.remove('open'); opayApp.classList.add('open'); updateCloseBtn(); };
-  const goHome = () => { opayApp.classList.remove('open'); document.getElementById('foodPage').classList.remove('open'); loanPage.classList.remove('open'); loanPage.setAttribute('aria-hidden', 'true'); updateCloseBtn(); };
+  const openOpay = () => { opShow('home'); document.getElementById('foodPage').classList.remove('open'); loanPage.classList.remove('open'); document.getElementById('msgPage').classList.remove('open'); opayApp.classList.add('open'); updateCloseBtn(); };
+  const goHome = () => { opayApp.classList.remove('open'); document.getElementById('foodPage').classList.remove('open'); loanPage.classList.remove('open'); loanPage.setAttribute('aria-hidden', 'true'); document.getElementById('msgPage').classList.remove('open'); document.getElementById('msgPage').setAttribute('aria-hidden', 'true'); updateCloseBtn(); };
   opayIcon.addEventListener('click', openOpay);
   opayIcon.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openOpay(); } });
   document.getElementById('homeBtn').addEventListener('click', goHome);
@@ -5556,7 +5631,7 @@ window.TakeoffScene = {
   const setFood = open => {
     foodPage.classList.toggle('open', open);
     foodPage.setAttribute('aria-hidden', String(!open));
-    if (open) { opayApp.classList.remove('open'); loanPage.classList.remove('open'); loanPage.setAttribute('aria-hidden', 'true'); setPhone(true); renderFood(); }
+    if (open) { opayApp.classList.remove('open'); loanPage.classList.remove('open'); loanPage.setAttribute('aria-hidden', 'true'); document.getElementById('msgPage').classList.remove('open'); setPhone(true); renderFood(); }
     updateCloseBtn();
   };
   sheetClosers.push(open => { if (!open) setFood(false); });
@@ -6101,7 +6176,7 @@ window.TakeoffScene = {
   function setLoanApp(open) {
     loanPage.classList.toggle('open', open);
     loanPage.setAttribute('aria-hidden', String(!open));
-    if (open) { opayApp.classList.remove('open'); setFood(false); setPhone(true); renderLoanApp(); }
+    if (open) { opayApp.classList.remove('open'); setFood(false); document.getElementById('msgPage').classList.remove('open'); setPhone(true); renderLoanApp(); }
     updateCloseBtn();
   }
   sheetClosers.push(open => { if (!open) setLoanApp(false); });
@@ -6375,6 +6450,162 @@ window.TakeoffScene = {
   });
   setTimeout(hhPoll, 3000);
   setInterval(hhPoll, 8000);
+
+  // ---- Messages: chat with other players. The server deletes every message 3 days after it was sent ----
+  const MSG_LIFE = 3 * 24 * 60 * 60 * 1000;
+  const msg = { who: '', req: null, rows: [], convs: [], unread: 0, busy: false, tok: 0, srchT: 0 };
+  const msgPage = $('msgPage');
+  const msgTime = iso => {
+    const d = new Date(iso), n = new Date();
+    return d.toDateString() === n.toDateString() ? d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : d.toLocaleDateString([], { weekday: 'short' });
+  };
+  const msgAlive = r => !r.expires_at || new Date(r.expires_at).getTime() > Date.now();
+  const msgPerson = u => `<button class="msg-row" type="button" data-u="${opEsc(u)}"><i class="msg-av">${opEsc(u.charAt(0).toUpperCase())}</i><div class="msg-mid"><div class="msg-name">${opEsc(u)}</div></div></button>`;
+
+  function msgBadge() {
+    const n = msg.unread, dot = $('msgDot');
+    dot.hidden = n === 0; dot.textContent = n > 9 ? '9+' : String(n);
+    $('msgNavDot').hidden = n === 0;
+  }
+  function msgDrawList() {
+    $('msgList').innerHTML = msg.convs.length
+      ? msg.convs.map(c => `<button class="msg-row${c.unread > 0 ? ' unread' : ''}" type="button" data-u="${opEsc(c.other_name)}"><i class="msg-av">${opEsc(c.other_name.charAt(0).toUpperCase())}</i><div class="msg-mid"><div class="msg-name">${opEsc(c.other_name)}</div><div class="msg-prev">${c.last_from_me ? 'You: ' : ''}${opEsc(c.last_body)}</div></div><div class="msg-meta"><span>${msgTime(c.last_at)}</span>${c.unread > 0 ? `<b class="msg-count">${c.unread}</b>` : ''}</div></button>`).join('')
+      : '<div class="msg-empty">No messages yet.<br>Search a player above to start a chat.</div>';
+  }
+  // Asks the server for your chats (and how many are unread); runs every 8 seconds
+  function msgPoll() {
+    const sb = window.hustleSb;
+    if (!sb || document.visibilityState === 'hidden') return;
+    sb.rpc('my_conversations').then(r => {
+      if (r.error || !Array.isArray(r.data)) return;
+      const now = Date.now();
+      msg.convs = r.data.filter(c => now - new Date(c.last_at).getTime() < MSG_LIFE);
+      msg.unread = msg.convs.reduce((n, c) => n + Number(c.unread || 0), 0);
+      msgBadge();
+      if (msgPage.classList.contains('open') && !msg.who && !$('msgSearch').value.trim()) msgDrawList();
+    }).catch(() => {});
+  }
+  function msgShowList() {
+    msg.who = ''; msg.req = null;
+    $('msgThread').hidden = true; $('msgListView').hidden = false;
+    $('msgSearch').value = '';
+    msgDrawList();
+  }
+  function msgBack() {
+    if (!msgPage.classList.contains('open') || !msg.who) return false;
+    msgShowList(); msgPoll();
+    return true;
+  }
+  function setMsgApp(open) {
+    msgPage.classList.toggle('open', open);
+    msgPage.setAttribute('aria-hidden', String(!open));
+    if (open) { opayApp.classList.remove('open'); setFood(false); setLoanApp(false); setPhone(true); msgShowList(); msgPoll(); }
+    else { msg.who = ''; }
+    updateCloseBtn();
+  }
+  sheetClosers.push(open => { if (!open) setMsgApp(false); });
+  const msgIcon = $('msgIcon');
+  msgIcon.addEventListener('click', () => setMsgApp(true));
+  msgIcon.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setMsgApp(true); } });
+  $('msgClose').addEventListener('click', () => setMsgApp(false));
+  $('msgBack').addEventListener('click', msgBack);
+
+  // Search a player to start a new chat
+  $('msgSearch').addEventListener('input', () => { clearTimeout(msg.srchT); msg.srchT = setTimeout(msgSearch, 300); });
+  function msgSearch() {
+    const q = $('msgSearch').value.trim(), tok = ++msg.tok, box = $('msgList'), sb = window.hustleSb;
+    if (q.length < 2) { msgDrawList(); return; }
+    if (!sb) return;
+    box.innerHTML = '<div class="msg-empty">Searching...</div>';
+    sb.rpc('search_usernames', { q }).then(r => {
+      if (tok !== msg.tok) return;
+      if (r.error) { box.innerHTML = '<div class="msg-empty">Could not search. Check your internet.</div>'; return; }
+      const names = (r.data || []).map(x => x.username);
+      box.innerHTML = names.length ? names.map(msgPerson).join('') : '<div class="msg-empty">No player found</div>';
+    }).catch(() => { if (tok === msg.tok) box.innerHTML = '<div class="msg-empty">Could not search. Check your internet.</div>'; });
+  }
+  $('msgList').addEventListener('click', e => {
+    const b = e.target.closest('.msg-row');
+    if (b) msgOpen(b.dataset.u);
+  });
+
+  // One chat
+  function msgReqBar() {
+    const x = msg.req, bar = $('msgReqBar');
+    bar.hidden = !x || hh.done.has(x.id);
+    if (x) $('msgReqText').textContent = `${x.from_name} asked you for ${naira(Number(x.amount))} for ${x.reason || 'something'}.`;
+  }
+  $('msgReqBtn').addEventListener('click', () => { const x = msg.req; if (x && !hh.done.has(x.id)) hhOpenReq(x); });
+  function msgOpen(name, req) {
+    msg.who = name; msg.req = req || null; msg.rows = [];
+    $('msgListView').hidden = true; $('msgThread').hidden = false;
+    $('msgThName').textContent = name;
+    $('msgErr').hidden = true; $('msgInput').value = '';
+    $('msgScroll').innerHTML = '<div class="msg-empty">Loading...</div>';
+    msgReqBar();
+    msgLoad(true);
+  }
+  function msgDrawThread(stickBottom) {
+    const box = $('msgScroll');
+    const stick = stickBottom || box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+    box.innerHTML = msg.rows.length
+      ? msg.rows.map(m => `<div class="msg-b ${m.from_me ? 'me' : 'them'}${m.pending ? ' pending' : ''}">${opEsc(m.body)}<time>${msgTime(m.created_at)}</time></div>`).join('')
+      : `<div class="msg-empty">Say hi to ${opEsc(msg.who)}.<br>Messages disappear after 3 days.</div>`;
+    if (stick) box.scrollTop = box.scrollHeight;
+    msgReqBar();
+  }
+  // Loads the chat (this also marks their messages as read on the server)
+  function msgLoad(first) {
+    const sb = window.hustleSb, who = msg.who;
+    if (!sb || !who || (!first && msg.busy)) return;
+    sb.rpc('get_thread', { p_with: who }).then(r => {
+      if (who !== msg.who) return;
+      if (r.error || !Array.isArray(r.data)) { if (first) $('msgScroll').innerHTML = '<div class="msg-empty">Could not load. Check your internet.</div>'; return; }
+      msg.rows = r.data.filter(msgAlive);
+      msgDrawThread(first);
+      if (first) msgPoll();
+    }).catch(() => { if (first && who === msg.who) $('msgScroll').innerHTML = '<div class="msg-empty">Could not load. Check your internet.</div>'; });
+  }
+  function msgSend() {
+    const input = $('msgInput'), body = input.value.trim(), to = msg.who;
+    if (!body || !to || msg.busy || !window.hustleSb) return;
+    msg.busy = true; $('msgSend').disabled = true; $('msgErr').hidden = true;
+    msg.rows = msg.rows.concat([{ from_me: true, body, created_at: new Date().toISOString(), pending: true }]);
+    input.value = ''; msgDrawThread(true);
+    const fail = text => {
+      msg.busy = false; $('msgSend').disabled = false;
+      msg.rows = msg.rows.filter(x => !x.pending); msgDrawThread(false);
+      if (!input.value) input.value = body;
+      $('msgErr').textContent = text; $('msgErr').hidden = false;
+    };
+    window.hustleSb.rpc('send_message', { p_to: to, p_body: body }).then(r => {
+      if (r.error) {
+        const m = String(r.error.message || '');
+        fail(/too_fast/.test(m) ? 'Too many messages. Wait one minute.'
+          : /user_not_found/.test(m) ? 'Player not found.'
+          : /cannot_message_self/.test(m) ? 'You cannot message yourself.'
+          : /bad_message/.test(m) ? 'Write a message of up to 500 characters.'
+          : 'Could not send. Try again.');
+        return;
+      }
+      msg.busy = false; $('msgSend').disabled = false;
+      msgLoad(false);
+    }).catch(() => fail('No connection. Try again.'));
+  }
+  $('msgSend').addEventListener('click', msgSend);
+  $('msgInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); msgSend(); } });
+  setTimeout(msgPoll, 4000);
+  setInterval(msgPoll, 8000);
+  setInterval(() => { if (msgPage.classList.contains('open') && msg.who && document.visibilityState !== 'hidden') msgLoad(false); }, 4000);
+
+  // The Message button on the Send / Reject popup opens that player's chat in the phone
+  hq('hhMsg').addEventListener('click', () => {
+    const x = hh.openReq;
+    if (!x || hh.sending) return;
+    hhCloseReq();
+    setMsgApp(true);
+    msgOpen(x.from_name, x);
+  });
 
   const planInfo = {
     300: { name: 'Millionaire plan', limit: 50000000, days: 7 },
