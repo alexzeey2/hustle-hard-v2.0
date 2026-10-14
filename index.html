@@ -5579,7 +5579,9 @@ window.TakeoffScene = {
   function hungerClock() { const f = activeFlight(); return f ? f.start + f.dur : Date.now(); }
   const hunger = () => Math.max(0, Math.min(100, hungerBase - Math.max(0, Date.now() - hungerAt) * HUNGER_PER_MS));
   function save() {
-    try { gameStore.setItem(STORE, JSON.stringify({ bizAll, work, workMs, workAt, bank: wallet.bank, locked: wallet.locked, earned: wallet.earned, day: today, premium, hunger: hunger(), hungerAt: Date.now(), food, sick, lastIllness, sickCost, sickHold, debt, holdings, unlocked })); } catch (e) {}
+    let pending = 0;
+    try { pending = pendingReturns(); } catch (e) {}   // money out earning, so other players see your full net worth
+    try { gameStore.setItem(STORE, JSON.stringify({ bizAll, work, workMs, workAt, bank: wallet.bank, locked: wallet.locked, pending, earned: wallet.earned, day: today, premium, hunger: hunger(), hungerAt: Date.now(), food, sick, lastIllness, sickCost, sickHold, debt, holdings, unlocked })); } catch (e) {}
   }
 
   // Flight in progress (stored by the map), or null
@@ -7101,6 +7103,7 @@ window.TakeoffScene = {
     const sig = JSON.stringify([ctState.props.map(p => p.id), ctState.list.map(c => c.id), ctState.sent.map(s => s.id), ctState.busy, ctState.payingId]);
     if (!force && sig === ctState.sig) { ctPaint(); return; }
     ctState.sig = sig;
+    save();
     const sections = (n ? 1 : 0) + (ctState.sent.length ? 1 : 0) + (ctState.list.length ? 1 : 0);
     let h = '';
     if (n) {
@@ -7618,11 +7621,27 @@ window.TakeoffScene = {
   const pfName = $('pfName');
   try { pfName.value = gameStore.getItem(NAME_KEY) || ''; } catch (e) {}
   let ownTotal = 0;
+  // Net worth = bank + locked money + money that is out earning: uncollected business payouts, investments (money back + expected gain)
+  // and business contracts (what you paid + your expected profit; for a pending proposal, the money held for it)
+  function pendingReturns() {
+    let t = 0;
+    Object.keys(bizAll).forEach(c => BUSINESSES.forEach(b => { const st = bizAll[c][b.id]; if (st && st.ready) t += st.ready; }));
+    holdings.forEach(h => {
+      const p = opProduct(h); if (!p) return;
+      let back = h.amt + opProfit(p, h.amt);
+      if (p.every) back -= (h.coupons || 0) * Math.round(h.amt * p.coupon);   // coupons already paid are in the bank
+      t += back;
+    });
+    ctState.list.forEach(c => { t += (Number(c.amount) || 0) + (Number(c.share) || 0); });
+    ctState.sent.forEach(c => { t += Number(c.amount) || 0; });
+    return t;
+  }
+  const netWorth = () => wallet.bank + wallet.locked + pendingReturns();
   function renderProfile() {
     const nm = pfName.value.trim();
     $('pfAvatar').textContent = nm ? nm.charAt(0).toUpperCase() : '?';
     $('pfSub').textContent = nm ? 'Hustle Hard player' : 'Add your name above';
-    $('pfWorth').textContent = naira(wallet.bank + wallet.locked);
+    $('pfWorth').textContent = naira(netWorth());
     $('pfCountry').textContent = curCountry;
     $('pfAch').textContent = ownTotal;
   }
