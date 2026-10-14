@@ -3805,15 +3805,33 @@ window.TakeoffScene = {
     return o;
   }
   function queue(ms) { if (!uid) return; clearTimeout(timer); timer = setTimeout(pushNow, ms); }
+  let serverStamp = null, stopped = false;   // serverStamp: the version of the save this device last read or wrote
+  function showConflict() {
+    if (stopped) return; stopped = true; clearTimeout(timer);
+    const d = document.createElement('div');
+    d.style.cssText = 'position:fixed;inset:0;z-index:99999;background:#0f0b1f;color:#e9e6f7;display:flex;flex-direction:column;gap:16px;align-items:center;justify-content:center;font:600 15px system-ui,sans-serif;text-align:center;padding:24px';
+    const t = document.createElement('div'); t.textContent = 'Your game was updated on another device or tab. Reload to continue with your latest progress.';
+    const b = document.createElement('button'); b.textContent = 'Reload';
+    b.style.cssText = 'padding:12px 26px;border-radius:999px;background:#6d28d9;color:#fff;font:600 15px system-ui,sans-serif';
+    b.addEventListener('click', () => location.reload());
+    d.appendChild(t); d.appendChild(b); document.body.appendChild(d);
+  }
   async function pushNow() {
-    if (!sb || !uid) return;
+    if (!sb || !uid || stopped) return;
     if (inflight) { dirty = true; return; }
     const o = payload(), str = JSON.stringify(o);
     if (str === lastSent) return;
     inflight = true;
     try {
-      const { error } = await sb.from('saves').upsert({ user_id: uid, data: o, updated_at: new Date().toISOString() });
-      if (error) throw error;
+      // Only write if nobody else saved since we last looked: never overwrite a newer save with an older one
+      const stamp = new Date().toISOString();
+      const q = serverStamp
+        ? sb.from('saves').update({ data: o, updated_at: stamp }).eq('user_id', uid).eq('updated_at', serverStamp).select('updated_at')
+        : sb.from('saves').insert({ user_id: uid, data: o, updated_at: stamp }).select('updated_at');
+      const { data: rows, error } = await q;
+      if (error) { if (error.code === '23505') { showConflict(); return; } throw error; }
+      if (!rows || !rows.length) { showConflict(); return; }
+      serverStamp = rows[0].updated_at;
       lastSent = str;
     } catch (e) { dirty = false; queue(10000); }              // no connection: try again in 10 seconds
     finally { inflight = false; if (dirty) { dirty = false; queue(1500); } }
@@ -3829,8 +3847,9 @@ window.TakeoffScene = {
   window.addEventListener('pagehide', () => { clearTimeout(timer); pushNow(); });
 
   async function loadSave() {
-    const { data, error } = await sb.from('saves').select('data').eq('user_id', uid).maybeSingle();
+    const { data, error } = await sb.from('saves').select('data,updated_at').eq('user_id', uid).maybeSingle();
     if (error) throw error;   // never start a blank game over a save we failed to read
+    serverStamp = data ? data.updated_at : null;
     if (data && data.data) Object.keys(data.data).forEach(k => { const v = data.data[k]; mem[k] = (v !== null && typeof v === 'object') ? JSON.stringify(v) : String(v); });
     await loadWallet();
     lastSent = JSON.stringify(payload());
