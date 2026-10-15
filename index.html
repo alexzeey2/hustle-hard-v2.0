@@ -852,6 +852,12 @@
   .hustle-scroll .soon-card { grid-column: 1 / -1; }
   .hustle-scroll .soon-card .job-top { flex-direction: row; align-items: center; gap: 12px; }
   .hustle-scroll .soon-card .job-title { flex: 1; }
+  /* Land card: full width and flat, same layout as the Company card */
+  .hustle-scroll #landCard { grid-column: 1 / -1; }
+  .hustle-scroll #landCard .job-top { flex-direction: row; align-items: center; gap: 12px; }
+  .hustle-scroll #landCard .job-title { flex: 1; }
+  .hustle-scroll #landCard .job-desc { flex: none; }
+  .hustle-scroll #landCard .chip { flex: none; white-space: nowrap; }
 
   /* Premium sheet */
   .sheet-layer {
@@ -1132,21 +1138,12 @@
   .ic-grow .gear { flex: none; }
   .ic-sub { margin-top: 6px; font-size: 12.5px; color: var(--muted); line-height: 1.4; }
   .ic-sub b { color: #34d399; font-weight: 700; }
-  .ld-sum { margin-top: 12px; display: grid; grid-template-columns: 1.4fr 1fr; gap: 8px; }
-  .ld-sum > div { padding: 10px 12px; border-radius: 12px; background: var(--surface-2); min-width: 0; }
-  .ld-sum span { display: block; font-size: 11px; color: var(--muted); }
-  .ld-sum b { display: block; margin-top: 2px; font-size: clamp(14px, 4.4vw, 17px); font-weight: 800; color: #34d399; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-  .ld-sum > div:last-child b { color: var(--text); }
-  .ld-list { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
-  .ld-list:empty { display: none; }
-  .ld-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); }
-  .ld-ico { flex: none; font-size: 24px; }
-  .ld-text { flex: 1; min-width: 0; }
-  .ld-name { font-size: 13px; font-weight: 700; overflow-wrap: anywhere; }
-  .ld-val { font-size: 15px; font-weight: 800; color: #34d399; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-  .ld-subtxt { font-size: 11px; color: var(--muted); }
-  .ld-sell { flex: none; max-width: 38%; height: 36px; padding: 0 10px; border-radius: 10px; font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .ld-note { padding: 4px 2px; font-size: 12px; color: var(--muted); }
+  .land-card .ic-photo { aspect-ratio: 16 / 9; }
+  .ld-timer { margin-top: 12px; }
+  .ld-trow { display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 700; }
+  .ld-trow span:last-child { color: #34d399; font-variant-numeric: tabular-nums; }
+  .ld-timer .meter { margin-top: 6px; height: 8px; }
+  .ld-timer .meter span { background: #34d399; transition: width 1s linear; }
 
   /* Food page */
   .food-app { background: var(--bg); color: var(--text); font-size: 14px; padding: 0 14px; -webkit-user-select: auto; user-select: auto; }
@@ -1578,16 +1575,11 @@
               <div class="lock-badge">
                 <svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg>
               </div>
-              <div class="job-title">Land</div>
+              <div class="job-title">Land investments</div>
               <span class="chip earn">+10% / hour</span>
             </div>
-            <p class="job-desc">Buy land in the Showroom. It grows 10% in value every hour and costs nothing to keep. Hold it, or sell whenever you want.</p>
-            <div class="ld-sum">
-              <div><span>Land worth</span><b id="landTotal">₦0</b></div>
-              <div><span>Next +10% in</span><b id="landNext">-</b></div>
-            </div>
-            <div class="ld-list" id="landList"></div>
-            <button class="primary-btn" id="landOpenBtn">Buy land</button>
+            <p class="job-desc">Buy land and watch it grow 10% in value every hour. No maintenance. Hold it, or sell whenever you want.</p>
+            <button class="primary-btn" id="landOpenBtn">See lands</button>
           </div>
 
           <div class="job-card soon-card" data-tier="company">
@@ -1706,12 +1698,7 @@
             <div class="phone-app" id="jetsIcon" role="button" tabindex="0">
               <div class="app-icon emoji" style="background: linear-gradient(145deg, #a78bfa, #4c1d95)">✈️</div>
               Buy jet
-            </div>
-            <div class="phone-app" id="landIcon" role="button" tabindex="0">
-              <div class="app-icon emoji" style="background: linear-gradient(145deg, #4ade80, #166534)">🏞️</div>
-              Buy land
-            </div>
-            <div class="phone-app" data-soon role="button" tabindex="0">
+            </div>            <div class="phone-app" data-soon role="button" tabindex="0">
               <div class="app-icon emoji" style="background: linear-gradient(145deg, #34d399, #059669)">💼</div>
               Jobs
             </div>
@@ -1930,7 +1917,6 @@
       <div class="shop-pane" data-tab="houses" hidden></div>
       <div class="shop-pane" data-tab="yachts" hidden></div>
       <div class="shop-pane" data-tab="jets" hidden></div>
-      <div class="shop-pane" data-tab="land" hidden></div>
     </div>
   </div>
   <div class="bank-ui food-app" id="loanPage" aria-label="Loans" aria-hidden="true">
@@ -2108,6 +2094,21 @@
       </div>
       <p class="section-sub" style="margin:0 0 10px">Balance <b id="bizBal">&#8358;0</b>. Start any business and boost it up to 4 times to earn more.</p>
       <div class="jobs-list" id="bizList"></div>
+    </div>
+  </div>
+
+  <!-- Land investments sheet -->
+  <div class="sheet-layer" id="landSheetLayer" aria-hidden="true">
+    <div class="sheet-backdrop" id="landSheetBackdrop"></div>
+    <div class="sheet" role="dialog" aria-label="Land investments">
+      <div class="sheet-head">
+        <h2>Land investments</h2>
+        <button class="sheet-close" id="landSheetClose" aria-label="Close">
+          <svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13"/></svg>
+        </button>
+      </div>
+      <p class="section-sub" style="margin:0 0 10px">Balance <b id="landBal">&#8358;0</b>. Land grows 10% every hour when its bar fills. No maintenance. Hold it or sell any time.</p>
+      <div class="jobs-list" id="landList" style="margin-top:0"></div>
     </div>
   </div>
 
@@ -6848,7 +6849,7 @@ window.TakeoffScene = {
 
   // Showroom: Cars, Houses, Yachts, Jets and Land. To add photos later, add  img: 'photos/xxx.jpg'  to any item below.
   const shopPage = $('shopPage');
-  const SHOP_TABS = [{ id: 'cars', name: 'Cars' }, { id: 'houses', name: 'Houses' }, { id: 'yachts', name: 'Yachts' }, { id: 'jets', name: 'Jets' }, { id: 'land', name: 'Land' }];
+  const SHOP_TABS = [{ id: 'cars', name: 'Cars' }, { id: 'houses', name: 'Houses' }, { id: 'yachts', name: 'Yachts' }, { id: 'jets', name: 'Jets' }];
   let shopTab = 'cars';
   // Things you can buy. Pay from your bank balance only. Maintenance costs 10% of what you paid and you can sell for 35% less than you paid.
   const MAINT_RATE = 0.10, RESALE_RATE = 0.65, WEAR_PER_CLICK = 0.25;
@@ -6879,14 +6880,15 @@ window.TakeoffScene = {
       { id: 'challenger350', emoji: '🛩️', name: 'Bombardier Challenger 350', desc: '10 seats · range 5,900 km', price: 38000000000 },
       { id: 'g650', emoji: '🛩️', name: 'Gulfstream G650ER', desc: '16 seats · range 13,900 km', price: 105000000000 },
     ],
-    land: [
+  };
+  // Land is an investment (Hustle page), not a Showroom item. It grows 10% every hour, has no maintenance and sells for its full value.
+  const LAND_ITEMS = [
       { id: 'asabaplot', land: true, emoji: '🌳', name: 'Plot of land, Asaba', desc: '600 m² · C of O · fenced', price: 28000000 },
       { id: 'epefarm', land: true, emoji: '🌾', name: 'Farmland, Epe', desc: '5 hectares · survey plan · access road', price: 85000000 },
       { id: 'lekkiplot', land: true, emoji: '🏗️', name: 'Plot of land, Lekki', desc: '648 m² · C of O · gated estate', price: 180000000 },
       { id: 'ikoyiplot', land: true, emoji: '🏝️', name: 'Plot of land, Ikoyi', desc: '1,000 m² · C of O · waterfront', price: 1400000000 },
-    ],
-  };
-  const itemById = id => { for (const k in SHOP_ITEMS) { const f = SHOP_ITEMS[k].find(x => x.id === id); if (f) return f; } return null; };
+  ];
+  const itemById = id => { for (const k in SHOP_ITEMS) { const f = SHOP_ITEMS[k].find(x => x.id === id); if (f) return f; } return LAND_ITEMS.find(x => x.id === id) || null; };
   Object.keys(ownedItems).forEach(id => {   // drop anything in the save that is not a real item
     const o = ownedItems[id];
     if (!itemById(id) || !o || typeof o.paid !== 'number') delete ownedItems[id];
@@ -6906,23 +6908,6 @@ window.TakeoffScene = {
     const o = ownedItems[it.id];
     const photo = `<div class="ic-photo">${it.img ? `<img src="${it.img}" alt="${it.name}" loading="lazy">` : ''}<div class="ic-emoji">${it.emoji}</div></div>`;
     const head = `${photo}<div class="ic-body"><div class="ic-name">${it.name}</div><div class="ic-desc">${it.desc}</div>`;
-    if (it.land) {
-      if (!o) {
-        const poor = wallet.bank < it.price;
-        return `<div class="item-card">${head}
-          <div class="ic-priceBig">${naira(it.price)}</div>
-          <div class="ic-grow"><span class="gear">📈</span><span>Grows 10% every hour · no maintenance</span></div>
-          <div class="ic-btns"><button class="mk-buy item-buy${poor ? ' no-funds' : ''}" data-id="${it.id}">${poor ? 'Insufficient Funds' : 'Buy'}</button></div>
-        </div></div>`;
-      }
-      const armed = sellArm === it.id;
-      return `<div class="item-card">${head}
-        <div class="ic-priceBig" data-land-val="${it.id}">${naira(landValue(o))}</div>
-        <div class="ic-sub">You paid ${naira(o.paid)} · <b data-land-gain="${it.id}">${landGain(o)}</b></div>
-        <div class="ic-grow"><span class="gear">📈</span><span>Next +10% in <span data-land-next="${it.id}">${fmtMs(landNextMs(o))}</span></span></div>
-        <div class="ic-btns"><button class="item-sell${armed ? ' arm' : ''}" data-id="${it.id}" data-land-sell="${it.id}">${armed ? 'Tap again to sell' : 'Sell ' + naira(landValue(o))}</button></div>
-      </div></div>`;
-    }
     if (!o) {
       const poor = wallet.bank < it.price;
       return `<div class="item-card">${head}
@@ -7009,9 +6994,8 @@ window.TakeoffScene = {
       if (wallet.bank < it.price) { needHelp(it.price, 'buying ' + it.name); return; }
       wallet.bank -= it.price;
       ownedItems[it.id] = { paid: it.price, care: 100, at: Date.now() };
-      renderWallet(); renderCare(); drawShop(); renderLandCard(true); save();
-      if (it.land) showNotice(it.name + ' is yours', `You paid ${naira(it.price)}. It grows 10% every hour with no maintenance. Hold it, or sell it for its full value whenever you want.`, false);
-      else showNotice(it.name + ' is yours', `You paid ${naira(it.price)}. Keeping it maintained costs ${naira(maintCost(ownedItems[it.id]))} (10%) each time. You can sell it later for ${naira(sellPrice(ownedItems[it.id], it.id))}.`, false);
+      renderWallet(); renderCare(); drawShop(); save();
+      showNotice(it.name + ' is yours', `You paid ${naira(it.price)}. Keeping it maintained costs ${naira(maintCost(ownedItems[it.id]))} (10%) each time. You can sell it later for ${naira(sellPrice(ownedItems[it.id], it.id))}.`, false);
     } else if (care) {
       serviceItem(care.dataset.id);
     } else if (sell) {
@@ -7023,8 +7007,8 @@ window.TakeoffScene = {
     const it = itemById(id), o = it && ownedItems[it.id];
     if (!o) return;
     if (sellArm !== it.id) {
-      sellArm = it.id; clearTimeout(sellArmT); sellArmT = setTimeout(() => { sellArm = ''; drawShop(); renderLandCard(true); }, 3500);
-      drawShop(); renderLandCard(true); return;
+      sellArm = it.id; clearTimeout(sellArmT); sellArmT = setTimeout(() => { sellArm = ''; drawShop(); renderLandSheet(true); }, 3500);
+      drawShop(); renderLandSheet(true); return;
     }
     clearTimeout(sellArmT); sellArm = '';
     const get = sellPrice(o, it.id), lockedBefore = wallet.locked;
@@ -7032,36 +7016,58 @@ window.TakeoffScene = {
     wallet.bank += get;
     enforceLimit();   // anything above your bank limit goes to Locked money, as with all other income
     const toLocked = wallet.locked - lockedBefore;
-    renderWallet(); renderCare(); drawShop(); renderLandCard(true); save();
+    renderWallet(); renderCare(); drawShop(); renderLandSheet(true); save();
     showNotice(it.name + ' sold', `You sold it for ${naira(get)}.` + (toLocked > 0 ? ` ${naira(toLocked)} went to Locked money because of your bank limit.` : ''), false);
   }
 
-  // Land on the Hustle page + live value updates (value is worked out from the time you bought, so it also grows while the game is closed)
+  // Land investments sheet (opened from the Hustle page). Value is worked out from the time you bought, so it also grows while the game is closed.
   const landList = $('landList');
+  const setLandSheet = bindSheet('landSheetLayer', 'landOpenBtn', 'landSheetClose', 'landSheetBackdrop');
   let landSig = '';
-  const ownedLand = () => (SHOP_ITEMS.land || []).filter(it => ownedItems[it.id]);
-  function renderLandCard(force) {
-    const mine = ownedLand();
-    const sig = mine.map(it => it.id).join() + '|' + sellArm;
-    if (force || sig !== landSig) {
-      landSig = sig;
-      landList.innerHTML = mine.map(it => { const o = ownedItems[it.id], armed = sellArm === it.id;
-        return `<div class="ld-row"><div class="ld-ico">${it.emoji}</div><div class="ld-text"><div class="ld-name">${it.name}</div><div class="ld-val" data-land-val="${it.id}"></div><div class="ld-subtxt"><span data-land-gain="${it.id}"></span> · next in <span data-land-next="${it.id}"></span></div></div><button class="item-sell ld-sell${armed ? ' arm' : ''}" data-id="${it.id}" data-land-sell="${it.id}"></button></div>`; }).join('')
-        || '';
+  function landCardHtml(it) {
+    const o = ownedItems[it.id];
+    const photo = `<div class="ic-photo">${it.img ? `<img src="${it.img}" alt="${it.name}" loading="lazy">` : ''}<div class="ic-emoji">${it.emoji}</div></div>`;
+    const head = `${photo}<div class="ic-body"><div class="ic-name">${it.name}</div><div class="ic-desc">${it.desc}</div>`;
+    if (!o) {
+      const poor = wallet.bank < it.price;
+      return `<div class="item-card land-card">${head}
+        <div class="ic-priceBig">${naira(it.price)}</div>
+        <div class="ic-grow"><span class="gear">📈</span><span>Grows 10% every hour · no maintenance</span></div>
+        <div class="ic-btns"><button class="mk-buy land-buy${poor ? ' no-funds' : ''}" data-id="${it.id}">${poor ? 'Insufficient Funds' : 'Buy land'}</button></div>
+      </div></div>`;
     }
-    let total = 0, next = Infinity;
-    mine.forEach(it => { const o = ownedItems[it.id]; total += landValue(o); next = Math.min(next, landNextMs(o)); });
-    $('landTotal').textContent = naira(total);
-    $('landNext').textContent = mine.length ? fmtMs(next) : '-';
-    $('landOpenBtn').textContent = mine.length ? 'Buy more land' : 'Buy land';
-    document.querySelectorAll('[data-land-val]').forEach(el => { const o = ownedItems[el.dataset.landVal]; if (o) el.textContent = naira(landValue(o)); });
-    document.querySelectorAll('[data-land-gain]').forEach(el => { const o = ownedItems[el.dataset.landGain]; if (o) el.textContent = landGain(o); });
-    document.querySelectorAll('[data-land-next]').forEach(el => { const o = ownedItems[el.dataset.landNext]; if (o) el.textContent = fmtMs(landNextMs(o)); });
-    document.querySelectorAll('[data-land-sell]').forEach(el => { const o = ownedItems[el.dataset.landSell]; if (o) el.textContent = sellArm === el.dataset.landSell ? 'Tap again to sell' : 'Sell ' + naira(landValue(o)); });
+    return `<div class="item-card land-card">${head}
+      <div class="ic-priceBig" data-land-val="${it.id}"></div>
+      <div class="ic-sub">You paid ${naira(o.paid)} · <b data-land-gain="${it.id}"></b></div>
+      <div class="ld-timer"><div class="ld-trow"><span>Next +10%</span><span data-land-next="${it.id}"></span></div><div class="meter ok"><span data-land-bar="${it.id}"></span></div></div>
+      <div class="ic-btns"><button class="item-sell" data-id="${it.id}" data-land-sell="${it.id}"></button></div>
+    </div></div>`;
   }
-  landList.addEventListener('click', e => { const b = e.target.closest('.item-sell'); if (b) sellOwned(b.dataset.id); });
-  $('landOpenBtn').addEventListener('click', () => setShopApp(true, 'land'));
-  setInterval(renderLandCard, 1000);
+  function renderLandSheet(force) {
+    const sig = LAND_ITEMS.map(it => ownedItems[it.id] ? 'o' : (wallet.bank >= it.price ? 'a' : 'n')).join('') + '|' + sellArm;
+    if (force || sig !== landSig) { landSig = sig; landList.innerHTML = LAND_ITEMS.map(landCardHtml).join(''); }
+    $('landBal').textContent = naira(wallet.bank);
+    const each = (attr, fn) => document.querySelectorAll('[' + attr + ']').forEach(el => { const id = el.getAttribute(attr), o = ownedItems[id]; if (o) fn(el, id, o); });
+    each('data-land-val', (el, id, o) => { el.textContent = naira(landValue(o)); });
+    each('data-land-gain', (el, id, o) => { el.textContent = landGain(o); });
+    each('data-land-next', (el, id, o) => { el.textContent = fmtMs(landNextMs(o)); });
+    each('data-land-bar', (el, id, o) => { el.style.width = (100 - landNextMs(o) / LAND_STEP * 100).toFixed(1) + '%'; });
+    each('data-land-sell', (el, id, o) => { el.classList.toggle('arm', sellArm === id); el.textContent = sellArm === id ? 'Tap again to sell' : 'Sell ' + naira(landValue(o)); });
+  }
+  landList.addEventListener('click', e => {
+    const sell = e.target.closest('.item-sell'), buy = e.target.closest('.land-buy');
+    if (sell) return sellOwned(sell.dataset.id);
+    if (!buy) return;
+    const it = itemById(buy.dataset.id);
+    if (!it || ownedItems[it.id]) return;
+    if (wallet.bank < it.price) { needHelp(it.price, 'buying ' + it.name); return; }
+    wallet.bank -= it.price;
+    ownedItems[it.id] = { paid: it.price, care: 100, at: Date.now() };
+    renderWallet(); renderLandSheet(true); save();
+    showNotice(it.name + ' is yours', `You paid ${naira(it.price)}. It grows 10% every hour with no maintenance. Hold it, or sell it for its full value whenever you want.`, false);
+  });
+  setInterval(() => { if (document.getElementById('landSheetLayer').classList.contains('open')) renderLandSheet(); }, 1000);
+  document.getElementById('landOpenBtn').addEventListener('click', () => renderLandSheet(true));
   function setShopApp(open, tab) {
     if (tab) shopTab = tab;
     shopPage.classList.toggle('open', open);
@@ -7070,7 +7076,7 @@ window.TakeoffScene = {
     updateCloseBtn();
   }
   sheetClosers.push(open => { if (!open) setShopApp(false); });
-  [['carsIcon', 'cars'], ['housesIcon', 'houses'], ['yachtsIcon', 'yachts'], ['jetsIcon', 'jets'], ['landIcon', 'land']].forEach(([id, tab]) => {
+  [['carsIcon', 'cars'], ['housesIcon', 'houses'], ['yachtsIcon', 'yachts'], ['jetsIcon', 'jets']].forEach(([id, tab]) => {
     const el = $(id);
     el.addEventListener('click', () => setShopApp(true, tab));
     el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShopApp(true, tab); } });
@@ -7082,7 +7088,6 @@ window.TakeoffScene = {
   });
   drawShop();
   renderCare();
-  renderLandCard(true);
 
   // Repayment card (stays until you tap X)
   const debtBar = $('debtBar');
