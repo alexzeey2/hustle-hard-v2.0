@@ -1301,17 +1301,19 @@
     box-shadow: 0 10px 34px rgba(8, 4, 24, .38), inset 0 1px 0 rgba(255, 255, 255, .35);
   }
   .glass::before { content: ""; position: absolute; top: -60%; left: -30%; width: 80%; height: 120%; transform: rotate(18deg); background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .08), transparent); pointer-events: none; }
-  .pf-top { display: flex; align-items: center; gap: 14px; }
+  .pf-top { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
   .pf-avatar { flex: none; width: 62px; height: 62px; border-radius: 50%; display: grid; place-items: center; font-size: 26px; font-weight: 800; color: #fff;
     background: linear-gradient(135deg, #a78bfa, #ec4899); border: 2px solid rgba(255, 255, 255, .55); box-shadow: 0 6px 16px rgba(0, 0, 0, .3); }
-  .pf-id { min-width: 0; flex: 1; }
+  .pf-id { min-width: 0; width: 100%; }
   .pf-hello { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: rgba(255, 255, 255, .7); }
   .pf-name { width: 100%; margin-top: 2px; padding: 2px 0; background: transparent; border: 0; border-bottom: 1px dashed rgba(255, 255, 255, .3); outline: none;
-    font: inherit; font-size: 22px; font-weight: 800; letter-spacing: -.01em; color: #fff; }
+    font: inherit; font-size: 22px; font-weight: 800; letter-spacing: -.01em; color: #fff; text-align: center; text-overflow: ellipsis; }
   .pf-name::placeholder { color: rgba(255, 255, 255, .5); font-weight: 600; }
   .pf-name:focus { border-bottom-color: var(--purple-light); }
   .pf-sub { margin-top: 4px; font-size: 13px; color: rgba(255, 255, 255, .72); }
-  .pf-stats { margin-top: 14px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .pf-stats { margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .pf-stats > * { min-width: 0; }
+  .pf-wide { grid-column: 1 / -1; }
   .pf-stat { padding: 10px 8px; border-radius: 16px; text-align: center; background: rgba(255, 255, 255, .1); border: 1px solid rgba(255, 255, 255, .14); }
   .pf-stat b { display: block; font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .pf-stat span { display: block; margin-top: 2px; font-size: 11px; color: rgba(255, 255, 255, .68); }
@@ -1408,8 +1410,8 @@
             </div>
           </div>
           <div class="pf-stats">
+            <div class="pf-stat pf-wide"><b id="pfCountry">Nigeria</b><span>Home country</span></div>
             <div class="pf-stat"><b id="pfWorth">₦0</b><span>Net worth</span></div>
-            <div class="pf-stat"><b id="pfCountry">Nigeria</b><span>Home country</span></div>
             <div class="pf-stat"><b id="pfAch">0</b><span>Things owned</span></div>
           </div>
         </div>
