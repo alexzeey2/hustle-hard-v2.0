@@ -5609,7 +5609,9 @@ window.TakeoffScene = {
   let biz = bizAll[curCountry];
   function setCountry(name) { curCountry = name; if (!bizAll[name]) bizAll[name] = {}; biz = bizAll[name]; }
   // A country is gold when you own something there
-  const ownedIn = name => !!(bizAll[name] && Object.keys(bizAll[name]).length) || !!(work && work.country === name);
+  // Contracts, investments, land and Showroom items are not tied to a country: they count as owned in the country you are in now
+  const ownsLoose = () => { try { return Object.keys(ownedItems).length > 0 || ctState.list.length > 0 || ctState.sent.length > 0 || holdings.some(h => opProduct(h)); } catch (e) { return false; } };
+  const ownedIn = name => !!(bizAll[name] && Object.keys(bizAll[name]).length) || !!(work && work.country === name) || (name === curCountry && ownsLoose());
   const FREE_LIMIT = 10000000;
   let premium = window.hustlePremium || null;   // from the server, never from the save
   const bankLimit = () => (premium ? premium.limit : FREE_LIMIT);
@@ -6186,9 +6188,10 @@ window.TakeoffScene = {
     }
   });
   // ---- Gold sheet: everything you own in one country. You can only collect while you are in that country ----
-  const GOLD_TABS = [['jobs', 'Jobs'], ['biz', 'Mini business'], ['contract', 'Contract business'], ['company', 'Company'], ['land', 'Land'], ['cars', 'Cars'], ['houses', 'Houses'], ['yachts', 'Yachts'], ['jets', 'Jets']];
+  const GOLD_TABS = [['jobs', 'Jobs'], ['biz', 'Mini business'], ['contract', 'Contract business'], ['investments', 'Investments'], ['company', 'Company'], ['land', 'Land'], ['cars', 'Cars'], ['houses', 'Houses'], ['yachts', 'Yachts'], ['jets', 'Jets']];
   const setGoldSheet = bindSheet('goldSheetLayer', null, 'goldSheetClose', 'goldSheetBackdrop');
   let goldCountry = null, goldTab = 'biz';
+  const OWN_TAB = { contract: 'Contract business', investments: 'Investments', land: 'Land', cars: 'Cars', houses: 'Houses', yachts: 'Yachts', jets: 'Jets' };
   function openGold(name) {
     goldCountry = name;
     goldTab = bizAll[name] && Object.keys(bizAll[name]).length ? 'biz' : 'jobs';
@@ -6216,10 +6219,13 @@ window.TakeoffScene = {
         const it = lists[work.kind].items[work.index];
         html = `<div class="gt-row"><div><div class="gt-name">${it.title}</div><div class="gt-sub">${work.kind === 'skill' ? 'Skill' : 'Job'} · ${naira(workPay())} / ${it.every}</div></div><div class="gt-right gt-ready">Working</div></div>`;
       } else html = '<div class="gt-empty">No job here.</div>';
-    } else if (goldTab === 'land' || goldTab === 'cars' || goldTab === 'houses' || goldTab === 'yachts' || goldTab === 'jets') {
-      // Everything bought in the Showroom (and land) is kept in Nigeria
-      const rows = goldCountry === 'Nigeria' ? (goldTab === 'land' ? landRows() : ownedRows(SHOP_ITEMS[goldTab])) : [];
-      html = rows.map(r => `<div class="gt-row"><div><div class="gt-name">${r.title}</div><div class="gt-sub">${r.sub}</div></div><div class="gt-right">${r.right}</div></div>`).join('') || '<div class="gt-empty">Nothing here yet.</div>';
+    } else if (goldTab === 'company') {
+      html = '<div class="gt-empty">Companies are coming soon.</div>';
+    } else if (OWN_TAB[goldTab]) {
+      // Contracts, investments, land and everything from the Showroom are not tied to a country: they show in the country you are in now
+      const sec = OWN_SECTIONS.find(x => x.tab === OWN_TAB[goldTab]);
+      const rows = here && sec ? sec.rows() : [];
+      html = rows.map(r => `<div class="gt-row"><div><div class="gt-name">${r.title}</div><div class="gt-sub">${r.sub}</div></div>${r.right ? `<div class="gt-right">${r.right}</div>` : ''}</div>`).join('') || '<div class="gt-empty">Nothing here yet.</div>';
     } else html = '<div class="gt-empty">Nothing here yet.</div>';
     gid('goldBody').innerHTML = `<div class="gt-table">${html}</div>`;
     tickGold();
@@ -6246,7 +6252,7 @@ window.TakeoffScene = {
   });
 
   bizSettle();
-  setInterval(() => { if (bizSettle()) { renderBiz(); renderGold(); } else { tickBiz(); tickGold(); if (goldTab === 'land') renderGold(); } }, 1000);
+  setInterval(() => { if (bizSettle()) { renderBiz(); renderGold(); } else { tickBiz(); tickGold(); if (goldTab === 'land' || goldTab === 'contract' || goldTab === 'investments') renderGold(); } }, 1000);
 
   settle();
   renderWallet();
