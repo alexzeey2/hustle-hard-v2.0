@@ -4372,7 +4372,9 @@ window.TakeoffScene = {
     const { data, error } = await sb.from('wallets').select('premium_name,premium_limit,premium_expires').eq('user_id', uid).maybeSingle();
     if (error) throw error;
     const exp = data && data.premium_expires ? new Date(data.premium_expires).getTime() : 0;
-    window.hustlePremium = data && data.premium_name && exp > Date.now() ? { name: data.premium_name, limit: Number(data.premium_limit), expires: exp } : null;
+    // Plans paid before a limit was raised still have the old number in the database, so never go below the plan's current limit
+    const PLAN_LIMITS = { 'Millionaire plan': 150000000, 'Wealth builder': 900000000000 };
+    window.hustlePremium = data && data.premium_name && exp > Date.now() ? { name: data.premium_name, limit: Math.max(Number(data.premium_limit) || 0, PLAN_LIMITS[data.premium_name] || 0), expires: exp } : null;
   }
   window.hustleLoadWallet = loadWallet;
 
