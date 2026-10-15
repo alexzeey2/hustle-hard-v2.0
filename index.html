@@ -6856,9 +6856,9 @@ window.TakeoffScene = {
   const LAND_RATE = 0.10, LAND_STEP = 3600000;   // land gains 10% of its value every hour (compounding), no maintenance, sells for its full current value   // WEAR_PER_CLICK = % of the maintenance meter lost on every click
   const SHOP_ITEMS = {
     cars: [
-      { id: 'camry', emoji: '🚗', name: 'Toyota Camry', desc: '2024 · 2.5L hybrid · brand new', price: 55000000 },
-      { id: 'landcruiser', emoji: '🚙', name: 'Toyota Land Cruiser V8', desc: '2024 · 3.5L twin-turbo · brand new', price: 185000000 },
-      { id: 'rangerover', emoji: '🚙', name: 'Range Rover Autobiography', desc: '2024 · P530 V8 · brand new', price: 290000000 },
+      { id: 'camry', img: 'https://i.postimg.cc/cLt3nHdn/images.jpg', emoji: '🚗', name: 'Toyota Camry', desc: '2024 · 2.5L hybrid · brand new', price: 55000000 },
+      { id: 'landcruiser', img: 'https://i.postimg.cc/0532JCjz/maxresdefault.jpg', emoji: '🚙', name: 'Toyota Land Cruiser V8', desc: '2024 · 3.5L twin-turbo · brand new', price: 185000000 },
+      { id: 'rangerover', img: 'https://i.postimg.cc/NfqFz4cS/z8a9rangelrcpzprts.jpg', emoji: '🚙', name: 'Range Rover Autobiography', desc: '2024 · P530 V8 · brand new', price: 290000000 },
       { id: 'g63', emoji: '🚘', name: 'Mercedes-AMG G63', desc: '2024 · 4.0L V8 biturbo · brand new', price: 430000000 },
       { id: 'cullinan', emoji: '🏎️', name: 'Rolls-Royce Cullinan', desc: '2024 · 6.75L V12 · brand new', price: 1150000000 },
     ],
@@ -6906,7 +6906,7 @@ window.TakeoffScene = {
   const careKind = c => c <= 10 ? ' crit' : c <= 50 ? '' : ' ok';
   function shopItemCard(it) {
     const o = ownedItems[it.id];
-    const photo = `<div class="ic-photo">${it.img ? `<img src="${it.img}" alt="${it.name}" loading="lazy">` : ''}<div class="ic-emoji">${it.emoji}</div></div>`;
+    const photo = `<div class="ic-photo">${it.img ? `<img src="${it.img}" alt="${it.name}" loading="lazy">` : ''}</div>`;
     const head = `${photo}<div class="ic-body"><div class="ic-name">${it.name}</div><div class="ic-desc">${it.desc}</div>`;
     if (!o) {
       const poor = wallet.bank < it.price;
@@ -7026,7 +7026,7 @@ window.TakeoffScene = {
   let landSig = '';
   function landCardHtml(it) {
     const o = ownedItems[it.id];
-    const photo = `<div class="ic-photo">${it.img ? `<img src="${it.img}" alt="${it.name}" loading="lazy">` : ''}<div class="ic-emoji">${it.emoji}</div></div>`;
+    const photo = `<div class="ic-photo">${it.img ? `<img src="${it.img}" alt="${it.name}" loading="lazy">` : ''}</div>`;
     const head = `${photo}<div class="ic-body"><div class="ic-name">${it.name}</div><div class="ic-desc">${it.desc}</div>`;
     if (!o) {
       const poor = wallet.bank < it.price;
