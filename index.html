@@ -1127,6 +1127,27 @@
   .item-sell { background: var(--surface-2); color: var(--text); }
   .item-sell.arm { background: rgba(248, 113, 113, .18); color: #fca5a5; }
 
+  /* Land investment */
+  .ic-grow { margin-top: 10px; display: flex; align-items: flex-start; gap: 8px; font-size: clamp(12px, 3.6vw, 14.5px); font-weight: 600; color: #34d399; line-height: 1.3; }
+  .ic-grow .gear { flex: none; }
+  .ic-sub { margin-top: 6px; font-size: 12.5px; color: var(--muted); line-height: 1.4; }
+  .ic-sub b { color: #34d399; font-weight: 700; }
+  .ld-sum { margin-top: 12px; display: grid; grid-template-columns: 1.4fr 1fr; gap: 8px; }
+  .ld-sum > div { padding: 10px 12px; border-radius: 12px; background: var(--surface-2); min-width: 0; }
+  .ld-sum span { display: block; font-size: 11px; color: var(--muted); }
+  .ld-sum b { display: block; margin-top: 2px; font-size: clamp(14px, 4.4vw, 17px); font-weight: 800; color: #34d399; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .ld-sum > div:last-child b { color: var(--text); }
+  .ld-list { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .ld-list:empty { display: none; }
+  .ld-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); }
+  .ld-ico { flex: none; font-size: 24px; }
+  .ld-text { flex: 1; min-width: 0; }
+  .ld-name { font-size: 13px; font-weight: 700; overflow-wrap: anywhere; }
+  .ld-val { font-size: 15px; font-weight: 800; color: #34d399; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .ld-subtxt { font-size: 11px; color: var(--muted); }
+  .ld-sell { flex: none; max-width: 38%; height: 36px; padding: 0 10px; border-radius: 10px; font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ld-note { padding: 4px 2px; font-size: 12px; color: var(--muted); }
+
   /* Food page */
   .food-app { background: var(--bg); color: var(--text); font-size: 14px; padding: 0 14px; -webkit-user-select: auto; user-select: auto; }
   .fp-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
@@ -1550,6 +1571,23 @@
             <p class="job-desc">Win business contracts and earn big. Get a contract with your friends to make more money.</p>
             <b class="ct-badge" id="ctBadge" hidden></b>
             <button class="primary-btn" id="contractOpenBtn">See contract</button>
+          </div>
+
+          <div class="job-card" id="landCard">
+            <div class="job-top">
+              <div class="lock-badge">
+                <svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg>
+              </div>
+              <div class="job-title">Land</div>
+              <span class="chip earn">+10% / hour</span>
+            </div>
+            <p class="job-desc">Buy land in the Showroom. It grows 10% in value every hour and costs nothing to keep. Hold it, or sell whenever you want.</p>
+            <div class="ld-sum">
+              <div><span>Land worth</span><b id="landTotal">₦0</b></div>
+              <div><span>Next +10% in</span><b id="landNext">-</b></div>
+            </div>
+            <div class="ld-list" id="landList"></div>
+            <button class="primary-btn" id="landOpenBtn">Buy land</button>
           </div>
 
           <div class="job-card soon-card" data-tier="company">
@@ -1994,7 +2032,7 @@
         <button class="plan-card selected" role="radio" aria-checked="true" data-price="300">
           <span class="pc-tick"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
           <span class="pc-top"><span class="pc-name">Millionaire plan</span><span class="pc-period">Weekly</span></span>
-          <span class="pc-row"><span>Increase Bank Limit to</span><strong>₦50,000,000</strong></span>
+          <span class="pc-row"><span>Increase Bank Limit to</span><strong>₦150,000,000</strong></span>
         </button>
 
         <button class="plan-card gold" role="radio" aria-checked="false" data-price="900">
@@ -5585,8 +5623,8 @@ window.TakeoffScene = {
     wallet.bank += move;
     wallet.locked -= move;
   }
-  // While a plan is active, anything spent from the bank is replaced from Locked money
-  // Locked money is never touched by spending: it only moves when you buy a plan (applyPlan calls unlockLocked directly)
+  // Without a plan, Locked money stays locked. While a plan is active it is released into the bank up to the plan limit:
+  // when the game opens, when you buy the plan, and every second after (so money spent or sold is refilled from Locked money)
   function refillFromLocked() {}
   planState.active = !!premium;
   enforceLimit();
@@ -6813,7 +6851,8 @@ window.TakeoffScene = {
   const SHOP_TABS = [{ id: 'cars', name: 'Cars' }, { id: 'houses', name: 'Houses' }, { id: 'yachts', name: 'Yachts' }, { id: 'jets', name: 'Jets' }, { id: 'land', name: 'Land' }];
   let shopTab = 'cars';
   // Things you can buy. Pay from your bank balance only. Maintenance costs 10% of what you paid and you can sell for 35% less than you paid.
-  const MAINT_RATE = 0.10, RESALE_RATE = 0.65, WEAR_PER_CLICK = 0.25;   // WEAR_PER_CLICK = % of the maintenance meter lost on every click
+  const MAINT_RATE = 0.10, RESALE_RATE = 0.65, WEAR_PER_CLICK = 0.25;
+  const LAND_RATE = 0.10, LAND_STEP = 3600000;   // land gains 10% of its value every hour (compounding), no maintenance, sells for its full current value   // WEAR_PER_CLICK = % of the maintenance meter lost on every click
   const SHOP_ITEMS = {
     cars: [
       { id: 'camry', emoji: '🚗', name: 'Toyota Camry', desc: '2024 · 2.5L hybrid · brand new', price: 55000000 },
@@ -6841,26 +6880,49 @@ window.TakeoffScene = {
       { id: 'g650', emoji: '🛩️', name: 'Gulfstream G650ER', desc: '16 seats · range 13,900 km', price: 105000000000 },
     ],
     land: [
-      { id: 'asabaplot', emoji: '🌳', name: 'Plot of land, Asaba', desc: '600 m² · C of O · fenced', price: 28000000 },
-      { id: 'epefarm', emoji: '🌾', name: 'Farmland, Epe', desc: '5 hectares · survey plan · access road', price: 85000000 },
-      { id: 'lekkiplot', emoji: '🏗️', name: 'Plot of land, Lekki', desc: '648 m² · C of O · gated estate', price: 180000000 },
-      { id: 'ikoyiplot', emoji: '🏝️', name: 'Plot of land, Ikoyi', desc: '1,000 m² · C of O · waterfront', price: 1400000000 },
+      { id: 'asabaplot', land: true, emoji: '🌳', name: 'Plot of land, Asaba', desc: '600 m² · C of O · fenced', price: 28000000 },
+      { id: 'epefarm', land: true, emoji: '🌾', name: 'Farmland, Epe', desc: '5 hectares · survey plan · access road', price: 85000000 },
+      { id: 'lekkiplot', land: true, emoji: '🏗️', name: 'Plot of land, Lekki', desc: '648 m² · C of O · gated estate', price: 180000000 },
+      { id: 'ikoyiplot', land: true, emoji: '🏝️', name: 'Plot of land, Ikoyi', desc: '1,000 m² · C of O · waterfront', price: 1400000000 },
     ],
   };
   const itemById = id => { for (const k in SHOP_ITEMS) { const f = SHOP_ITEMS[k].find(x => x.id === id); if (f) return f; } return null; };
   Object.keys(ownedItems).forEach(id => {   // drop anything in the save that is not a real item
     const o = ownedItems[id];
     if (!itemById(id) || !o || typeof o.paid !== 'number') delete ownedItems[id];
-    else o.care = typeof o.care === 'number' ? Math.max(0, Math.min(100, o.care)) : 100;
+    else { o.care = typeof o.care === 'number' ? Math.max(0, Math.min(100, o.care)) : 100; if (itemById(id).land && typeof o.at !== 'number') o.at = Date.now(); }
   });
   const maintCost = o => Math.round(o.paid * MAINT_RATE);
-  const sellPrice = o => Math.round(o.paid * RESALE_RATE);
+  const landSteps = o => Math.max(0, Math.floor((Date.now() - o.at) / LAND_STEP));
+  const landValue = o => Math.min(Number.MAX_SAFE_INTEGER, Math.round(o.paid * Math.pow(1 + LAND_RATE, landSteps(o))));
+  const landNextMs = o => LAND_STEP - ((Date.now() - o.at) % LAND_STEP);
+  const fmtMs = ms => { const t = Math.max(0, Math.ceil(ms / 1000)); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); };
+  const landGain = o => { const v = landValue(o), g = v - o.paid; return `+${naira(g)} (+${Math.round(g / o.paid * 100).toLocaleString('en-NG')}%)`; };
+  const isLand = id => { const it = itemById(id); return !!(it && it.land); };
+  const sellPrice = (o, id) => (id && isLand(id)) ? landValue(o) : Math.round(o.paid * RESALE_RATE);
   let sellArm = '', sellArmT = 0;
   const careKind = c => c <= 10 ? ' crit' : c <= 50 ? '' : ' ok';
   function shopItemCard(it) {
     const o = ownedItems[it.id];
     const photo = `<div class="ic-photo">${it.img ? `<img src="${it.img}" alt="${it.name}" loading="lazy">` : ''}<div class="ic-emoji">${it.emoji}</div></div>`;
     const head = `${photo}<div class="ic-body"><div class="ic-name">${it.name}</div><div class="ic-desc">${it.desc}</div>`;
+    if (it.land) {
+      if (!o) {
+        const poor = wallet.bank < it.price;
+        return `<div class="item-card">${head}
+          <div class="ic-priceBig">${naira(it.price)}</div>
+          <div class="ic-grow"><span class="gear">📈</span><span>Grows 10% every hour · no maintenance</span></div>
+          <div class="ic-btns"><button class="mk-buy item-buy${poor ? ' no-funds' : ''}" data-id="${it.id}">${poor ? 'Insufficient Funds' : 'Buy'}</button></div>
+        </div></div>`;
+      }
+      const armed = sellArm === it.id;
+      return `<div class="item-card">${head}
+        <div class="ic-priceBig" data-land-val="${it.id}">${naira(landValue(o))}</div>
+        <div class="ic-sub">You paid ${naira(o.paid)} · <b data-land-gain="${it.id}">${landGain(o)}</b></div>
+        <div class="ic-grow"><span class="gear">📈</span><span>Next +10% in <span data-land-next="${it.id}">${fmtMs(landNextMs(o))}</span></span></div>
+        <div class="ic-btns"><button class="item-sell${armed ? ' arm' : ''}" data-id="${it.id}" data-land-sell="${it.id}">${armed ? 'Tap again to sell' : 'Sell ' + naira(landValue(o))}</button></div>
+      </div></div>`;
+    }
     if (!o) {
       const poor = wallet.bank < it.price;
       return `<div class="item-card">${head}
@@ -6875,7 +6937,7 @@ window.TakeoffScene = {
         <div class="meter${careKind(o.care)}" data-id="${it.id}"><span style="width:${o.care}%"></span></div></div>
       <div class="ic-btns">
         <button class="mk-buy item-care" data-id="${it.id}">Service ${naira(maintCost(o))}</button>
-        <button class="item-sell${sellArm === it.id ? ' arm' : ''}" data-id="${it.id}">${sellArm === it.id ? 'Tap again to sell' : 'Sell ' + naira(sellPrice(o))}</button>
+        <button class="item-sell${sellArm === it.id ? ' arm' : ''}" data-id="${it.id}">${sellArm === it.id ? 'Tap again to sell' : 'Sell ' + naira(sellPrice(o, it.id))}</button>
       </div>
     </div></div>`;
   }
@@ -6908,7 +6970,7 @@ window.TakeoffScene = {
   let careId = '';
   function renderCare() {
     let w = null;
-    Object.keys(ownedItems).forEach(id => { if (!w || ownedItems[id].care < ownedItems[w].care) w = id; });
+    Object.keys(ownedItems).forEach(id => { if (isLand(id)) return; if (!w || ownedItems[id].care < ownedItems[w].care) w = id; });
     careId = w || '';
     const o = w && ownedItems[w], it = w && itemById(w);
     const c = o ? o.care : 100, lvl = careLevel(c);
@@ -6946,28 +7008,60 @@ window.TakeoffScene = {
       if (!it || ownedItems[it.id]) return;
       if (wallet.bank < it.price) { needHelp(it.price, 'buying ' + it.name); return; }
       wallet.bank -= it.price;
-      ownedItems[it.id] = { paid: it.price, care: 100 };
-      renderWallet(); renderCare(); drawShop(); save();
-      showNotice(it.name + ' is yours', `You paid ${naira(it.price)}. Keeping it maintained costs ${naira(maintCost(ownedItems[it.id]))} (10%) each time. You can sell it later for ${naira(sellPrice(ownedItems[it.id]))}.`, false);
+      ownedItems[it.id] = { paid: it.price, care: 100, at: Date.now() };
+      renderWallet(); renderCare(); drawShop(); renderLandCard(true); save();
+      if (it.land) showNotice(it.name + ' is yours', `You paid ${naira(it.price)}. It grows 10% every hour with no maintenance. Hold it, or sell it for its full value whenever you want.`, false);
+      else showNotice(it.name + ' is yours', `You paid ${naira(it.price)}. Keeping it maintained costs ${naira(maintCost(ownedItems[it.id]))} (10%) each time. You can sell it later for ${naira(sellPrice(ownedItems[it.id], it.id))}.`, false);
     } else if (care) {
       serviceItem(care.dataset.id);
     } else if (sell) {
-      const it = itemById(sell.dataset.id), o = it && ownedItems[it.id];
-      if (!o) return;
-      if (sellArm !== it.id) {   // first tap arms it, second tap sells, so one slip never sells your car
-        sellArm = it.id; clearTimeout(sellArmT); sellArmT = setTimeout(() => { sellArm = ''; drawShop(); }, 3500);
-        drawShop(); return;
-      }
-      clearTimeout(sellArmT); sellArm = '';
-      const get = sellPrice(o), lockedBefore = wallet.locked;
-      delete ownedItems[it.id];
-      wallet.bank += get;
-      enforceLimit();   // anything above your bank limit goes to Locked money, as with all other income
-      const toLocked = wallet.locked - lockedBefore;
-      renderWallet(); renderCare(); drawShop(); save();
-      showNotice(it.name + ' sold', `You sold it for ${naira(get)}.` + (toLocked > 0 ? ` ${naira(toLocked)} went to Locked money because of your bank limit.` : ''), false);
+      sellOwned(sell.dataset.id);
     }
   });
+  // Two taps to sell (first arms it), used by the Showroom and by the Land card on the Hustle page
+  function sellOwned(id) {
+    const it = itemById(id), o = it && ownedItems[it.id];
+    if (!o) return;
+    if (sellArm !== it.id) {
+      sellArm = it.id; clearTimeout(sellArmT); sellArmT = setTimeout(() => { sellArm = ''; drawShop(); renderLandCard(true); }, 3500);
+      drawShop(); renderLandCard(true); return;
+    }
+    clearTimeout(sellArmT); sellArm = '';
+    const get = sellPrice(o, it.id), lockedBefore = wallet.locked;
+    delete ownedItems[it.id];
+    wallet.bank += get;
+    enforceLimit();   // anything above your bank limit goes to Locked money, as with all other income
+    const toLocked = wallet.locked - lockedBefore;
+    renderWallet(); renderCare(); drawShop(); renderLandCard(true); save();
+    showNotice(it.name + ' sold', `You sold it for ${naira(get)}.` + (toLocked > 0 ? ` ${naira(toLocked)} went to Locked money because of your bank limit.` : ''), false);
+  }
+
+  // Land on the Hustle page + live value updates (value is worked out from the time you bought, so it also grows while the game is closed)
+  const landList = $('landList');
+  let landSig = '';
+  const ownedLand = () => (SHOP_ITEMS.land || []).filter(it => ownedItems[it.id]);
+  function renderLandCard(force) {
+    const mine = ownedLand();
+    const sig = mine.map(it => it.id).join() + '|' + sellArm;
+    if (force || sig !== landSig) {
+      landSig = sig;
+      landList.innerHTML = mine.map(it => { const o = ownedItems[it.id], armed = sellArm === it.id;
+        return `<div class="ld-row"><div class="ld-ico">${it.emoji}</div><div class="ld-text"><div class="ld-name">${it.name}</div><div class="ld-val" data-land-val="${it.id}"></div><div class="ld-subtxt"><span data-land-gain="${it.id}"></span> · next in <span data-land-next="${it.id}"></span></div></div><button class="item-sell ld-sell${armed ? ' arm' : ''}" data-id="${it.id}" data-land-sell="${it.id}"></button></div>`; }).join('')
+        || '';
+    }
+    let total = 0, next = Infinity;
+    mine.forEach(it => { const o = ownedItems[it.id]; total += landValue(o); next = Math.min(next, landNextMs(o)); });
+    $('landTotal').textContent = naira(total);
+    $('landNext').textContent = mine.length ? fmtMs(next) : '-';
+    $('landOpenBtn').textContent = mine.length ? 'Buy more land' : 'Buy land';
+    document.querySelectorAll('[data-land-val]').forEach(el => { const o = ownedItems[el.dataset.landVal]; if (o) el.textContent = naira(landValue(o)); });
+    document.querySelectorAll('[data-land-gain]').forEach(el => { const o = ownedItems[el.dataset.landGain]; if (o) el.textContent = landGain(o); });
+    document.querySelectorAll('[data-land-next]').forEach(el => { const o = ownedItems[el.dataset.landNext]; if (o) el.textContent = fmtMs(landNextMs(o)); });
+    document.querySelectorAll('[data-land-sell]').forEach(el => { const o = ownedItems[el.dataset.landSell]; if (o) el.textContent = sellArm === el.dataset.landSell ? 'Tap again to sell' : 'Sell ' + naira(landValue(o)); });
+  }
+  landList.addEventListener('click', e => { const b = e.target.closest('.item-sell'); if (b) sellOwned(b.dataset.id); });
+  $('landOpenBtn').addEventListener('click', () => setShopApp(true, 'land'));
+  setInterval(renderLandCard, 1000);
   function setShopApp(open, tab) {
     if (tab) shopTab = tab;
     shopPage.classList.toggle('open', open);
@@ -6988,6 +7082,7 @@ window.TakeoffScene = {
   });
   drawShop();
   renderCare();
+  renderLandCard(true);
 
   // Repayment card (stays until you tap X)
   const debtBar = $('debtBar');
@@ -7044,7 +7139,7 @@ window.TakeoffScene = {
     if (sick) return;
     hungerBase = Math.max(0, hungerBase - HUNGER_PER_CLICK);
     // the same click also wears down the maintenance meter of everything you own
-    const ids = Object.keys(ownedItems);
+    const ids = Object.keys(ownedItems).filter(id => !isLand(id));
     ids.forEach(id => { ownedItems[id].care = Math.max(0, ownedItems[id].care - WEAR_PER_CLICK); });
     if (ids.length) { renderCare(); updateItemMeters(); }
     tickHunger();
@@ -7778,7 +7873,7 @@ window.TakeoffScene = {
   window.hustleChat = name => { if (!name) return; setMsgApp(true); msgOpen(name); };
 
   const planInfo = {
-    300: { name: 'Millionaire plan', limit: 50000000, days: 7 },
+    300: { name: 'Millionaire plan', limit: 150000000, days: 7 },
     900: { name: 'Wealth builder', limit: 900000000000, days: 30 },
   };
   let paying = false;
@@ -7863,6 +7958,12 @@ window.TakeoffScene = {
   // If someone paid but closed the game before getting the reward, give it now
   claimPayments().then(rs => rs.forEach(r => grantReward(r.item)));
 
+  // Plan holders: keep releasing Locked money into the bank as far as the plan limit allows
+  setInterval(() => {
+    if (!premium || Date.now() > premium.expires || wallet.locked <= 0 || wallet.bank >= bankLimit()) return;
+    unlockLocked();
+    renderWallet(); save();
+  }, 1000);
   // When a plan runs out the bank limit drops back and the extra money is locked again
   setInterval(() => {
     if (premium && Date.now() > premium.expires) {
