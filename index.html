@@ -7612,7 +7612,12 @@ window.TakeoffScene = {
   // Contract business, land, houses and cars are not in the game yet: return their rows here when you add them
   const OWN_SECTIONS = [
     { tab: 'Mini business', name: 'Mini businesses', rows: () => { const out = []; Object.keys(bizAll).forEach(c => BUSINESSES.forEach(b => { const st = bizAll[c][b.id]; if (st) out.push({ title: b.emoji + ' ' + b.title, sub: `Level ${st.level} of ${BIZ_MAX} · ${naira(bizPay(b, st.level))} / ${b.every} · ${c}${st.manager ? ' · Manager' : ''}`, right: '' }); })); return out; }, empty: 'No mini business yet.' },
-    { tab: 'Contract business', name: 'Contract business', rows: () => [], empty: 'No contract business yet.' },
+    { tab: 'Contract business', name: 'Contract business', rows: () => {
+      const now = Date.now() + ctState.off;
+      const run = ctState.list.map(c => { const t = ctType(c.type_id); return { title: t.icon + ' ' + t.name, sub: `${naira(Number(c.amount))} paid · Est. profit ${naira(Number(c.share))}`, right: fmtLeft(new Date(c.ends_at).getTime() - now) + ' left' }; });
+      const pend = ctState.sent.map(c => { const t = ctType(c.type_id); return { title: t.icon + ' ' + t.name, sub: `${naira(Number(c.amount))} held · Waiting for ${(c.to_names || []).map(opEsc).join(', ')}`, right: 'Pending' }; });
+      return run.concat(pend);
+    }, empty: 'No contract business yet.' },
     { tab: 'Land', name: 'Land', rows: () => [], empty: 'No land yet.' },
     { tab: 'Investments', name: 'Investments', rows: () => liveHoldings().map(h => { const p = opProduct(h); return { title: p.icon + ' ' + p.name, sub: naira(h.amt) + ' invested', right: opLeft(h.end - Date.now()) + ' left' }; }), empty: 'No investments yet.' },
     { tab: 'Houses', name: 'Houses', rows: () => [], empty: 'No house yet.' },
