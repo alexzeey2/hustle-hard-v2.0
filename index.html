@@ -5539,7 +5539,7 @@ window.TakeoffScene = {
   function refillFromLocked() {}
   planState.active = !!premium;
   enforceLimit();
-  refillFromLocked();   // only an active plan keeps the bank topped up from Locked money
+  if (premium) unlockLocked();   // an active plan releases Locked money when the game opens (spending never does)
   if (saved.day === today && typeof saved.earned === 'number') wallet.earned = saved.earned;
   let work = null;   // { kind: 'job' | 'skill', index, start }
   if (saved.work) {
