@@ -6186,7 +6186,7 @@ window.TakeoffScene = {
     }
   });
   // ---- Gold sheet: everything you own in one country. You can only collect while you are in that country ----
-  const GOLD_TABS = [['jobs', 'Jobs'], ['biz', 'Mini business'], ['contract', 'Contract business'], ['company', 'Company'], ['land', 'Land'], ['cars', 'Cars'], ['houses', 'Houses']];
+  const GOLD_TABS = [['jobs', 'Jobs'], ['biz', 'Mini business'], ['contract', 'Contract business'], ['company', 'Company'], ['land', 'Land'], ['cars', 'Cars'], ['houses', 'Houses'], ['yachts', 'Yachts'], ['jets', 'Jets']];
   const setGoldSheet = bindSheet('goldSheetLayer', null, 'goldSheetClose', 'goldSheetBackdrop');
   let goldCountry = null, goldTab = 'biz';
   function openGold(name) {
@@ -6216,6 +6216,10 @@ window.TakeoffScene = {
         const it = lists[work.kind].items[work.index];
         html = `<div class="gt-row"><div><div class="gt-name">${it.title}</div><div class="gt-sub">${work.kind === 'skill' ? 'Skill' : 'Job'} · ${naira(workPay())} / ${it.every}</div></div><div class="gt-right gt-ready">Working</div></div>`;
       } else html = '<div class="gt-empty">No job here.</div>';
+    } else if (goldTab === 'land' || goldTab === 'cars' || goldTab === 'houses' || goldTab === 'yachts' || goldTab === 'jets') {
+      // Everything bought in the Showroom (and land) is kept in Nigeria
+      const rows = goldCountry === 'Nigeria' ? (goldTab === 'land' ? landRows() : ownedRows(SHOP_ITEMS[goldTab])) : [];
+      html = rows.map(r => `<div class="gt-row"><div><div class="gt-name">${r.title}</div><div class="gt-sub">${r.sub}</div></div><div class="gt-right">${r.right}</div></div>`).join('') || '<div class="gt-empty">Nothing here yet.</div>';
     } else html = '<div class="gt-empty">Nothing here yet.</div>';
     gid('goldBody').innerHTML = `<div class="gt-table">${html}</div>`;
     tickGold();
@@ -6242,7 +6246,7 @@ window.TakeoffScene = {
   });
 
   bizSettle();
-  setInterval(() => { if (bizSettle()) { renderBiz(); renderGold(); } else { tickBiz(); tickGold(); } }, 1000);
+  setInterval(() => { if (bizSettle()) { renderBiz(); renderGold(); } else { tickBiz(); tickGold(); if (goldTab === 'land') renderGold(); } }, 1000);
 
   settle();
   renderWallet();
@@ -7985,7 +7989,11 @@ window.TakeoffScene = {
   // Home page: your name and everything you own, grouped like the table on the map page
   const NAME_KEY = 'lifesim.name';
   const liveHoldings = () => holdings.filter(h => opProduct(h));
-  // Contract business, land, houses and cars are not in the game yet: return their rows here when you add them
+  // Things bought in the Showroom (cars, houses, yachts, jets) and land bought on the Hustle page
+  const ownedRows = list => (list || []).filter(it => ownedItems[it.id]).map(it => { const o = ownedItems[it.id];
+    return { title: it.name, sub: `You paid ${naira(o.paid)} · Maintenance ${Math.round(o.care)}%`, right: 'Worth ' + naira(sellPrice(o, it.id)) }; });
+  const landRows = () => LAND_ITEMS.filter(it => ownedItems[it.id]).map(it => { const o = ownedItems[it.id];
+    return { title: it.name, sub: `You paid ${naira(o.paid)} · ${landGain(o)} · next +10% in ${fmtMs(landNextMs(o))}`, right: naira(landValue(o)) }; });
   const OWN_SECTIONS = [
     { tab: 'Mini business', name: 'Mini businesses', rows: () => { const out = []; Object.keys(bizAll).forEach(c => BUSINESSES.forEach(b => { const st = bizAll[c][b.id]; if (st) out.push({ title: b.emoji + ' ' + b.title, sub: `Level ${st.level} of ${BIZ_MAX} · ${naira(bizPay(b, st.level))} / ${b.every} · ${c}${st.manager ? ' · Manager' : ''}`, right: '' }); })); return out; }, empty: 'No mini business yet.' },
     { tab: 'Contract business', name: 'Contract business', rows: () => {
@@ -7994,10 +8002,12 @@ window.TakeoffScene = {
       const pend = ctState.sent.map(c => { const t = ctType(c.type_id); return { title: t.icon + ' ' + t.name, sub: `${naira(Number(c.amount))} held · Waiting for ${(c.to_names || []).map(opEsc).join(', ')}`, right: 'Pending' }; });
       return run.concat(pend);
     }, empty: 'No contract business yet.' },
-    { tab: 'Land', name: 'Land', rows: () => [], empty: 'No land yet.' },
+    { tab: 'Land', name: 'Land', rows: landRows, empty: 'No land yet.' },
     { tab: 'Investments', name: 'Investments', rows: () => liveHoldings().map(h => { const p = opProduct(h); return { title: p.icon + ' ' + p.name, sub: naira(h.amt) + ' invested', right: opLeft(h.end - Date.now()) + ' left' }; }), empty: 'No investments yet.' },
-    { tab: 'Houses', name: 'Houses', rows: () => [], empty: 'No house yet.' },
-    { tab: 'Cars', name: 'Cars', rows: () => [], empty: 'No car yet.' },
+    { tab: 'Houses', name: 'Houses', rows: () => ownedRows(SHOP_ITEMS.houses), empty: 'No house yet.' },
+    { tab: 'Cars', name: 'Cars', rows: () => ownedRows(SHOP_ITEMS.cars), empty: 'No car yet.' },
+    { tab: 'Yachts', name: 'Yachts', rows: () => ownedRows(SHOP_ITEMS.yachts), empty: 'No yacht yet.' },
+    { tab: 'Jets', name: 'Jets', rows: () => ownedRows(SHOP_ITEMS.jets), empty: 'No jet yet.' },
   ];
   const pfName = $('pfName');
   try { pfName.value = gameStore.getItem(NAME_KEY) || ''; } catch (e) {}
