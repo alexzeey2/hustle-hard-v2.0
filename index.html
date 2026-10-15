@@ -112,6 +112,10 @@
     visibility: visible; pointer-events: auto; transform: none; opacity: 1;
     transition: transform .28s ease, opacity .28s ease;
   }
+  /* A phone that is closed must never catch taps. Apps left open inside it (Foods, Opay, Messages...)
+     set visibility: visible and pointer-events: auto on themselves, which beats the hidden layer and
+     leaves an invisible phone sitting over the game. */
+  .phone-layer:not(.open), .phone-layer:not(.open) * { pointer-events: none !important; }
   .close-row { width: 100%; max-width: 380px; display: flex; justify-content: flex-end; padding-bottom: 10px; }
   .close-btn {
     pointer-events: auto;
