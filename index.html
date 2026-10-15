@@ -1935,7 +1935,7 @@
 
       <div class="warning">
         <svg viewBox="0 0 24 24"><path d="M12 3l10 18H2L12 3zM12 10v5M12 18h.01"/></svg>
-        <p>If you don't renew, your bank limit resets to ₦500,000 and any money above it is locked.</p>
+        <p>If you don't renew, your bank limit resets to ₦10,000,000 and any money above it is locked.</p>
       </div>
     </div>
   </div>
@@ -5480,7 +5480,7 @@ window.TakeoffScene = {
   function setCountry(name) { curCountry = name; if (!bizAll[name]) bizAll[name] = {}; biz = bizAll[name]; }
   // A country is gold when you own something there
   const ownedIn = name => !!(bizAll[name] && Object.keys(bizAll[name]).length) || !!(work && work.country === name);
-  const FREE_LIMIT = 500000;
+  const FREE_LIMIT = 10000000;
   let premium = window.hustlePremium || null;   // from the server, never from the save
   const bankLimit = () => (premium ? premium.limit : FREE_LIMIT);
   // Loan taken for treatment and not spent yet: the bank may hold it, so it is not pushed into Locked money
@@ -6281,7 +6281,7 @@ window.TakeoffScene = {
     const wiped = sickHold > 0 && wallet.bank === 0;   // paid with a loan and the bank is now empty
     sickHold = 0;
     if (wiped) wallet.bank += SICK_REWARD;
-    enforceLimit();   // no plan: ₦500,000 stays in the bank, the other ₦1,000,000 goes to Locked money
+    enforceLimit();   // no plan: money above the free limit goes to Locked money
     const rewardBank = wiped ? wallet.bank : 0;
     refillFromLocked();
     renderWallet();
