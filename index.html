@@ -2042,9 +2042,7 @@
         <div class="cb-dd-list" id="cbDdList" hidden></div>
       </div>
 
-      <label class="cb-label" for="cbAmount">Amount to invest</label>
-      <div class="cb-amt"><span>&#8358;</span><input id="cbAmount" type="text" inputmode="numeric" placeholder="250,000" autocomplete="off"></div>
-      <p class="cb-hint" id="cbHint">Minimum &#8358;250,000. Every &#8358;350,000 earns &#8358;2,500,000 profit, shared 50/50 with your partner.</p>
+      <p class="cb-hint" id="cbHint">Each contract has a fixed price, starting at &#8358;250,000 and 5 times more for each one after it. Every &#8358;350,000 earns &#8358;2,500,000 profit, shared 50/50 with your partner.</p>
 
       <button class="primary-btn" id="cbSend" disabled>Find business partner</button>
     </div>
@@ -4438,10 +4436,11 @@ window.TakeoffScene = {
     { id: 'software', icon: '💻', name: 'Tech Software Build', desc: 'Back a software project built for a paying company.' }
   ];
   const CB_MIN = 250000, CB_STEP = 350000, CB_PROFIT = 2500000;
+  CONTRACT_TYPES.forEach((t, i) => { t.price = CB_MIN * Math.pow(5, i); });   // 250,000 then x5 for each contract after it
   const cbEl = id => document.getElementById(id);
   const cbNaira = n => '₦' + Math.round(n).toLocaleString('en-US');
   let cbType = null;
-  const cbAmountVal = () => parseInt(cbEl('cbAmount').value.replace(/\D/g, ''), 10) || 0;
+  const cbAmountVal = () => cbType ? cbType.price : 0;
   function cbRefresh() {
     const amt = cbAmountVal();
     const ok = amt >= CB_MIN;
@@ -4460,7 +4459,6 @@ window.TakeoffScene = {
   function cbReset() {
     cbType = null;
     cbEl('cbDdText').textContent = 'Select a contract';
-    cbEl('cbAmount').value = '';
     cbCloseDd();
     cbEl('cbDdList').querySelectorAll('.cb-opt').forEach(o => o.classList.remove('sel'));
     cbRefresh();
@@ -4469,7 +4467,7 @@ window.TakeoffScene = {
     const o = document.createElement('button');
     o.type = 'button'; o.className = 'cb-opt';
     o.innerHTML = '<b></b><span></span>';
-    o.firstChild.textContent = t.name; o.lastChild.textContent = t.desc;
+    o.firstChild.textContent = t.name + ' · ' + cbNaira(t.price); o.lastChild.textContent = t.desc;
     o.addEventListener('click', () => {
       cbType = t;
       cbEl('cbDdText').textContent = t.name;
@@ -4483,11 +4481,6 @@ window.TakeoffScene = {
     cbEl('cbDdList').hidden = !open;
     cbEl('cbDd').classList.toggle('open', open);
     cbEl('cbDdBtn').setAttribute('aria-expanded', String(open));
-  });
-  cbEl('cbAmount').addEventListener('input', e => {
-    const n = cbAmountVal();
-    e.target.value = n ? n.toLocaleString('en-US') : '';
-    cbRefresh();
   });
   const setContractBuySheet = bindSheet('contractBuyLayer', 'contractBuyBtn', 'contractBuyClose', 'contractBuyBackdrop', cbReset);
   const setPartnerSheet = bindSheet('partnerLayer', 'cbSend', 'partnerClose', 'partnerBackdrop', () => ctPartnerReset());
