@@ -1276,7 +1276,8 @@
   #page-home { position: relative; overflow: hidden; background: var(--bg); }
   .home-bg { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
     --home-photo: url("https://i.postimg.cc/dQynYVdK/purple-city-nights-stockcake-%281%29.jpg"); }
-  .home-bg > div { position: absolute; inset: 0; }
+  .home-bg > div, .hb-slide > div { position: absolute; inset: 0; }
+  .hb-slide { transition: transform .9s ease; will-change: transform; transform: translateX(100%); }
   .hb-sharp { background: var(--home-photo) center top / cover no-repeat; }
   .hb-blur {
     background: var(--home-photo) center top / cover no-repeat;
@@ -1368,7 +1369,7 @@
 
   <main>
     <section class="page active" id="page-home" aria-label="Home">
-      <div class="home-bg" aria-hidden="true"><div class="hb-sharp"></div><div class="hb-blur"></div><div class="hb-tint"></div></div>
+      <div class="home-bg" aria-hidden="true"><div class="hb-slide" id="hbA"><div class="hb-sharp"></div><div class="hb-blur"></div></div><div class="hb-slide" id="hbB"><div class="hb-sharp"></div><div class="hb-blur"></div></div><div class="hb-tint"></div></div>
       <div class="home-main" id="homeMain">
       <div class="hustle-head home-head">
         <div class="topbar">
@@ -7761,6 +7762,34 @@ window.TakeoffScene = {
       }).catch(function () {});
   }
   document.getElementById('ihOk').addEventListener('click', function () { help.hidden = true; });
+})();
+</script>
+<script>
+// Home background: the photos slide in one after another every 5 seconds
+(function () {
+  const PHOTOS = [
+    'https://i.postimg.cc/dQynYVdK/purple-city-nights-stockcake-%281%29.jpg',
+    'https://i.postimg.cc/Ss1hyq1r/58333fabc083536052391b715196ebaa.jpg',
+    'https://i.postimg.cc/T18pRrsT/8bd85f6c9ca3d77f1b2a57892b736378.jpg'
+  ].filter(Boolean);
+  const A = document.getElementById('hbA'), B = document.getElementById('hbB');
+  if (!A || !B) return;
+  const setPhoto = (el, url) => el.style.setProperty('--home-photo', 'url("' + url + '")');
+  let i = 0, cur = A, nxt = B;
+  setPhoto(cur, PHOTOS[0]);
+  cur.style.transform = 'translateX(0)';
+  if (PHOTOS.length < 2) return;
+  PHOTOS.forEach(u => { const im = new Image(); im.src = u; });
+  setInterval(() => {
+    if (document.hidden) return;
+    i = (i + 1) % PHOTOS.length;
+    setPhoto(nxt, PHOTOS[i]);
+    nxt.style.transition = 'none'; nxt.style.transform = 'translateX(100%)';
+    void nxt.offsetWidth;
+    nxt.style.transition = '';
+    nxt.style.transform = 'translateX(0)'; cur.style.transform = 'translateX(-100%)';
+    const t = cur; cur = nxt; nxt = t;
+  }, 5000);
 })();
 </script>
 </body>
