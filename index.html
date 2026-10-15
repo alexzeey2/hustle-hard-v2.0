@@ -5564,16 +5564,16 @@ window.TakeoffScene = {
   const HUNGER_PER_CLICK = 0.5;                   // % lost on every click (change this number to make hunger faster or slower)
   const HUNGER_LOW = 50, HUNGER_VERY_LOW = 10;
   const FOODS = [
-    { id: 'bread', name: 'Bread', emoji: '🍞', gain: 6, start: 2, local: 500 },
-    { id: 'indomie', name: 'Indomie', emoji: '🍜', gain: 7, start: 3, local: 400 },
-    { id: 'eggs', name: 'Eggs', emoji: '🥚', gain: 4, start: 4, local: 300 },
-    { id: 'rice', name: 'Rice', emoji: '🍚', gain: 9, start: 1, local: 1500 },
-    { id: 'beans', name: 'Beans', emoji: '🫘', gain: 8, start: 0, local: 1200 },
-    { id: 'yam', name: 'Yam', emoji: '🍠', gain: 9, start: 0, local: 1500 },
-    { id: 'garri', name: 'Garri', emoji: '🥣', gain: 7, start: 2, local: 800 },
-    { id: 'plantain', name: 'Plantain', emoji: '🍌', gain: 6, start: 0, local: 600 },
-    { id: 'fish', name: 'Dried fish', emoji: '🐟', gain: 7, start: 0, local: 1000 },
-    { id: 'moimoi', name: 'Moi moi', emoji: '🍲', gain: 8, start: 0, local: 700 },
+    { id: 'bread', name: 'Bread', emoji: '🍞', gain: 3, start: 2, local: 500 },
+    { id: 'indomie', name: 'Indomie', emoji: '🍜', gain: 3, start: 3, local: 400 },
+    { id: 'eggs', name: 'Eggs', emoji: '🥚', gain: 2, start: 4, local: 300 },
+    { id: 'rice', name: 'Rice', emoji: '🍚', gain: 4, start: 1, local: 1500 },
+    { id: 'beans', name: 'Beans', emoji: '🫘', gain: 4, start: 0, local: 1200 },
+    { id: 'yam', name: 'Yam', emoji: '🍠', gain: 4, start: 0, local: 1500 },
+    { id: 'garri', name: 'Garri', emoji: '🥣', gain: 3, start: 2, local: 800 },
+    { id: 'plantain', name: 'Plantain', emoji: '🍌', gain: 3, start: 0, local: 600 },
+    { id: 'fish', name: 'Dried fish', emoji: '🐟', gain: 3, start: 0, local: 1000 },
+    { id: 'moimoi', name: 'Moi moi', emoji: '🍲', gain: 4, start: 0, local: 700 },
   ];
   const food = {};
   FOODS.forEach(f => { food[f.id] = saved.food && typeof saved.food[f.id] === 'number' ? saved.food[f.id] : f.start; });
