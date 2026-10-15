@@ -1090,6 +1090,8 @@
   .food-app { background: var(--bg); color: var(--text); font-size: 14px; padding: 0 14px; -webkit-user-select: auto; user-select: auto; }
   .fp-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .fp-head h2 { font-size: 22px; font-weight: 800; letter-spacing: -.01em; }
+  .shop-pane { min-height: 60vh; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); }
+  .shop-pane[hidden] { display: none; }
   .fp-hunger { margin-top: 14px; padding: 12px 14px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); }
   .fp-hunger-row { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; }
   .fp-hunger-row span:last-child { color: var(--purple-light); font-variant-numeric: tabular-nums; }
@@ -1612,6 +1614,26 @@
               <div class="app-icon" style="background: linear-gradient(145deg, #22d3ee, #6366f1 55%, #a855f7)"><svg viewBox="0 0 24 24" style="width:34px;height:34px;stroke:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))"><path fill="#fff" d="M6 3h12a4 4 0 0 1 4 4v7a4 4 0 0 1-4 4h-5.5L8 21.5V18H6a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4z"/><path fill="#6d28d9" d="M13.2 5.6 7.6 12.1h3.5l-.9 4.3 5.7-6.6h-3.6z"/></svg><span class="msg-dot" id="msgDot" hidden>0</span></div>
               HustleChat
             </div>
+            <div class="phone-app" id="carsIcon" role="button" tabindex="0">
+              <div class="app-icon emoji" style="background: linear-gradient(145deg, #38bdf8, #1d4ed8)">🚗</div>
+              Buy car
+            </div>
+            <div class="phone-app" id="housesIcon" role="button" tabindex="0">
+              <div class="app-icon emoji" style="background: linear-gradient(145deg, #fb923c, #c2410c)">🔑</div>
+              Buy house
+            </div>
+            <div class="phone-app" id="yachtsIcon" role="button" tabindex="0">
+              <div class="app-icon emoji" style="background: linear-gradient(145deg, #22d3ee, #0e7490)">🛥️</div>
+              Buy yacht
+            </div>
+            <div class="phone-app" id="jetsIcon" role="button" tabindex="0">
+              <div class="app-icon emoji" style="background: linear-gradient(145deg, #a78bfa, #4c1d95)">✈️</div>
+              Buy jet
+            </div>
+            <div class="phone-app" id="landIcon" role="button" tabindex="0">
+              <div class="app-icon emoji" style="background: linear-gradient(145deg, #4ade80, #166534)">🏞️</div>
+              Buy land
+            </div>
             <div class="phone-app" data-soon role="button" tabindex="0">
               <div class="app-icon emoji" style="background: linear-gradient(145deg, #34d399, #059669)">💼</div>
               Jobs
@@ -1675,14 +1697,6 @@
             <div class="phone-app" data-soon role="button" tabindex="0">
               <div class="app-icon emoji" style="background: linear-gradient(145deg, #14532d, #052e16)">👑</div>
               Forbes
-            </div>
-            <div class="phone-app" data-soon role="button" tabindex="0">
-              <div class="app-icon emoji" style="background: linear-gradient(145deg, #fb923c, #c2410c)">🔑</div>
-              Houses
-            </div>
-            <div class="phone-app" data-soon role="button" tabindex="0">
-              <div class="app-icon emoji" style="background: linear-gradient(145deg, #38bdf8, #1d4ed8)">🚗</div>
-              Cars
             </div>
           </div>
           </div>
@@ -1823,6 +1837,23 @@
         <div class="shop-row"><div class="sr-emoji">🛒</div><div class="sr-text"><div class="sr-name">Supermarket</div><div class="sr-desc">Packaged and bulk food</div></div><span class="soon-tag">Coming soon</span></div>
         <div class="shop-row"><div class="sr-emoji">🏬</div><div class="sr-text"><div class="sr-name">Shopping mall</div><div class="sr-desc">Premium groceries and ready meals</div></div><span class="soon-tag">Coming soon</span></div>
       </div>
+    </div>
+  </div>
+  <div class="bank-ui food-app" id="shopPage" aria-label="Showroom" aria-hidden="true">
+    <div class="sb-space"></div>
+    <div class="fp-head">
+      <h2>Showroom</h2>
+      <button class="sheet-close" id="shopClose" aria-label="Close">
+        <svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13"/></svg>
+      </button>
+    </div>
+    <div class="gt-tabs" id="shopTabs" style="margin-top:12px"></div>
+    <div class="fp-body">
+      <div class="shop-pane" data-tab="cars"></div>
+      <div class="shop-pane" data-tab="houses" hidden></div>
+      <div class="shop-pane" data-tab="yachts" hidden></div>
+      <div class="shop-pane" data-tab="jets" hidden></div>
+      <div class="shop-pane" data-tab="land" hidden></div>
     </div>
   </div>
   <div class="bank-ui food-app" id="loanPage" aria-label="Loans" aria-hidden="true">
@@ -4364,7 +4395,7 @@ window.TakeoffScene = {
   document.getElementById('closePhone').addEventListener('click', () => {
     if (opayApp.classList.contains('open') && opBack()) return;   // inside Opay, Back first steps back within the app
     if (document.getElementById('msgPage').classList.contains('open') && msgBack()) return;   // inside a chat, Back returns to the chat list
-    if (opayApp.classList.contains('open') || document.getElementById('foodPage').classList.contains('open') || document.getElementById('loanPage').classList.contains('open') || document.getElementById('msgPage').classList.contains('open')) goHome(); else setPhone(false);
+    if (opayApp.classList.contains('open') || document.getElementById('foodPage').classList.contains('open') || document.getElementById('loanPage').classList.contains('open') || document.getElementById('shopPage').classList.contains('open') || document.getElementById('msgPage').classList.contains('open')) goHome(); else setPhone(false);
   });
 
   // Wallet values (sample numbers for now)
@@ -4600,12 +4631,12 @@ window.TakeoffScene = {
   const closeIcon = document.getElementById('closeIcon');
   const closeLabel = document.getElementById('closeLabel');
   function updateCloseBtn() {
-    const inApp = opayApp.classList.contains('open') || document.getElementById('foodPage').classList.contains('open') || loanPage.classList.contains('open') || document.getElementById('msgPage').classList.contains('open');
+    const inApp = opayApp.classList.contains('open') || document.getElementById('foodPage').classList.contains('open') || loanPage.classList.contains('open') || document.getElementById('shopPage').classList.contains('open') || document.getElementById('msgPage').classList.contains('open');
     closeLabel.textContent = inApp ? 'Back' : 'Close';
     closeIcon.innerHTML = inApp ? '<path d="M13 8H3M7 4L3 8l4 4"/>' : '<path d="M3 3l10 10M13 3L3 13"/>';
   }
   const openOpay = () => { opShow('home'); document.getElementById('foodPage').classList.remove('open'); loanPage.classList.remove('open'); document.getElementById('msgPage').classList.remove('open'); opayApp.classList.add('open'); updateCloseBtn(); };
-  const goHome = () => { opayApp.classList.remove('open'); document.getElementById('foodPage').classList.remove('open'); loanPage.classList.remove('open'); loanPage.setAttribute('aria-hidden', 'true'); document.getElementById('msgPage').classList.remove('open'); document.getElementById('msgPage').setAttribute('aria-hidden', 'true'); updateCloseBtn(); };
+  const goHome = () => { opayApp.classList.remove('open'); document.getElementById('shopPage').classList.remove('open'); document.getElementById('foodPage').classList.remove('open'); loanPage.classList.remove('open'); loanPage.setAttribute('aria-hidden', 'true'); document.getElementById('msgPage').classList.remove('open'); document.getElementById('msgPage').setAttribute('aria-hidden', 'true'); updateCloseBtn(); };
   opayIcon.addEventListener('click', openOpay);
   opayIcon.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openOpay(); } });
   document.getElementById('homeBtn').addEventListener('click', goHome);
@@ -6727,6 +6758,35 @@ window.TakeoffScene = {
   loanIcon.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setLoanApp(true); } });
   $('loanClose').addEventListener('click', () => setLoanApp(false));
   setInterval(() => { if (loanPage.classList.contains('open')) renderLoanApp(); }, 1000);
+
+  // Showroom: Cars, Houses, Yachts and Jets (the pages are empty for now)
+  const shopPage = $('shopPage');
+  const SHOP_TABS = [{ id: 'cars', name: 'Cars' }, { id: 'houses', name: 'Houses' }, { id: 'yachts', name: 'Yachts' }, { id: 'jets', name: 'Jets' }, { id: 'land', name: 'Land' }];
+  let shopTab = 'cars';
+  function drawShop() {
+    $('shopTabs').innerHTML = SHOP_TABS.map(t => `<button class="gt-tab${t.id === shopTab ? ' active' : ''}" data-tab="${t.id}">${t.name}</button>`).join('');
+    shopPage.querySelectorAll('.shop-pane').forEach(p => { p.hidden = p.dataset.tab !== shopTab; });
+  }
+  function setShopApp(open, tab) {
+    if (tab) shopTab = tab;
+    shopPage.classList.toggle('open', open);
+    shopPage.setAttribute('aria-hidden', String(!open));
+    if (open) { opayApp.classList.remove('open'); setFood(false); loanPage.classList.remove('open'); document.getElementById('msgPage').classList.remove('open'); setPhone(true); drawShop(); }
+    updateCloseBtn();
+  }
+  sheetClosers.push(open => { if (!open) setShopApp(false); });
+  [['carsIcon', 'cars'], ['housesIcon', 'houses'], ['yachtsIcon', 'yachts'], ['jetsIcon', 'jets'], ['landIcon', 'land']].forEach(([id, tab]) => {
+    const el = $(id);
+    el.addEventListener('click', () => setShopApp(true, tab));
+    el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShopApp(true, tab); } });
+  });
+  $('shopClose').addEventListener('click', () => setShopApp(false));
+  $('shopTabs').addEventListener('click', e => {
+    const t = e.target.closest('.gt-tab'); if (!t) return;
+    shopTab = t.dataset.tab; drawShop();
+  });
+  drawShop();
+  addTabArrows($('shopTabs'));
 
   // Repayment card (stays until you tap X)
   const debtBar = $('debtBar');
