@@ -5535,7 +5535,8 @@ window.TakeoffScene = {
     wallet.locked -= move;
   }
   // While a plan is active, anything spent from the bank is replaced from Locked money
-  function refillFromLocked() { if (premium) unlockLocked(); }
+  // Locked money is never touched by spending: it only moves when you buy a plan (applyPlan calls unlockLocked directly)
+  function refillFromLocked() {}
   planState.active = !!premium;
   enforceLimit();
   refillFromLocked();   // only an active plan keeps the bank topped up from Locked money
@@ -5559,10 +5560,8 @@ window.TakeoffScene = {
   const skillsUnlocked = () => workMs >= SKILL_REQ;
   const fmtHM = ms => { const m = Math.floor(ms / 60000); return Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + 'm'; };
   function renderSkillGate() { document.getElementById('skillLock').hidden = skillsUnlocked(); }
-  // Hunger and food. Hunger is stored as a value plus a timestamp, so it keeps draining while the app is closed.
-  const HUNGER_MINUTES = 180;                     // full to empty (90 min until the card, 90 min until you fall ill)
-  const HUNGER_PER_MS = 100 / (HUNGER_MINUTES * 60000);
-  const AWAY_RATE = 0.25;                         // hunger drains at a quarter speed while the app is closed
+  // Hunger and food. Hunger only goes down when you click inside the app (no clock, nothing drains while you are away).
+  const HUNGER_PER_CLICK = 0.5;                   // % lost on every click (change this number to make hunger faster or slower)
   const HUNGER_LOW = 50, HUNGER_VERY_LOW = 10;
   const FOODS = [
     { id: 'bread', name: 'Bread', emoji: '🍞', gain: 6, start: 2, local: 500 },
@@ -5580,13 +5579,6 @@ window.TakeoffScene = {
   FOODS.forEach(f => { food[f.id] = saved.food && typeof saved.food[f.id] === 'number' ? saved.food[f.id] : f.start; });
   let hungerBase = typeof saved.hunger === 'number' ? saved.hunger : 100;
   let hungerAt = hungerClock();
-  if (typeof saved.hunger === 'number' && typeof saved.hungerAt === 'number') {
-    // Time away from the game drains hunger too, but can't kill you while you're gone.
-    // Time spent on a plane doesn't count.
-    let from = saved.hungerAt;
-    try { const sf = JSON.parse(gameStore.getItem('lifesim.flight')); if (sf && sf.start && sf.dur) from = Math.max(from, sf.start + sf.dur); } catch (e) {}
-    hungerBase = Math.max(Math.min(saved.hunger, 30), saved.hunger - Math.max(0, Date.now() - from) * HUNGER_PER_MS * AWAY_RATE);
-  }
   const ILLNESSES = [
     { id: 'malnutrition', name: 'Severe Malnutrition', cost: 2500000, desc: 'Your body has run out of fuel and is breaking down.' },
     { id: 'kwashiorkor', name: 'Kwashiorkor', cost: 3200000, desc: 'Lack of protein has made your body swell and your strength fade.' },
@@ -5608,7 +5600,7 @@ window.TakeoffScene = {
   const randomCost = () => Math.round((1500000 + Math.random() * 18500000) / 50000) * 50000;   // up to ₦20,000,000
   // Hunger is paused while you're on a plane: the drain clock only starts again when you land
   function hungerClock() { const f = activeFlight(); return f ? f.start + f.dur : Date.now(); }
-  const hunger = () => Math.max(0, Math.min(100, hungerBase - Math.max(0, Date.now() - hungerAt) * HUNGER_PER_MS));
+  const hunger = () => Math.max(0, Math.min(100, hungerBase));
   function save() {
     let pending = 0;
     try { pending = pendingReturns(); } catch (e) {}   // money out earning, so other players see your full net worth
@@ -6842,6 +6834,13 @@ window.TakeoffScene = {
   if (sick) showSick();
   tickHunger();
   setInterval(tickHunger, 1000);
+  // Any click anywhere in the app lowers the hunger bar (capture, so nothing can block it)
+  document.addEventListener('click', () => {
+    if (sick) return;
+    hungerBase = Math.max(0, hungerBase - HUNGER_PER_CLICK);
+    tickHunger();
+    save();
+  }, true);
   collectDebt();
   setInterval(collectDebt, 1000);
   save();
