@@ -2032,7 +2032,7 @@
 
       <div class="warning">
         <svg viewBox="0 0 24 24"><path d="M12 3l10 18H2L12 3zM12 10v5M12 18h.01"/></svg>
-        <p>If you don't renew, your bank limit resets to ₦10,000,000 and any money above it is locked.</p>
+        <p>If you don't renew, your bank limit resets to ₦60,000,000 and any money above it is locked.</p>
       </div>
     </div>
   </div>
@@ -3029,7 +3029,7 @@
 
   // Wallet values (sample numbers for now)
   const naira = n => '₦' + n.toLocaleString('en-NG');
-  const wallet = { bank: 500000, locked: 1000000, earned: 0 };
+  const wallet = { bank: 10000000, locked: 60000000, earned: 0 };
   // Unlocking a job or skill costs 10% of your bank balance, sent to a friend
   const unlockAmount = () => Math.max(1, Math.round(wallet.bank * 0.1));
   // Locked money card: only shown when there is locked money (or just after a plan payment, to show Approved)
@@ -4007,8 +4007,8 @@
       intro: { text: 'Going to work', photo: INTRO_PHOTO },
       ids: { open: 'jobsOpenBtn', layer: 'jobsSheetLayer', close: 'jobsSheetClose', backdrop: 'jobsSheetBackdrop', list: 'jobsList' },
       items: [
-        { title: 'Site Engineer', pay: 55000, every: '20 minutes', ms: 20 * 60000, desc: 'Inspect building sites and sign off projects for solid pay.', locked: false },
-        { title: 'Oil and Gas Consultant', pay: 350000, every: '1 hour', ms: HOUR, desc: 'Advise oil companies and earn big. The best paying job.', locked: true },
+        { title: 'Site Engineer', pay: 500000, every: '20 minutes', ms: 20 * 60000, desc: 'Inspect building sites and sign off projects for solid pay.', locked: false },
+        { title: 'Oil and Gas Consultant', pay: 2000000, every: '1 hour', ms: HOUR, desc: 'Advise oil companies and earn big. The best paying job.', locked: true },
       ],
     },
     skill: {
@@ -4410,7 +4410,7 @@
   // Contracts, investments, land and Showroom items are not tied to a country: they count as owned in the country you are in now
   const ownsLoose = () => { try { return Object.keys(ownedItems).length > 0 || ctState.list.length > 0 || ctState.sent.length > 0 || holdings.some(h => opProduct(h)); } catch (e) { return false; } };
   const ownedIn = name => !!(bizAll[name] && Object.keys(bizAll[name]).length) || !!(work && work.country === name) || (name === curCountry && ownsLoose());
-  const FREE_LIMIT = 10000000;
+  const FREE_LIMIT = 60000000;
   let premium = window.hustlePremium || null;   // from the server, never from the save
   const bankLimit = () => (premium ? premium.limit : FREE_LIMIT);
   // Loan taken for treatment and not spent yet: the bank may hold it, so it is not pushed into Locked money
