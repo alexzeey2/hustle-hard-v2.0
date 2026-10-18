@@ -7128,6 +7128,7 @@ html,body{height:100%;overflow:hidden;background:#070a12;color:#eef3ff;font-fami
 .btn.ghost{background:rgba(255,255,255,.12);color:#eef3ff}
 .btn:focus-visible{outline:2px solid #fff;outline-offset:2px}
 .btn:active{transform:scale(.97)}
+#go{min-width:86px;display:inline-flex;align-items:center;justify-content:center}
 #result{position:absolute;left:calc(50% + 28px);top:74px;transform:translateX(-50%) translateY(-6px);width:var(--sw);padding:14px 16px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
 #result.show{opacity:1;transform:translateX(-50%);pointer-events:auto}
 #result h2{font-size:17px;font-weight:800;margin-bottom:4px;word-break:break-word}
@@ -7990,7 +7991,11 @@ function showFinding(P,flying){
  if(flying){var bar=ce('div','bar'),i=ce('i');bar.appendChild(i);progEl=i;n.push(bar);
   var acts=ce('div','acts');acts.appendChild(pbtn('Skip ahead','ghost',function(){flight.s=Math.max(flight.s,flight.len-30);}));acts.appendChild(pbtn('Cancel','ghost',goHome));n.push(acts);}
  showRes(n);}
-var myCountry=null,askId=0,asked=null,flyBtn=null,flyNote=null,sugOn=false;
+var myCountry=null,askId=0,asked=null,flyBtn=null,flyNote=null,sugOn=false,goBtn=document.getElementById('go'),found=false;
+/* once someone is found, Search turns into an X that clears the name and puts the camera back on top of the building */
+function setX(on){found=on;goBtn.setAttribute('aria-label',on?'Clear search':'Search');
+ if(on){goBtn.textContent='';goBtn.innerHTML='<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/></svg>';}
+ else goBtn.textContent='Search';}
 function post(m){try{parent.postMessage(m,'*');}catch(e){}}
 function ask(q,pick){asked={id:++askId,q:q,pick:pick};post({hc:'search',q:q,id:asked.id,pick:pick});}
 function showHouse(P){
@@ -8010,13 +8015,13 @@ function showLoginMsg(){
  var acts=ce('div','acts');acts.appendChild(pbtn('Log in',null,function(){post({hc:'login'});}));acts.appendChild(pbtn('Close','ghost',hideRes));
  showRes([ce('h2',null,'Log in to search'),ce('p',null,'You need to be logged in to look up real players.'),acts]);}
 function goHome(){
- var my=++sid;cancelFlight();hideMarker();qEl.value='';
+ setX(false);var my=++sid;cancelFlight();hideMarker();qEl.value='';
  if(atHome){hideRes();return;}
  fadeTo(1,function(){if(my!==sid)return;
   camera.position.copy(camPos);baseYaw=homeYaw;basePitch=homePitch;flight.roll=0;
   view.yaw=view.pitch=view.tyaw=view.tpitch=0;atHome=true;hideRes();fadeTo(0);});}
 function go(r){
- sugOn=false;qEl.blur();qEl.value=r.username;
+ sugOn=false;qEl.blur();qEl.value=r.username;setX(true);
  var my=++sid;cancelFlight();hideMarker();var P=person(r);
  if(!P.country){var a=ce('div','acts');a.appendChild(pbtn('Search someone else',null,goHome));
   showRes([ce('h2',null,'Found '+P.name),ce('p',null,'We could not tell which country they are in yet.'),metaRow(P),a]);return;}
@@ -8055,14 +8060,14 @@ function showSuggest(list){
  sugOn=true;showRes([box]);}
 function hideSuggest(){if(sugOn){sugOn=false;hideRes();}}
 qEl.addEventListener('input',function(){
- clearTimeout(typeT);
+ if(found)setX(false);clearTimeout(typeT);
  typeT=setTimeout(function(){
   if(busy||flight.on)return;
   var q=cleanQ(qEl.value);
   if(q.length<2){hideSuggest();return;}
   ask(q,false);
  },300);});
-document.getElementById('go').addEventListener('click',function(){searchFor(qEl.value);});
+goBtn.addEventListener('click',function(){if(found)goHome();else searchFor(qEl.value);});
 qEl.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();searchFor(qEl.value);}else if(e.key==='Escape'){goHome();}});
 
 /* ---------- sound: engines, road noise, horns (all made in code, no files) ---------- */
