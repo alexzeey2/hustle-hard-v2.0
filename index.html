@@ -1348,7 +1348,8 @@
   .mk-bal { margin: 12px 0; font-size: 13px; color: var(--muted); }
   .mk-bal b { color: var(--text); }
   .mk-note { margin-bottom: 12px; padding: 10px 12px; border-radius: 10px; background: rgba(248,113,113,.14); border: 1px solid rgba(248,113,113,.45); color: #fca5a5; font-size: 13px; font-weight: 600; }
-  .mk-buy { flex: none; min-width: 84px; height: 40px; padding: 0 12px; border-radius: 12px; background: var(--purple); color: #fff; font-size: 13px; font-weight: 700; }
+  .mk-buy.out { background: var(--surface-2); color: var(--muted); border: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+  .mk-buy { flex: none; min-width: 104px; height: 40px; padding: 0 12px; border-radius: 12px; background: var(--purple); color: #fff; font-size: 13px; font-weight: 700; }
   /* Home page: photo background, progressively blurred, with glass cards */
   #page-home { position: relative; overflow: hidden; background: var(--bg); }
   .home-bg { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
@@ -1936,20 +1937,22 @@
       <button class="fp-tab" data-tab="shop">Food shopping</button>
     </div>
     <div class="fp-body">
+      <div class="mk-note" id="eatNote" hidden></div>
       <div class="food-grid" id="foodGrid"></div>
       <div class="market" id="marketView" hidden>
         <div class="mk-head">
           <button class="mk-back" id="marketBack" aria-label="Back to food shopping">‹</button>
-          <div class="mk-title">Local market</div>
+          <div class="mk-title" id="mkTitle">Local market</div>
         </div>
         <div class="mk-bal">Bank balance <b id="mkBal"></b></div>
+        <div class="mk-bal" id="mkInfo" hidden style="margin-top:-6px"></div>
         <div class="mk-note" id="mkNote" hidden>Not enough money in your bank</div>
         <div class="shop-list" id="marketList"></div>
       </div>
       <div class="shop-list" id="shopList" hidden>
         <button class="shop-row" id="openLocalMarket"><div class="sr-emoji">🧺</div><div class="sr-text"><div class="sr-name">Local market</div><div class="sr-desc">Fresh food stuffs at street prices</div></div><span class="sr-chev">›</span></button>
-        <div class="shop-row"><div class="sr-emoji">🛒</div><div class="sr-text"><div class="sr-name">Supermarket</div><div class="sr-desc">Packaged and bulk food</div></div><span class="soon-tag">Coming soon</span></div>
-        <div class="shop-row"><div class="sr-emoji">🏬</div><div class="sr-text"><div class="sr-name">Shopping mall</div><div class="sr-desc">Premium groceries and ready meals</div></div><span class="soon-tag">Coming soon</span></div>
+        <button class="shop-row" id="openSuperMarket"><div class="sr-emoji">🛒</div><div class="sr-text"><div class="sr-name">Supermarket</div><div class="sr-desc">Buy 10 at a time · price grows with your net worth</div></div><span class="sr-chev">›</span></button>
+        <button class="shop-row" id="openMall"><div class="sr-emoji">🏬</div><div class="sr-text"><div class="sr-name">Shopping mall</div><div class="sr-desc">Buy 50 at a time · premium prices, longest restock</div></div><span class="sr-chev">›</span></button>
       </div>
     </div>
   </div>
@@ -4085,6 +4088,7 @@
     window.hustleMap = {
       here: () => (home ? home.name : null),
       names: () => countries.map(c => c.name),
+      cost: name => { const c = countries.find(x => x.name === name); return c && home ? costFor(c) : 0; },
       travelTo: name => {
         const c = countries.find(x => x.name === name);
         if (!c || !home) return 'unavailable';
@@ -4504,7 +4508,7 @@
   try { curCountry = gameStore.getItem('lifesim.home') || 'Nigeria'; } catch (e) {}
   const parseBiz = o => {
     const r = {};
-    if (o && typeof o === 'object') Object.keys(o).forEach(k => { const v = o[k]; if (v && typeof v.start === 'number') r[k] = { level: Math.max(1, Math.min(5, (v.level | 0) || 1)), start: v.start, ready: Math.max(0, +v.ready || 0), manager: !!v.manager }; });
+    if (o && typeof o === 'object') Object.keys(o).forEach(k => { const v = o[k]; if (v && typeof v.start === 'number') r[k] = { level: Math.max(1, Math.min(5, (v.level | 0) || 1)), start: v.start, ready: Math.max(0, +v.ready || 0), manager: !!v.manager }; if (r[k] && v.base > 0) r[k].base = +v.base; });
     return r;
   };
   const bizAll = {};
@@ -4512,6 +4516,7 @@
   else if (saved.biz) bizAll[curCountry] = parseBiz(saved.biz);   // old save: your businesses belong to the country you are in now
   if (!bizAll[curCountry]) bizAll[curCountry] = {};
   let biz = bizAll[curCountry];
+  const bizTrip = saved.bizTrip && typeof saved.bizTrip === 'object' ? saved.bizTrip : {};   // { businessId: { to, cost } }: the flight you were told to take to start it
   function setCountry(name) { curCountry = name; if (!bizAll[name]) bizAll[name] = {}; biz = bizAll[name]; }
   // A country is gold when you own something there
   // Contracts, investments, land and Showroom items are not tied to a country: they count as owned in the country you are in now
@@ -4565,22 +4570,28 @@
   const fmtHM = ms => { const m = Math.floor(ms / 60000); return Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + 'm'; };
   function renderSkillGate() { document.getElementById('skillLock').hidden = skillsUnlocked(); }
   // Hunger and food. Hunger only goes down when you click inside the app (no clock, nothing drains while you are away).
-  const HUNGER_PER_CLICK = 0.5;                   // % lost on every click (change this number to make hunger faster or slower)
+  const HUNGER_PER_CLICK = 0.1;                   // % lost on every click: a full bar lasts 1,000 taps (change this number to make hunger faster or slower)
   const HUNGER_LOW = 50, HUNGER_VERY_LOW = 10;
+  // gain = % of the hunger bar the food gives (gain / HUNGER_PER_CLICK = how many taps it lasts).
+  // local = street price of one unit. hrs = hours a food stays out of stock after you buy it: [local market, supermarket, shopping mall]
   const FOODS = [
-    { id: 'bread', name: 'Bread', emoji: '🍞', gain: 3, start: 2, local: 500 },
-    { id: 'indomie', name: 'Indomie', emoji: '🍜', gain: 3, start: 3, local: 400 },
-    { id: 'eggs', name: 'Eggs', emoji: '🥚', gain: 2, start: 4, local: 300 },
-    { id: 'rice', name: 'Rice', emoji: '🍚', gain: 4, start: 1, local: 1500 },
-    { id: 'beans', name: 'Beans', emoji: '🫘', gain: 4, start: 0, local: 1200 },
-    { id: 'yam', name: 'Yam', emoji: '🍠', gain: 4, start: 0, local: 1500 },
-    { id: 'garri', name: 'Garri', emoji: '🥣', gain: 3, start: 2, local: 800 },
-    { id: 'plantain', name: 'Plantain', emoji: '🍌', gain: 3, start: 0, local: 600 },
-    { id: 'fish', name: 'Dried fish', emoji: '🐟', gain: 3, start: 0, local: 1000 },
-    { id: 'moimoi', name: 'Moi moi', emoji: '🍲', gain: 4, start: 0, local: 700 },
+    { id: 'bread', name: 'Bread', emoji: '🍞', gain: 10, start: 2, local: 500, hrs: [4, 12, 24] },
+    { id: 'indomie', name: 'Indomie', emoji: '🍜', gain: 12, start: 3, local: 450, hrs: [4, 12, 24] },
+    { id: 'eggs', name: 'Eggs', emoji: '🥚', gain: 8, start: 4, local: 300, hrs: [3, 8, 16] },
+    { id: 'rice', name: 'Rice', emoji: '🍚', gain: 30, start: 1, local: 1800, hrs: [10, 22, 44] },
+    { id: 'beans', name: 'Beans', emoji: '🫘', gain: 40, start: 0, local: 2000, hrs: [12, 24, 48] },
+    { id: 'yam', name: 'Yam', emoji: '🍠', gain: 35, start: 0, local: 1900, hrs: [11, 23, 46] },
+    { id: 'garri', name: 'Garri', emoji: '🥣', gain: 15, start: 2, local: 700, hrs: [5, 14, 28] },
+    { id: 'plantain', name: 'Plantain', emoji: '🍌', gain: 18, start: 0, local: 800, hrs: [6, 16, 32] },
+    { id: 'fish', name: 'Dried fish', emoji: '🐟', gain: 20, start: 0, local: 1200, hrs: [7, 18, 36] },
+    { id: 'moimoi', name: 'Moi moi', emoji: '🍲', gain: 25, start: 0, local: 1300, hrs: [8, 20, 40] },
   ];
+  const foodTaps = f => Math.round(f.gain / HUNGER_PER_CLICK);
   const food = {};
   FOODS.forEach(f => { food[f.id] = saved.food && typeof saved.food[f.id] === 'number' ? saved.food[f.id] : f.start; });
+  // Out-of-stock timers: stock[market][food] = the time it is back on the shelf
+  const stock = { local: {}, super: {}, mall: {} };
+  if (saved.stock && typeof saved.stock === 'object') Object.keys(stock).forEach(m => { const o = saved.stock[m]; if (o && typeof o === 'object') Object.keys(o).forEach(k => { if (typeof o[k] === 'number') stock[m][k] = o[k]; }); });
   let hungerBase = typeof saved.hunger === 'number' ? saved.hunger : 100;
   let hungerAt = hungerClock();
   const ILLNESSES = [
@@ -4610,7 +4621,7 @@
   function save() {
     let pending = 0;
     try { pending = pendingReturns(); } catch (e) {}   // money out earning, so other players see your full net worth
-    try { gameStore.setItem(STORE, JSON.stringify({ jobsV: 2, bizAll, work, workMs, workAt, bank: wallet.bank, locked: wallet.locked, pending, earned: wallet.earned, day: today, premium, hunger: hunger(), hungerAt: Date.now(), food, sick, lastIllness, sickCost, sickHold, receivedHold, debt, holdings, items: ownedItems, unlocked })); } catch (e) {}
+    try { gameStore.setItem(STORE, JSON.stringify({ jobsV: 2, bizAll, bizTrip, work, workMs, workAt, bank: wallet.bank, locked: wallet.locked, pending, earned: wallet.earned, day: today, premium, hunger: hunger(), hungerAt: Date.now(), food, stock, sick, lastIllness, sickCost, sickHold, receivedHold, debt, holdings, items: ownedItems, unlocked })); } catch (e) {}
   }
 
   // Flight in progress (stored by the map), or null
@@ -4954,7 +4965,11 @@
     const ok = names.filter(n => n !== curCountry && n !== bizOrigin() && !bizLocked(n, b.id) && !(bizAll[n] && bizAll[n][b.id]));
     return ok.length ? ok[strHash(curCountry + '>' + b.id) % ok.length] : null;
   }
-  const bizPay = (b, lvl) => Math.round(b.pay * (1 + 0.5 * (lvl - 1)));                 // each boost adds +50% of the starting pay
+  // A business you had to fly to another country to start never pays less than 20% more than that flight cost
+  const TRIP_MARGIN = 1.2;
+  const tripPay = (b, cost) => Math.max(b.pay, Math.ceil(cost * TRIP_MARGIN / 1000) * 1000);
+  const bizBase = b => { const t = bizTrip[b.id]; return t && t.to === curCountry && t.cost > 0 ? tripPay(b, t.cost) : b.pay; };
+  const bizPay = (b, lvl, st) => Math.round(((st && st.base) || b.pay) * (1 + 0.5 * (lvl - 1)));                 // each boost adds +50% of the starting pay
   // first boost costs 20% of the start price, and every boost after that costs double the one before
   const boostCost = (b, lvl) => Math.max(1000, Math.round(b.cost * 0.2 / 1000) * 1000) * Math.pow(2, lvl - 1);
   const bizList = document.getElementById('bizList');
@@ -4982,8 +4997,8 @@
       const st = bizAll[c][b.id]; if (!st) return;
       if (st.manager) {
         const cycles = Math.floor((now - st.start) / b.ms);
-        if (cycles > 0) { total += cycles * bizPay(b, st.level); st.start += cycles * b.ms; names.push(b.title); changed = true; }
-      } else if (!st.ready && now - st.start >= b.ms) { st.ready = bizPay(b, st.level); changed = true; }
+        if (cycles > 0) { total += cycles * bizPay(b, st.level, st); st.start += cycles * b.ms; names.push(b.title); changed = true; }
+      } else if (!st.ready && now - st.start >= b.ms) { st.ready = bizPay(b, st.level, st); changed = true; }
     }));
     if (total > 0) bizBank(names.join(', '), total);
     else if (changed) save();
@@ -5004,10 +5019,14 @@
       const st = biz[b.id];
       const tagList = st ? (st.manager ? '<span class="biz-tag">Manager</span>' : '') + (st.level >= BIZ_MAX ? '<span class="biz-tag muted">Max level</span>' : '') : '';
       const tags = tagList ? `<div class="biz-tags">${tagList}</div>` : '';
-      const head = `<div class="ji-top"><div><div class="ji-title">${b.emoji} ${b.title}</div>${tags}</div><span class="ji-pay">${naira(st ? bizPay(b, st.level) : b.pay)} / ${b.every}</span></div><p class="ji-desc">${b.desc}</p>`;
+      const head = `<div class="ji-top"><div><div class="ji-title">${b.emoji} ${b.title}</div>${tags}</div><span class="ji-pay">${naira(st ? bizPay(b, st.level, st) : bizBase(b))} / ${b.every}</span></div><p class="ji-desc">${b.desc}</p>`;
       if (!st) {
         const away = bizStartIn(b);
-        if (away) return `<div class="job-item" data-id="${b.id}">${head}<p class="biz-away">This one cannot be started in ${curCountry}. Start it in <b>${away}</b>.</p><button class="primary-btn biz-start">\u2708\uFE0F Travel to ${away}</button></div>`;
+        if (away) {
+          const fm = window.hustleMap, fc = fm && fm.cost ? fm.cost(away) : 0;
+          const more = fc ? ` There it pays at least ${naira(tripPay(b, fc))} each time (20% more than the ${naira(fc)} flight).` : '';
+          return `<div class="job-item" data-id="${b.id}">${head}<p class="biz-away">This one cannot be started in ${curCountry}. Start it in <b>${away}</b>.${more}</p><button class="primary-btn biz-start">\u2708\uFE0F Travel to ${away}</button></div>`;
+        }
         return `<div class="job-item" data-id="${b.id}">${head}<button class="primary-btn biz-start">Start for ${naira(b.cost)}</button></div>`;
       }
       const max = st.level >= BIZ_MAX;
@@ -5018,7 +5037,7 @@
         </div>
         <button class="primary-btn biz-collect">Collect ${naira(st.ready)}</button>`
         : `<div class="ji-timer">
-          <div class="ji-timer-row"><span>Boosted ${st.level - 1} of ${BIZ_MAX - 1} · Next pay ${naira(bizPay(b, st.level))}</span><span class="ji-left">--</span></div>
+          <div class="ji-timer-row"><span>Boosted ${st.level - 1} of ${BIZ_MAX - 1} · Next pay ${naira(bizPay(b, st.level, st))}</span><span class="ji-left">--</span></div>
           <div class="ji-bar"><div class="ji-fill"></div></div>
         </div>`;
       const acts = [];
@@ -5061,7 +5080,7 @@
     gid('bsTotal').textContent = naira(b.cost);
     gid('bsBank').textContent = naira(wallet.bank);
     gid('bsAfter').textContent = naira(Math.max(0, wallet.bank - b.cost));
-    gid('bsEarn').textContent = `Once it is open it pays ${naira(b.pay)} every ${b.every}, and you can boost it any time.`;
+    gid('bsEarn').textContent = `Once it is open it pays ${naira(bizBase(b))} every ${b.every}, and you can boost it any time.`;
     gid('bsNote').hidden = !broke;
     gid('bizPay').disabled = false;
     gid('bizPay').textContent = 'Pay ' + naira(b.cost);
@@ -5081,8 +5100,10 @@
       wallet.bank -= b.cost;
       refillFromLocked();
       biz[b.id] = { level: 1, start: Date.now() };
+      const tb = bizBase(b); if (tb > b.pay) biz[b.id].base = tb;
+      delete bizTrip[b.id];
       renderWallet(); save(); renderBiz();
-      showNotice(b.title + ' is open', `Your business is running and pays ${naira(b.pay)} every ${b.every}. Boost it any time to earn more.`, false);
+      showNotice(b.title + ' is open', `Your business is running and pays ${naira(bizPay(b, 1, biz[b.id]))} every ${b.every}. Boost it any time to earn more.`, false);
     });
   });
   bizList.addEventListener('click', e => {
@@ -5091,6 +5112,10 @@
     if (e.target.closest('.biz-start')) {
       if (biz[b.id]) return;
       const away = bizStartIn(b);
+      if (away) {
+        const fm = window.hustleMap, fc = fm && fm.cost ? fm.cost(away) : 0;
+        if (fc) { bizTrip[b.id] = { to: away, cost: fc }; save(); }
+      }
       if (away) askFly('Start it in ' + away, `${b.title} cannot be started in ${curCountry}. Fly to ${away} and start it there.`, away, () => setBizSheet(false));
       else openBizStart(b);
     } else if (e.target.closest('.biz-collect')) {
@@ -5142,7 +5167,7 @@
         const st = mine[b.id];
         const right = st.ready && !st.manager ? '<span class="gt-ready">Ready</span>' : `<span class="gt-left" data-id="${b.id}">--</span>`;
         const btn = st.ready && !st.manager ? `<button class="gt-collect" data-id="${b.id}"${here ? '' : ' disabled'}>${here ? 'Collect ' : 'Go there to collect '}${naira(st.ready)}</button>` : '';
-        return `<div class="gt-row"><div><div class="gt-name">${b.emoji} ${b.title}</div><div class="gt-sub">Level ${st.level} of ${BIZ_MAX} · ${naira(bizPay(b, st.level))} / ${b.every}${st.manager ? ' · Manager' : ''}</div></div><div class="gt-right">${right}</div>${btn}</div>`;
+        return `<div class="gt-row"><div><div class="gt-name">${b.emoji} ${b.title}</div><div class="gt-sub">Level ${st.level} of ${BIZ_MAX} · ${naira(bizPay(b, st.level, st))} / ${b.every}${st.manager ? ' · Manager' : ''}</div></div><div class="gt-right">${right}</div>${btn}</div>`;
       }).join('') || '<div class="gt-empty">No mini business here yet.</div>';
     } else if (goldTab === 'jobs') {
       if (work && work.country === goldCountry) {
@@ -5245,12 +5270,13 @@
     $('marketView').hidden = true;   // switching tabs leaves the market
   }));
 
+  let eatNoteT = 0;
   function renderFood() {
     $('foodGrid').innerHTML = FOODS.map(f => `<button class="food-card" data-id="${f.id}"${food[f.id] > 0 ? '' : ' disabled'}>
       <span class="fc-qty">x${food[f.id]}</span>
       <div class="fc-emoji">${f.emoji}</div>
       <div class="fc-name">${f.name}</div>
-      <div class="fc-gain">+${f.gain}% hunger</div>
+      <div class="fc-gain">+${f.gain}% · ${foodTaps(f).toLocaleString('en-NG')} taps</div>
     </button>`).join('');
   }
   $('foodGrid').addEventListener('click', e => {
@@ -5258,6 +5284,13 @@
     if (!btn || sick) return;
     const f = FOODS.find(x => x.id === btn.dataset.id);
     if (!f || food[f.id] < 1) return;
+    // no wasting food: it has to fit in the hunger bar
+    if (hunger() + f.gain > 100) {
+      const n = $('eatNote');
+      n.textContent = `Too full for ${f.name}. Eat it when your hunger is ${Math.max(0, Math.floor(100 - f.gain))}% or lower.`;
+      n.hidden = false; clearTimeout(eatNoteT); eatNoteT = setTimeout(() => { n.hidden = true; }, 3000);
+      return;
+    }
     food[f.id]--;
     hungerBase = Math.min(100, hunger() + f.gain);
     hungerAt = hungerClock();
@@ -5267,37 +5300,92 @@
   });
 
 
-  // Local market: buy food stuffs with bank money
+  // Food markets. Each purchase puts that food out of stock for a while (longer in the bigger markets).
+  //  Local market: 1 unit at a flat street price, the same for everyone, so broke players can always eat.
+  //  Supermarket: 10 units at once.  Shopping mall: 50 units at once.
+  //  Their prices grow with your net worth (smoothly), so rich players pay more for the convenience.
+  const MARKETS = [
+    { id: 'local', name: 'Local market', units: 1, mark: 1,   steps: null },
+    { id: 'super', name: 'Supermarket',  units: 10, mark: 1.3, steps: [[5e6, 1], [5e7, 2], [5e8, 4], [5e9, 8]] },
+    { id: 'mall',  name: 'Shopping mall', units: 50, mark: 1.6, steps: [[5e6, 1], [5e7, 4], [5e8, 16], [5e9, 40]] },
+  ];
+  const worthNow = () => { try { return netWorth(); } catch (e) { return wallet.bank + wallet.locked; } };
+  function wealthMult(m) {
+    if (!m.steps) return 1;
+    const w = worthNow(), st = m.steps;
+    if (w <= st[0][0]) return st[0][1];
+    if (w >= st[st.length - 1][0]) return st[st.length - 1][1];
+    for (let i = 1; i < st.length; i++) {
+      if (w <= st[i][0]) {
+        const t = (Math.log(w) - Math.log(st[i - 1][0])) / (Math.log(st[i][0]) - Math.log(st[i - 1][0]));
+        return st[i - 1][1] + (st[i][1] - st[i - 1][1]) * t;
+      }
+    }
+    return 1;
+  }
+  const marketIdx = m => MARKETS.indexOf(m);
+  const marketPrice = (m, f) => m.units === 1 ? f.local : Math.round(f.local * m.units * m.mark * wealthMult(m) / 100) * 100;
+  const stockLeft = (m, f) => Math.max(0, (stock[m.id][f.id] || 0) - Date.now());
+  let curMarket = MARKETS[0];
   const marketView = $('marketView');
   let mkNoteTimer = 0;
   function renderMarket() {
+    const m = curMarket;
+    $('mkTitle').textContent = m.name;
     $('mkBal').textContent = naira(wallet.bank);
-    $('marketList').innerHTML = FOODS.map(f => `<div class="shop-row">
+    const info = $('mkInfo');
+    info.hidden = m.units === 1;
+    if (m.units > 1) info.textContent = `Buy ${m.units} at a time. Prices rise as your net worth grows (now x${wealthMult(m).toFixed(1)}), and the shelf takes longer to refill.`;
+    $('marketList').innerHTML = FOODS.map(f => {
+      const left = stockLeft(m, f);
+      const taps = foodTaps(f) * m.units;
+      return `<div class="shop-row">
       <div class="sr-emoji">${f.emoji}</div>
-      <div class="sr-text"><div class="sr-name">${f.name}</div><div class="sr-desc">+${f.gain}% hunger · You have ${food[f.id]}</div></div>
-      <button class="mk-buy" data-id="${f.id}">${naira(f.local)}</button>
-    </div>`).join('');
+      <div class="sr-text"><div class="sr-name">${f.name}${m.units > 1 ? ' x' + m.units : ''}</div><div class="sr-desc">${taps.toLocaleString('en-NG')} taps${m.units > 1 ? ' total' : ' each'} · You have ${food[f.id]}</div></div>
+      <button class="mk-buy${left ? ' out' : ''}" data-id="${f.id}"${left ? ' data-out="1"' : ''}>${left ? fmtLeft(left) : naira(marketPrice(m, f))}</button>
+    </div>`;
+    }).join('');
   }
-  function setMarket(open) {
+  // Once a second: only the button texts change (countdowns and prices), nothing is rebuilt under your finger
+  setInterval(() => {
+    if (marketView.hidden) return;
+    const m = curMarket;
+    let refill = false;
+    marketView.querySelectorAll('.mk-buy').forEach(btn => {
+      const f = FOODS.find(x => x.id === btn.dataset.id); if (!f) return;
+      const left = stockLeft(m, f);
+      if (left) btn.textContent = fmtLeft(left);
+      else if (btn.dataset.out) refill = true;
+      else btn.textContent = naira(marketPrice(m, f));
+    });
+    if (refill) renderMarket();
+  }, 1000);
+  function setMarket(open, id) {
+    if (open && id) curMarket = MARKETS.find(m => m.id === id) || MARKETS[0];
     marketView.hidden = !open;
     $('shopList').hidden = open || !shopTabActive();
     if (open) { $('mkNote').hidden = true; renderMarket(); }
   }
   const shopTabActive = () => foodPage.querySelector('.fp-tab.active').dataset.tab === 'shop';
-  $('openLocalMarket').addEventListener('click', () => setMarket(true));
+  $('openLocalMarket').addEventListener('click', () => setMarket(true, 'local'));
+  $('openSuperMarket').addEventListener('click', () => setMarket(true, 'super'));
+  $('openMall').addEventListener('click', () => setMarket(true, 'mall'));
   $('marketBack').addEventListener('click', () => setMarket(false));
   $('marketList').addEventListener('click', e => {
     const btn = e.target.closest('.mk-buy');
     if (!btn || sick) return;
     const f = FOODS.find(x => x.id === btn.dataset.id);
-    if (!f) return;
-    if (wallet.bank < f.local) {
-      needHelp(f.local, 'buying ' + f.name);
+    const m = curMarket;
+    if (!f || stockLeft(m, f)) return;   // out of stock
+    const price = marketPrice(m, f);
+    if (wallet.bank < price) {
+      needHelp(price, 'buying ' + f.name);
       return;
     }
-    wallet.bank -= f.local;
+    wallet.bank -= price;
     refillFromLocked();
-    food[f.id]++;
+    food[f.id] += m.units;
+    stock[m.id][f.id] = Date.now() + f.hrs[marketIdx(m)] * 3600000;
     renderWallet();
     renderMarket();
     renderFood();
@@ -6970,7 +7058,7 @@
   const landRows = () => LAND_ITEMS.filter(it => ownedItems[it.id]).map(it => { const o = ownedItems[it.id];
     return { title: it.name, sub: `You paid ${naira(o.paid)} · ${landGain(o)} · next +10% in ${fmtMs(landNextMs(o))}`, right: naira(landValue(o)) }; });
   const OWN_SECTIONS = [
-    { tab: 'Mini business', name: 'Mini businesses', rows: () => { const out = []; Object.keys(bizAll).forEach(c => BUSINESSES.forEach(b => { const st = bizAll[c][b.id]; if (st) out.push({ title: b.emoji + ' ' + b.title, sub: `Level ${st.level} of ${BIZ_MAX} · ${naira(bizPay(b, st.level))} / ${b.every} · ${c}${st.manager ? ' · Manager' : ''}`, right: '' }); })); return out; }, empty: 'No mini business yet.' },
+    { tab: 'Mini business', name: 'Mini businesses', rows: () => { const out = []; Object.keys(bizAll).forEach(c => BUSINESSES.forEach(b => { const st = bizAll[c][b.id]; if (st) out.push({ title: b.emoji + ' ' + b.title, sub: `Level ${st.level} of ${BIZ_MAX} · ${naira(bizPay(b, st.level, st))} / ${b.every} · ${c}${st.manager ? ' · Manager' : ''}`, right: '' }); })); return out; }, empty: 'No mini business yet.' },
     { tab: 'Contract business', name: 'Contract business', rows: () => {
       const now = Date.now() + ctState.off;
       const run = ctState.list.map(c => { const t = ctType(c.type_id); return { title: t.icon + ' ' + t.name, sub: `${naira(Number(c.amount))} paid · Est. profit ${naira(Number(c.share))}`, right: fmtLeft(new Date(c.ends_at).getTime() - now) + ' left' }; });
