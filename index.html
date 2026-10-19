@@ -1454,6 +1454,7 @@
     background: linear-gradient(135deg, #f97316, #ec4899 55%, #8b5cf6); border: 2px solid rgba(255, 255, 255, .6);
     box-shadow: 0 8px 22px rgba(236, 72, 153, .55), inset 0 1px 0 rgba(255, 255, 255, .45); }
   .howto-fab::before { content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid rgba(236, 72, 153, .75); animation: howtoPulse 1.8s ease-out infinite; pointer-events: none; }
+  .howto-fab::after { content: "How To Play"; position: absolute; top: calc(100% + 9px); left: 50%; transform: translateX(-50%); padding: 2px 8px; border-radius: 999px; background: rgba(15, 11, 31, .82); border: 1px solid rgba(255, 255, 255, .22); color: #fff; font-size: 10px; font-weight: 800; letter-spacing: .02em; line-height: 1.5; white-space: nowrap; pointer-events: none; }
   body[data-auth="in"] .howto-fab { display: grid; }
   .app.inst-on .howto-fab { bottom: calc(var(--nav-h) + 54px + 84px); }
   .howto-fab:active { transform: scale(.94); }
