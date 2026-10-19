@@ -7894,54 +7894,128 @@ function mergeColored(parts){
 var FIRST=['Chidi','Amaka','Tunde','Ngozi','Emeka','Sade','Ibrahim','Funke','Obinna','Zainab','Kelechi','Bola','Uche','Halima','David','Blessing','Femi','Chioma','Ejiro','Ose','Tobi','Ifeanyi','Mercy','Peter','Yemi','Kunle','Oluchi','Samuel','Ada','Jide'];
 var LAST=['Okafor','Balogun','Adeyemi','Nwosu','Ibrahim','Okoro','Eze','Abubakar','Ogunleye','Onyekachi','Udoh','Oyelaran','Mohammed','Obi','Akpan','Bello','Igwe','Olawale','Ezekiel','Umeh'];
 function fullName(){return rp(FIRST)+' '+rp(LAST);}
+FIRST.push('Adaeze','Chinedu','Folake','Gbenga','Hassan','Ijeoma','Kehinde','Lanre','Maryam','Ofure','Philip','Rotimi','Seyi','Titi','Uzoma','Victor','Wunmi','Yusuf','Abiola','Bimpe','Chuka','Damilola','Efe','Folasade','Godwin','Hadiza','Ikechukwu','Jumoke','Kingsley','Lilian','Moses','Nneka','Omolara','Paul','Rukky','Sunday','Tolu','Ugo','Vivian','Yetunde');
+LAST.push('Adebayo','Chukwu','Danjuma','Eboh','Garba','Haruna','Idowu','Jibril','Kalu','Lawal','Musa','Okonkwo','Peters','Salami','Tijani','Uzor','Yakubu','Afolabi','Bamidele','Chime','Dike','Edet','Fagbemi','Giwa','Isiaka','Johnson','Ojo','Okeke','Oladipo','Onuoha','Sanni','Etim','Anyanwu','Nnadi','Okpara','Alade');
+/* every new arrival gets a name nobody has had before: the handle is built from the person's own name */
+var issued={};
+function freshIdentity(){
+ for(var n=0;n<30;n++){
+  var f=rp(FIRST),l=rp(LAST),a=f.toLowerCase(),b=l.toLowerCase(),d=String(10+((Math.random()*90)|0)),h;
+  switch((Math.random()*9)|0){
+   case 0:h=a+'_'+b.slice(0,2);break;
+   case 1:h=a+'.'+b.charAt(0);break;
+   case 2:h=a.charAt(0)+b;break;
+   case 3:h=a+d;break;
+   case 4:h=b+'_'+a.charAt(0);break;
+   case 5:h=a+'_'+d;break;
+   case 6:h='itz_'+a;break;
+   case 7:h=a+'.'+b.slice(0,3);break;
+   default:h=a+'_'+rp(['ng','lag','abj','asaba','pro','xo']);
+  }
+  h=h.slice(0,13);
+  if(!issued[h]){issued[h]=1;return {full:f+' '+l,name:'@'+h};}
+ }
+ var f2=rp(FIRST),l2=rp(LAST),h2=(f2.toLowerCase()+(1000+((Math.random()*9000)|0))).slice(0,13);issued[h2]=1;
+ return {full:f2+' '+l2,name:'@'+h2};}
 function worthStr(){var v=Math.exp(R(Math.log(1.5e5),Math.log(3e9)));
  if(v>=1e9)return '\u20A6'+(v/1e9).toFixed(1)+'B';if(v>=1e6)return '\u20A6'+(v/1e6).toFixed(v>=1e8?0:1)+'M';return '\u20A6'+Math.round(v/1e4)*10+'K';}
-var FAR=52,nodes={};
+var FAR=118,nodes={};
 function N(id,x,z){nodes[id]={id:id,x:x,z:z,nb:[]};return nodes[id];}
 function link(a,b,t){a.nb.push({to:b,type:t});b.nb.push({to:a,type:t});}
 [1,-1].forEach(function(sx){[1,-1].forEach(function(sz){N('c'+sx+sz,PAD*sx,PAD*sz);N('fx'+sx+sz,FAR*sx,PAD*sz);N('fz'+sx+sz,PAD*sx,FAR*sz);});});
 [1,-1].forEach(function(sx){[1,-1].forEach(function(sz){var c=nodes['c'+sx+sz];link(c,nodes['fx'+sx+sz],'walk');link(c,nodes['fz'+sx+sz],'walk');
  if(sz===1)link(c,nodes['c'+sx+(-sz)],'x');if(sx===1)link(c,nodes['c'+(-sx)+sz],'z');});});
+var EXITS=[];Object.keys(nodes).forEach(function(k){if(k.charAt(0)==='f'){nodes[k].exit=true;EXITS.push(nodes[k]);}});
 function allowed(type){if(type==='walk')return true;var cur=CYC[ph];return cur[type]==='r'&&timeToGreen(type)>9;}
 var tagsEl=document.getElementById('tags');
 var peds=[],selected=null;
-function makePed(i){
- var net=pickNet(),name='@'+NAMES[i%NAMES.length];
- var g=new THREE.Group(),skinC=sp(SKIN),clothC=sp(CLOTH),pantsC=sp([0x1f2937,0x374151,0x0b3d62,0x3b2f2f,0x111111]),shoeC=rp([0x111111,0x222222,0xf2f2f2,0x3b2f2f]),hairC=rp(HAIR);
+var PANTS=[0x1f2937,0x374151,0x0b3d62,0x3b2f2f,0x111111],SHOES=[0x111111,0x222222,0xf2f2f2,0x3b2f2f];
+/* new clothes, skin and hair for every new arrival, so nobody looks like the person before */
+function dress(p){
+ var skinC=rp(SKIN),clothC=rp(CLOTH),pantsC=rp(PANTS),shoeC=rp(SHOES),hairC=rp(HAIR);
  var legG=mergeColored([[legGeo,pantsC,0,0,0],[shoeGeo,shoeC,0,0,0]]),armG=mergeColored([[armGeo,clothC,0,0,0],[handGeo,skinC,0,0,0]]);
  var upG=mergeColored([[torsoGeo,clothC,0,1.08,0],[neckGeo,skinC,0,1.42,0],[headGeo,skinC,0,1.59,0],[hairGeo,hairC,0,1.64,-.025,1,.68,1.02]]);
- var l1=new THREE.Mesh(legG,VCMAT),l2=new THREE.Mesh(legG,VCMAT);l1.position.set(-.12,.78,0);l2.position.set(.12,.78,0);g.add(l1,l2);
- var tr=new THREE.Mesh(upG,VCMAT);g.add(tr);
- var a1=new THREE.Mesh(armG,VCMAT),a2=new THREE.Mesh(armG,VCMAT);a1.position.set(-.31,1.34,0);a2.position.set(.31,1.34,0);g.add(a1,a2);
+ [p.legG,p.armG,p.upG].forEach(function(g){if(g)g.dispose();});
+ p.legG=legG;p.armG=armG;p.upG=upG;
+ p.legs[0].geometry=legG;p.legs[1].geometry=legG;p.arms[0].geometry=armG;p.arms[1].geometry=armG;p.torso.geometry=upG;
+ p.sc=R(1.12,1.26);}
+function ident(p){var id=freshIdentity();p.net=pickNet();p.name=id.name;p.full=id.full;p.worth=worthStr();p.nm.textContent=id.name;}
+function edgeLen(a,b){return Math.hypot(a.x-b.x,a.z-b.z);}
+/* shortest walk from s to the exit d, never through ban; a little random so people do not all take the same path */
+function shortest(s,d,ban){
+ var dist={},prev={},done={},ids=Object.keys(nodes);
+ ids.forEach(function(k){dist[k]=Infinity;});dist[s.id]=0;
+ for(;;){
+  var u=null;ids.forEach(function(k){if(!done[k]&&dist[k]<Infinity&&(u===null||dist[k]<dist[u]))u=k;});
+  if(u===null||u===d.id)break;done[u]=1;
+  nodes[u].nb.forEach(function(o){var v=o.to;if(v===ban)return;var nd=dist[u]+edgeLen(nodes[u],v)+(o.type==='walk'?0:12)+Math.random()*6;if(nd<dist[v.id]){dist[v.id]=nd;prev[v.id]=u;}});
+ }
+ if(dist[d.id]===Infinity)return null;
+ var path=[],c=d.id;while(c!==s.id){path.unshift(nodes[c]);c=prev[c];}return path;}
+/* pick another end of the city and walk there, crossing the roads on the way */
+function planRoute(start,ban){
+ var ex=EXITS.filter(function(e){return e!==start&&e!==ban;});
+ for(var i=0;i<12;i++){var path=shortest(start,rp(ex),ban);if(path&&path.length)return path;}
+ return null;}
+function seedPed(p){
+ var edges=[];EXITS.forEach(function(e){var c=e.nb[0].to;edges.push([e,c]);edges.push([c,e]);});
+ var pk=rp(edges);
+ p.from=pk[0];p.to=pk[1];p.type='walk';p.t=Math.random();p.len=edgeLen(p.from,p.to);p.state='walk';p.prev=null;
+ p.route=p.to.exit?[]:(planRoute(p.to,p.from)||[]);}
+/* someone reaches the far end: they are gone, and a brand new person (new name, new look) walks in from one of the ends */
+function respawn(p){
+ var e=rp(EXITS),c=e.nb[0].to;
+ dress(p);ident(p);
+ p.from=e;p.to=c;p.type='walk';p.len=edgeLen(e,c);p.t=0;p.state='walk';p.prev=null;p.route=planRoute(c,e)||[];
+ p.speed=R(1.5,2.3);p.lat=R(-.9,.9);p.back=R(.2,2.2);p.ph=Math.random()*6;p.age=0;p.init=false;p.off.x=0;p.off.z=0;
+ p.dir.x=(c.x-e.x)/p.len;p.dir.z=(c.z-e.z)/p.len;}
+function makePed(){
+ var g=new THREE.Group();
+ var l1=new THREE.Mesh(legGeo,VCMAT),l2=new THREE.Mesh(legGeo,VCMAT);l1.position.set(-.12,.78,0);l2.position.set(.12,.78,0);g.add(l1,l2);
+ var tr=new THREE.Mesh(torsoGeo,VCMAT);g.add(tr);
+ var a1=new THREE.Mesh(armGeo,VCMAT),a2=new THREE.Mesh(armGeo,VCMAT);a1.position.set(-.31,1.34,0);a2.position.set(.31,1.34,0);g.add(a1,a2);
  var body=new THREE.Group();body.scale.set(1.2,1.2,1.2);scene.add(body);body.add(g);
  var sh=new THREE.Mesh(shadowGeo,shadowMat);sh.scale.set(1.1,1,1.1);sh.position.y=.03;body.add(sh);
  var tag=document.createElement('div');tag.className='tag';tag.tabIndex=0;
- var nm=document.createElement('span');nm.textContent=name;tag.appendChild(nm);tagsEl.appendChild(tag);
- var p={body:body,legs:[l1,l2],arms:[a1,a2],torso:tr,rot:0,net:net,name:name,full:fullName(),worth:worthStr(),tag:tag,tagOn:null,
-  speed:R(1.5,2.3),lat:R(-1.1,1.1),off:{x:0,z:0},ph:Math.random()*6,state:'walk',wait:0,prev:null,from:null,to:null,type:'walk',t:0,len:1,dir:{x:1,z:0},pos:{x:0,z:0},baseY:.28,sx:0,sy:0,sd:0};
- var keys=Object.keys(nodes),a=nodes[rp(keys)],opts=a.nb.filter(function(o){return o.type==='walk';}),o=rp(opts);
- p.from=a;p.to=o.to;p.type='walk';p.t=Math.random();p.len=Math.hypot(p.to.x-p.from.x,p.to.z-p.from.z);
+ var nm=document.createElement('span');tag.appendChild(nm);tagsEl.appendChild(tag);
+ var p={body:body,legs:[l1,l2],arms:[a1,a2],torso:tr,rot:0,nm:nm,tag:tag,tagOn:null,
+  speed:R(1.5,2.3),lat:R(-.9,.9),back:R(.2,2.2),off:{x:0,z:0},ph:Math.random()*6,state:'walk',wait:0,prev:null,from:null,to:null,type:'walk',t:0,len:1,dir:{x:1,z:0},pos:{x:0,z:0},baseY:.28,sx:0,sy:0,sd:0,route:[],age:99,fade:1,sc:1.2};
+ dress(p);ident(p);seedPed(p);
  tag.addEventListener('click',function(e){e.stopPropagation();select(p);});
  tag.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();select(p);}});
  return p;}
-for(var pi=0;pi<44;pi++)peds.push(makePed(pi));
+for(var pi=0;pi<60;pi++)peds.push(makePed());
 function chooseNext(p){
- var node=p.from,opts=node.nb.filter(function(o){return o.to!==p.prev;});if(!opts.length)opts=node.nb.slice();
- opts.sort(function(){return Math.random()-.5;});
- for(var i=0;i<opts.length;i++){if(allowed(opts[i].type)){p.to=opts[i].to;p.type=opts[i].type;p.t=0;p.len=Math.hypot(p.to.x-p.from.x,p.to.z-p.from.z);p.state='walk';return;}}
- p.state='wait';p.wait=.4+Math.random()*.6;}
+ var node=p.from;
+ if(!p.route||!p.route.length){
+  if(node.exit){
+   if(selected!==p){respawn(p);return;}   /* the person you picked turns back instead of vanishing */
+   p.route=planRoute(node,null)||[];
+  }else p.route=planRoute(node,p.prev)||[];
+ }
+ var nxt=p.route[0],edge=null;
+ if(nxt)for(var i=0;i<node.nb.length;i++)if(node.nb[i].to===nxt)edge=node.nb[i];
+ if(!edge){p.route=[];edge=node.nb[0];nxt=edge.to;}
+ if(!allowed(edge.type)){p.state='wait';p.wait=.35+Math.random()*.5;return;}   /* wait for the lights */
+ p.route.shift();p.to=nxt;p.type=edge.type;p.t=0;p.len=edgeLen(node,nxt);p.state='walk';}
 function updatePeds(dt){
  peds.forEach(function(p){
   if(p.state==='wait'){p.wait-=dt;if(p.wait<=0)chooseNext(p);}
   else{p.t+=p.speed*dt/p.len;if(p.t>=1){p.prev=p.from;p.from=p.to;chooseNext(p);}}
+  p.age+=dt;
   var a=p.from,b=p.to,t=p.state==='walk'?p.t:0,x,z;
   var dx=b.x-a.x,dz=b.z-a.z,dl=Math.hypot(dx,dz)||1;
   if(p.state==='walk'){p.dir.x=dx/dl;p.dir.z=dz/dl;}
   x=a.x+dx*t;z=a.z+dz*t;
   var lat=p.type==='walk'?p.lat:p.lat*.8,tx=-p.dir.z*lat,tz=p.dir.x*lat,k=Math.min(1,dt*6);
+  if(p.state==='wait'&&p.type==='walk'){tx-=p.dir.x*p.back;tz-=p.dir.z*p.back;}   /* queue up on the pavement, not in one spot */
   p.off.x+=(tx-p.off.x)*k;p.off.z+=(tz-p.off.z)*k;
   p.pos.x=x+p.off.x;p.pos.z=z+p.off.z;
   p.baseY=(p.type!=='walk'&&t>.12&&t<.88)?0.02:0.28;
+  /* fade in when they walk in from the far end, fade out as they reach it */
+  var rem=(p.state==='walk'&&p.to.exit&&selected!==p)?(1-p.t)*p.len:99;
+  p.fade=Math.min(smooth(0,1.6,p.age),smooth(0,7,rem));
+  p.body.scale.setScalar(p.sc*(.2+.8*p.fade));
   var moving=p.state==='walk';if(moving)p.ph+=dt*p.speed*5;
   var sw=moving?Math.sin(p.ph)*.55:0,kk=Math.min(1,dt*10);
   p.legs[0].rotation.x+=(sw-p.legs[0].rotation.x)*kk;p.legs[1].rotation.x+=(-sw-p.legs[1].rotation.x)*kk;
@@ -7990,7 +8064,7 @@ function updateTags(){
   if(x>0&&x<W&&y>0&&y<H)vis++;
   var s=clamp(52/d,.6,1.25);p.sx=x;p.sy=y;p.sd=d;
   p.tag.style.transform='translate3d('+x.toFixed(1)+'px,'+y.toFixed(1)+'px,0) scale('+s.toFixed(3)+') translate(-50%,calc(-100% - 7px))';
-  p.tag.style.zIndex=1000-Math.round(d);p.tag.style.opacity=clamp(1.5-d/95,.35,1).toFixed(2);});
+  p.tag.style.zIndex=1000-Math.round(d);p.tag.style.opacity=(clamp(1.5-d/95,.35,1)*p.fade).toFixed(2);});
  if(sPeople)sPeople.textContent=vis;}
 
 /* ---------- mood (day / dusk / night) ---------- */
@@ -8090,12 +8164,20 @@ el.addEventListener('touchmove',function(e){if(e.cancelable)e.preventDefault();
 el.addEventListener('touchend',function(e){tch=e.touches.length===1?{x:e.touches[0].clientX,y:e.touches[0].clientY}:null;});
 el.addEventListener('touchcancel',function(){tch=null;});
 el.addEventListener('wheel',function(e){e.preventDefault();view.tzoom=clamp(view.tzoom*(1+e.deltaY*.0009),.55,1.3);},{passive:false});
+/* auto camera: a slow sweep across the city that pauses only while a hand (finger / mouse button / scroll wheel) is on the screen */
+var auto={ph:0,sp:1,w:0,wheelT:0},tcount=0;
+el.addEventListener('wheel',function(){auto.wheelT=1.2;},{passive:true});
+['touchstart','touchend','touchcancel'].forEach(function(n){el.addEventListener(n,function(e){tcount=e.touches.length;},{passive:true});});
 function resize(){var w=window.innerWidth,h=window.innerHeight;renderer.setSize(w,h);camera.aspect=w/h;}
 window.addEventListener('resize',resize);resize();
 function updateCamera(dt){
  var k=1-Math.exp(-dt*6);view.yaw+=(view.tyaw-view.yaw)*k;view.pitch+=(view.tpitch-view.pitch)*k;view.zoom+=(view.tzoom-view.zoom)*k;
  var sw=reduced?0:1;
- camera.rotation.y=baseYaw+view.yaw+Math.sin(T*.17)*.005*sw;camera.rotation.x=basePitch+view.pitch+Math.sin(T*.23)*.003*sw;camera.rotation.z=flight.roll;
+ /* hand on the screen (finger / mouse button / wheel) pauses the roaming; lifting it lets it carry on */
+ auto.wheelT=Math.max(0,auto.wheelT-dt);
+ var handOn=ptrN>0||tcount>0||auto.wheelT>0;
+ updateRoam(dt,handOn);
+ camera.rotation.y=baseYaw+view.yaw+Math.sin(T*.17)*.005*sw;camera.rotation.x=basePitch+view.pitch+Math.sin(T*.23)*.003*sw;camera.rotation.z=flight.roll+roam.roll;
  intro=Math.min(1,intro+dt/5);var e=1-Math.pow(1-intro,3);
  var base=camera.aspect<1?74:54;camera.fov=base*view.zoom*(1+.16*(1-e));camera.updateProjectionMatrix();}
 
@@ -8201,6 +8283,52 @@ function updateFlight(dt){
  if(rem<=.4){flight.yaw+=dyaw*(1-k);flight.pitch=tp;flight.on=false;var cb=flight.onArrive;flight.onArrive=null;if(cb)cb();}
  baseYaw=flight.yaw;basePitch=flight.pitch;}
 function cancelFlight(){flight.on=false;flight.onArrive=null;progEl=null;busy=false;}
+
+/* ---- roaming: the camera drifts slowly through the streets on its own and stops while a hand is on the screen ---- */
+var roam={on:false,first:false,curve:null,len:1,s:0,v:0,sp:1,blend:0,yaw:0,pitch:0,roll:0,pos0:new THREE.Vector3(),y0:0,p0:0};
+function buildRoam(){
+ /* one closed loop: out along a road, round the end, back in, turn at the junction onto the next road, and so on round all four */
+ var seq=[ARMS[0],ARMS[2],ARMS[1],ARMS[3]],sBs=[58,50,62,54],r=4.6,raw=[],pts=[],i,j;
+ function add(a,sv,l,ey){raw.push([a,sv,l,ey||0]);}
+ for(i=0;i<4;i++){
+  var a=seq[i],sB=sBs[i],n=Math.max(2,Math.round((sB-10)/20));
+  for(j=0;j<=n;j++)add(a,10+(sB-10)*j/n,-r,0);
+  [Math.PI/4,Math.PI/2,Math.PI*.75].forEach(function(q){add(a,sB+r*Math.sin(q),-r*Math.cos(q),1.5*Math.sin(q));});
+  for(j=0;j<=n;j++)add(a,sB-(sB-10)*j/n,r,0);
+ }
+ var N=raw.length;
+ raw.forEach(function(q,k){pts.push(armPt(q[0],q[1],q[2],15.5+Math.sin(k/N*Math.PI*6)*2.4+q[3]));});
+ var c=new THREE.CatmullRomCurve3(pts,true,'centripetal');c.arcLengthDivisions=1200;return c;}
+function updateRoam(dt,handOn){
+ var can=!reduced&&atHome&&!busy&&!flight.on;
+ if(!can){roam.on=false;roam.roll+=(0-roam.roll)*Math.min(1,dt*4);return;}
+ if(!roam.curve){roam.curve=buildRoam();roam.len=roam.curve.getLength();}
+ if(!roam.on){roam.on=true;roam.first=true;roam.s=0;roam.v=0;roam.blend=0;roam.pos0.copy(camera.position);roam.y0=baseYaw;roam.p0=basePitch;}
+ /* hand down: stop quickly. hand up: pick up speed gently */
+ roam.sp+=((handOn?0:1)-roam.sp)*(1-Math.exp(-dt*(handOn?6:1.2)));
+ /* while you are not touching, any look-around you did eases back to the road ahead */
+ if(!handOn){var kd=Math.exp(-dt*.5);view.tyaw*=kd;view.tpitch*=kd;}
+ var c=roam.curve,len=roam.len,u=roam.s/len;u-=Math.floor(u);
+ var t0=c.getTangentAt(u),t1=c.getTangentAt((u+8/len)%1);
+ var kap=Math.acos(clamp(t0.dot(t1),-1,1))/8;
+ var vT=6.5*clamp(1/(1+kap*14),.4,1);
+ roam.v+=(vT-roam.v)*Math.min(1,dt*1.5);
+ roam.s+=roam.v*roam.sp*dt;
+ u=roam.s/len;u-=Math.floor(u);
+ var p=c.getPointAt(u);t0=c.getTangentAt(u);
+ var dx=t0.x*18,dy=t0.y*18-2.5,dz=t0.z*18,ty=Math.atan2(-dx,-dz),tp=Math.atan2(dy,Math.hypot(dx,dz));
+ var dyaw=Math.atan2(Math.sin(ty-roam.yaw),Math.cos(ty-roam.yaw)),k=Math.min(1,dt*2.5);
+ if(roam.first){roam.yaw=ty;roam.pitch=tp;roam.first=false;dyaw=0;k=0;}
+ var rate=dt>0?(dyaw*k)/dt:0;
+ roam.yaw+=dyaw*k;roam.pitch+=(tp-roam.pitch)*k;
+ roam.roll+=(clamp(rate*.12,-.2,.2)-roam.roll)*Math.min(1,dt*3);
+ /* the first few seconds: glide down from the rooftop onto the loop */
+ roam.blend=Math.min(1,roam.blend+dt*roam.sp/9);
+ var e=smooth(0,1,roam.blend);
+ camera.position.set(roam.pos0.x+(p.x-roam.pos0.x)*e,roam.pos0.y+(p.y-roam.pos0.y)*e,roam.pos0.z+(p.z-roam.pos0.z)*e);
+ if(e>=1){baseYaw=roam.yaw;basePitch=roam.pitch;}
+ else{baseYaw=roam.y0+Math.atan2(Math.sin(roam.yaw-roam.y0),Math.cos(roam.yaw-roam.y0))*e;basePitch=roam.p0+(roam.pitch-roam.p0)*e;}
+}
 
 /* ---- search box + result panel ---- */
 var qEl=document.getElementById('q'),resEl=document.getElementById('result'),fadeEl=document.getElementById('fade');
