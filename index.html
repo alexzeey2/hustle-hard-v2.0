@@ -1472,12 +1472,51 @@
   .howto-emoji { flex: none; font-size: 26px; line-height: 1.1; }
   .howto-title { font-size: 15px; font-weight: 800; }
   .howto-text { margin-top: 3px; font-size: 13.5px; line-height: 1.45; color: var(--muted); }
+  /* Welcome popup (glass, same look as the Sign up / Log in buttons) */
+  .welcome-layer { position: fixed; inset: 0; z-index: 400; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(8, 6, 20, .18); animation: authFade .22s ease; }
+  .welcome-layer.hide { display: none; }
+  .welcome-card { width: 100%; max-width: 340px; padding: 30px 24px 22px; border-radius: 28px; text-align: center; color: #fff;
+    background: linear-gradient(145deg, rgba(255, 255, 255, .22), rgba(255, 255, 255, .08));
+    border: 1px solid rgba(255, 255, 255, .34);
+    -webkit-backdrop-filter: blur(14px) saturate(150%); backdrop-filter: blur(14px) saturate(150%);
+    box-shadow: 0 8px 24px rgba(8, 4, 24, .4), inset 0 1px 0 rgba(255, 255, 255, .4);
+    animation: authPop .26s ease; }
+  .welcome-small { font-size: 13px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: rgba(255, 255, 255, .75); }
+  .welcome-title { margin-top: 6px; font-size: 40px; font-weight: 800; line-height: 1.05; letter-spacing: -.5px; background: linear-gradient(90deg, #fde68a, #e6b422 45%, #ec4899); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 2px 10px rgba(0, 0, 0, .35)); }
+  .welcome-line { width: 54px; height: 3px; margin: 16px auto; border-radius: 3px; background: linear-gradient(90deg, #e6b422, #ec4899); }
+  .welcome-sub { margin: 0; font-size: 17px; font-weight: 700; line-height: 1.4; color: #fff; text-shadow: 0 1px 8px rgba(0, 0, 0, .35); }
+  .welcome-go { margin: 14px 0 22px; font-size: 17px; font-weight: 700; color: #fff; text-shadow: 0 2px 10px rgba(0, 0, 0, .4); }
+  .welcome-hh { display: inline-block; font-size: 24px; font-weight: 800; letter-spacing: -.3px; background: linear-gradient(90deg, #fde68a, #e6b422 45%, #ec4899); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 2px 8px rgba(0, 0, 0, .4)); }
+  .welcome-ok { width: 100%; height: 52px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .34); font: inherit; font-size: 16px; font-weight: 800; color: #fff; letter-spacing: .01em;
+    background: linear-gradient(145deg, rgba(167, 139, 250, .62), rgba(236, 72, 153, .3));
+    box-shadow: 0 8px 24px rgba(8, 4, 24, .4), inset 0 1px 0 rgba(255, 255, 255, .4); }
+  /* Sign up / Log in only appear after the welcome popup is closed */
+  .rt-bar { transition: opacity .35s ease, transform .35s ease, visibility 0s; }
+  body.welcome-open .rt-bar { opacity: 0; visibility: hidden; transform: translateY(14px); transition: none; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://js.paystack.co/v2/inline.js"></script>
 </head>
 <body>
 <div class="map-soon" id="mapSoon" role="status">Coming soon</div>
+<div class="welcome-layer" id="welcomeLayer" role="dialog" aria-label="Welcome">
+  <div class="welcome-card">
+    <div class="welcome-small">welcome to</div>
+    <div class="welcome-title">Somto City</div>
+    <div class="welcome-line"></div>
+    <p class="welcome-sub">Become a billionaire here, if you can't be it else where</p>
+    <p class="welcome-go">Oya!! go and <span class="welcome-hh">Hustle Hard</span></p>
+    <button type="button" class="welcome-ok" id="welcomeOk">Ok I will</button>
+  </div>
+</div>
+<script>
+document.body.classList.add('welcome-open');
+document.getElementById('welcomeOk').addEventListener('click', function () {
+  document.getElementById('welcomeLayer').classList.add('hide');
+  document.body.classList.remove('welcome-open');
+  try { document.getElementById('rtFrame').contentDocument.body.classList.remove('wl'); } catch (e) {}
+});
+</script>
 <div class="auth-layer hide" id="authLayer" role="dialog" aria-label="Sign up">
   <div class="auth-card">
     <button type="button" class="auth-x" id="authClose" aria-label="Close">×</button>
@@ -7343,6 +7382,8 @@ html,body{height:100%;overflow:hidden;background:#070a12;color:#eef3ff;font-fami
 #avatar img{display:block;width:100%;height:100%;object-fit:cover}
 #avatar:focus-visible{outline:2px solid #fff;outline-offset:2px}
 #avatar:active{transform:scale(.95)}
+#avatar,#search,#hint{transition:opacity .35s ease,visibility 0s}
+body.wl #avatar,body.wl #search,body.wl #hint{opacity:0;visibility:hidden;pointer-events:none;transition:none}
 #search input{flex:1;min-width:0;font:inherit;font-size:16px;color:#eef3ff;background:rgba(255,255,255,.08);border:1px solid transparent;border-radius:10px;padding:11px 14px;-webkit-appearance:none;appearance:none}
 #search input::placeholder{color:rgba(238,243,255,.5)}
 #search input:focus{outline:none;border-color:rgba(255,255,255,.45);background:rgba(255,255,255,.12)}
@@ -7375,7 +7416,7 @@ html,body{height:100%;overflow:hidden;background:#070a12;color:#eef3ff;font-fami
 @media (prefers-reduced-motion:reduce){.dot,.tag.flash{animation:none}}
 </style>
 </head>
-<body>
+<body class="wl">
 <div id="stage"></div>
 <div id="tags"></div>
 <div id="fade"></div>
@@ -8590,7 +8631,7 @@ setTimeout(function(){document.getElementById('hint').classList.remove('show');}
   };
 
   // Rooftop scene
-  frame.addEventListener('load', function () { var p = photo(); if (p) send({ hc: 'photo', src: p }); pushVisible(true); });
+  frame.addEventListener('load', function () { try { if (!document.body.classList.contains('welcome-open')) frame.contentDocument.body.classList.remove('wl'); } catch (e) {} var p = photo(); if (p) send({ hc: 'photo', src: p }); pushVisible(true); });
   frame.srcdoc = $('rooftopSrc').textContent.replace(/<\\\/script/g, '</script');
   new MutationObserver(function () { pushVisible(); }).observe(document.body, { attributes: true, attributeFilter: ['class'], subtree: true });   // pause the city (and its sound) when you leave Home or a popup/sheet is open on top
 
