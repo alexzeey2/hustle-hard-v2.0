@@ -1475,6 +1475,8 @@
   /* Welcome popup (glass, same look as the Sign up / Log in buttons) */
   .welcome-layer { position: fixed; inset: 0; z-index: 400; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(8, 6, 20, .18); animation: authFade .22s ease; }
   .welcome-layer.hide { display: none; }
+  /* Logged in: hide the game completely until "Ok I will" is tapped */
+  body[data-auth="in"] .welcome-layer { background: radial-gradient(circle at 50% 30%, #2a1b5c, #0b0816 75%); }
   .welcome-card { width: 100%; max-width: 340px; padding: 30px 24px 22px; border-radius: 28px; text-align: center; color: #fff;
     background: linear-gradient(145deg, rgba(255, 255, 255, .22), rgba(255, 255, 255, .08));
     border: 1px solid rgba(255, 255, 255, .34);
