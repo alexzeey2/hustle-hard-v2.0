@@ -3040,7 +3040,7 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
     const exp = data && data.premium_expires ? new Date(data.premium_expires).getTime() : 0;
     // Plans paid before a limit was raised still have the old number in the database, so never go below the plan's current limit
     const PLAN_LIMITS = { 'Millionaire plan': 150000000, 'Wealth builder': 900000000000 };
-    window.hustlePremium = data && data.premium_name && exp > Date.now() ? { name: data.premium_name, limit: Math.max(Number(data.premium_limit) || 0, PLAN_LIMITS[data.premium_name] || 0), expires: exp } : null;
+    window.hustlePremium = data && PLAN_LIMITS[data.premium_name] && exp > Date.now() ? { name: data.premium_name, limit: Math.max(Number(data.premium_limit) || 0, PLAN_LIMITS[data.premium_name]), expires: exp } : null;
   }
   window.hustleLoadWallet = loadWallet;
 
@@ -4256,8 +4256,8 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
   document.getElementById('busCancel').addEventListener('click', () => setBusSheet(false));
 
   let busMode = 'work';
-  // The beach trip costs 10% of your net worth, not counting locked money (same price by bus or taxi)
-  const beachFare = () => Math.max(0, Math.floor((worthNow() - wallet.locked) * 0.1));
+  // The beach trip costs a share of your net worth, not counting locked money: 10% by bus, 16% by taxi
+  const beachFare = (kind) => Math.max(0, Math.floor((worthNow() - wallet.locked) * (kind === 'taxi' ? 0.16 : 0.1)));
   let beachCost = 0;
   let beachHomeFare = false, beachOwes = false;   // going home from the beach: same fare as going there
   const fareNow = () => (busMode === 'beach' || (busMode === 'home' && beachHomeFare)) ? beachCost : (fareKind === 'taxi' ? TAXI_FARE : BUS_FARE);
@@ -4272,7 +4272,7 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
     busNext = next;
     busMode = mode || 'work';
     busPayAfter = !!payAfter;
-    if (busMode === 'beach') beachCost = beachFare();
+    if (busMode === 'beach') beachCost = beachFare(fareKind);
     const taxi = fareKind === 'taxi', fare = fareNow();
     document.getElementById('busEmoji').textContent = taxi ? '🚕' : '🚌';
     document.getElementById('busLabel').textContent = taxi ? 'Taxi fare' : 'Bus fare';
@@ -4493,9 +4493,8 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
     sub.textContent = 'No fare';
     sub.classList.remove('bad');
     if (trDest === 'beach') {
-      const f = naira(beachFare());
-      trEl('trBusSub').textContent = f + ' one way';
-      trEl('trTaxiSub').textContent = f + ' one way · quicker than the bus';
+      trEl('trBusSub').textContent = naira(beachFare('bus')) + ' one way';
+      trEl('trTaxiSub').textContent = naira(beachFare('taxi')) + ' one way · quicker than the bus';
     } else {
       trEl('trBusSub').textContent = naira(BUS_FARE) + ' each way';
       trEl('trTaxiSub').textContent = naira(TAXI_FARE) + ' each way · quicker than the bus';
@@ -4605,9 +4604,9 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
       playCarDrive(back, true, finish);
       return;
     }
-    beachCost = Math.min(beachFare(), Math.max(0, wallet.bank));   // never more than you have, so you can't get stuck
-    beachHomeFare = true;
     fareKind = r.ride === 'taxi' ? 'taxi' : 'bus';
+    beachCost = Math.min(beachFare(fareKind), Math.max(0, wallet.bank));   // never more than you have, so you can't get stuck
+    beachHomeFare = true;
     busMode = 'home';
     const stop = () => setTimeout(() => { beachOwes = true; openBusSheet(finish, 'home', true); }, 750);
     if (fareKind === 'taxi') playTaxiRide(stop); else playBusRide(stop);
@@ -4654,7 +4653,7 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
   const ownedIn = name => !!(bizAll[name] && Object.keys(bizAll[name]).length) || !!(work && work.country === name) || (name === curCountry && ownsLoose());
   const FREE_LIMIT = 60000000;
   let premium = window.hustlePremium || null;   // from the server, never from the save
-  const bankLimit = () => (premium ? premium.limit : FREE_LIMIT);
+  const bankLimit = () => Math.max(FREE_LIMIT, premium ? premium.limit : 0);
   // Loan taken for treatment and not spent yet: the bank may hold it, so it is not pushed into Locked money
   let sickHold = typeof saved.sickHold === 'number' ? saved.sickHold : 0;
   // Anything above the bank limit goes to Locked money
