@@ -621,7 +621,6 @@
   .ji-fill { height: 100%; width: 0; border-radius: 4px; background: linear-gradient(90deg, var(--purple), var(--purple-light)); transition: width 1s linear; }
   .job-item .ji-quit { background: #dc2626; color: #fff; }
   .primary-btn:disabled { opacity: .4; cursor: not-allowed; }
-  #skillsCard { position: relative; }
   /* "At work" dock: stays pinned above the nav on the Hustle page while you are working */
   .work-dock {
     position: absolute; left: 16px; right: 16px; top: calc((100% - var(--nav-h)) / 2); z-index: 36;
@@ -716,8 +715,6 @@
   .bus-cap { position: absolute; left: 50%; top: calc(18px + env(safe-area-inset-top)); transform: translateX(-50%); display: flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 999px; background: rgba(15, 11, 31, .6); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border: 1px solid rgba(167, 139, 250, .4); font-size: 14px; font-weight: 700; color: #fff; white-space: nowrap; }
   .bus-cap .wd-dot { flex: none; }
   .notice-strong { display: block; margin-top: 10px; font-size: 16px; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; }
-  .skill-lock { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border-radius: 50%; background: rgba(245, 158, 11, .14); color: #fcd34d; display: grid; place-items: center; }
-  .skill-lock svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .shift-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 4px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); }
   .shift-seg button { padding: 10px 8px; border-radius: 10px; font: 700 13px system-ui, sans-serif; color: var(--muted); background: transparent; line-height: 1.25; }
   .shift-seg button small { display: block; font-weight: 600; font-size: 11px; opacity: .85; }
@@ -1429,11 +1426,10 @@
   .rt-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; background: #070a12; }
   .rt-bar { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; pointer-events: none; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 14px 18px calc(16px + env(safe-area-inset-bottom)); background: transparent; border: 0; }
   .rt-bar button { pointer-events: auto; height: 52px; border-radius: 999px; font: inherit; font-size: 15px; font-weight: 800; color: #fff; letter-spacing: .01em;
-    background: linear-gradient(145deg, rgba(255, 255, 255, .22), rgba(255, 255, 255, .07));
-    border: 1px solid rgba(255, 255, 255, .32);
-    -webkit-backdrop-filter: blur(16px) saturate(160%); backdrop-filter: blur(16px) saturate(160%);
+    background: linear-gradient(145deg, rgba(255, 255, 255, .28), rgba(255, 255, 255, .12));
+    border: 1px solid rgba(255, 255, 255, .34);
     box-shadow: 0 8px 24px rgba(8, 4, 24, .4), inset 0 1px 0 rgba(255, 255, 255, .4); }
-  .rt-bar .rt-up { background: linear-gradient(145deg, rgba(167, 139, 250, .55), rgba(236, 72, 153, .22)); }
+  .rt-bar .rt-up { background: linear-gradient(145deg, rgba(167, 139, 250, .62), rgba(236, 72, 153, .3)); }
   /* Before sign-in there are no tabs */
   body:not([data-auth="in"]) .nav { display: none; }
   body:not([data-auth="in"]) main { bottom: 0; }
@@ -1457,6 +1453,21 @@
   .pf-avatar { position: relative; cursor: pointer; }
   .pf-avatar img { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
   .pf-avatar::after { content: "+"; position: absolute; right: -3px; bottom: -3px; width: 20px; height: 20px; border-radius: 50%; background: var(--purple); border: 2px solid #fff; color: #fff; font-size: 14px; font-weight: 800; line-height: 15px; text-align: center; }
+  /* How to play: floating button (bottom right, above the tabs) and its tips sheet */
+  .howto-fab { position: absolute; right: 14px; bottom: calc(var(--nav-h) + 14px); z-index: 36; width: 56px; height: 56px; border-radius: 50%; display: none; place-items: center; color: #fff; font-size: 30px; font-weight: 900; line-height: 1;
+    background: linear-gradient(135deg, #f97316, #ec4899 55%, #8b5cf6); border: 2px solid rgba(255, 255, 255, .6);
+    box-shadow: 0 8px 22px rgba(236, 72, 153, .55), inset 0 1px 0 rgba(255, 255, 255, .45); }
+  .howto-fab::before { content: ""; position: absolute; inset: -6px; border-radius: 50%; border: 2px solid rgba(236, 72, 153, .75); animation: howtoPulse 1.8s ease-out infinite; pointer-events: none; }
+  body[data-auth="in"] .howto-fab { display: grid; }
+  .app.inst-on .howto-fab { bottom: calc(var(--nav-h) + 54px + 14px); }
+  .howto-fab:active { transform: scale(.94); }
+  @keyframes howtoPulse { 0% { transform: scale(.9); opacity: .9; } 100% { transform: scale(1.4); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .howto-fab::before { animation: none; } }
+  .howto-list { display: grid; gap: 10px; margin-top: 16px; }
+  .howto-item { display: flex; gap: 12px; align-items: flex-start; padding: 13px 14px; border-radius: 16px; background: var(--surface-2); border: 1px solid var(--line); }
+  .howto-emoji { flex: none; font-size: 26px; line-height: 1.1; }
+  .howto-title { font-size: 15px; font-weight: 800; }
+  .howto-text { margin-top: 3px; font-size: 13.5px; line-height: 1.45; color: var(--muted); }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://js.paystack.co/v2/inline.js"></script>
@@ -1523,7 +1534,7 @@
       <div class="hustle-scroll">
         <section class="section" aria-label="Income streams">
           <div class="section-head"><h3>Income streams</h3></div>
-          <p class="section-sub">Climb the ladder: Jobs, Skills, Mini Business, Contract Business, Company.</p>
+          <p class="section-sub">Climb the ladder: Jobs, Mini Business, Contract Business, Company.</p>
 
           <div class="job-card" id="jobsCard">
             <div class="job-top">
@@ -1534,18 +1545,6 @@
             </div>
             <p class="job-desc">Two well-paying jobs. Drive your own car to work, or take the bus.</p>
             <button class="primary-btn" id="jobsOpenBtn">See all jobs</button>
-          </div>
-
-          <div class="job-card" id="skillsCard">
-            <div class="job-top">
-              <div class="lock-badge">
-                <svg viewBox="0 0 24 24"><path d="M2 9l10-5 10 5-10 5-10-5zM6 11.5V16c0 1.5 3 3 6 3s6-1.5 6-3v-4.5"/></svg>
-              </div>
-              <div class="job-title">Skills</div>
-            </div>
-            <span class="skill-lock" id="skillLock" aria-label="Locked"><svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
-            <p class="job-desc">Learn a skill that earns more than a job.</p>
-            <button class="primary-btn" id="skillsOpenBtn">Earn from skill</button>
           </div>
 
           <div class="job-card" id="bizCard" data-tier="mini">
@@ -1929,7 +1928,7 @@
       </button>
     </div>
     <div class="fp-hunger">
-      <div class="fp-hunger-row"><span>Hunger</span><span id="fpPct">100%</span></div>
+      <div class="fp-hunger-row"><span>Hunger</span><span id="fpPct">1,000 calories</span></div>
       <div class="meter ok" id="fpMeter"><span id="fpFill"></span></div>
     </div>
     <div class="fp-tabs">
@@ -2104,20 +2103,6 @@
         </button>
       </div>
       <div class="buy-list" id="buyList"></div>
-    </div>
-  </div>
-
-  <!-- Skills list sheet -->
-  <div class="sheet-layer" id="skillsSheetLayer" aria-hidden="true">
-    <div class="sheet-backdrop" id="skillsSheetBackdrop"></div>
-    <div class="sheet" role="dialog" aria-label="Skills">
-      <div class="sheet-head">
-        <h2>Skills</h2>
-        <button class="sheet-close" id="skillsSheetClose" aria-label="Close">
-          <svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13"/></svg>
-        </button>
-      </div>
-      <div class="jobs-list" id="skillsList"></div>
     </div>
   </div>
 
@@ -2417,6 +2402,29 @@
     </div>
     <div class="wd-bar"><div class="wd-fill" id="wdFill"></div></div>
     <button class="wd-go" id="wdGo"></button>
+  </div>
+
+  <!-- How to play -->
+  <button class="howto-fab" id="howtoBtn" type="button" aria-label="How to play">?</button>
+  <div class="sheet-layer" id="howtoLayer" aria-hidden="true">
+    <div class="sheet-backdrop" id="howtoBackdrop"></div>
+    <div class="sheet" role="dialog" aria-label="How to play">
+      <div class="sheet-head">
+        <h2>How to play</h2>
+        <button class="sheet-close" id="howtoClose" aria-label="Close">
+          <svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13"/></svg>
+        </button>
+      </div>
+      <p class="lead">Quick tips to get rich.</p>
+      <div class="howto-list">
+        <div class="howto-item"><div class="howto-emoji">💼</div><div><div class="howto-title">Get a job</div><div class="howto-text">Work a job to save money faster.</div></div></div>
+        <div class="howto-item"><div class="howto-emoji">🤝</div><div><div class="howto-title">Do a business contract</div><div class="howto-text">Find a friend and sign a business contract together. You both start earning faster.</div></div></div>
+        <div class="howto-item"><div class="howto-emoji">🏪</div><div><div class="howto-title">Start mini businesses</div><div class="howto-text">They make money for you automatically.</div></div></div>
+        <div class="howto-item"><div class="howto-emoji">🏦</div><div><div class="howto-title">Invest with Somiesbank</div><div class="howto-text">Open Somiesbank on your phone and put big money into fixed deposits and bonds.</div></div></div>
+        <div class="howto-item"><div class="howto-emoji">🌳</div><div><div class="howto-title">Buy land</div><div class="howto-text">Land grows in value, so it makes you more money over time.</div></div></div>
+        <div class="howto-item"><div class="howto-emoji">🏖️</div><div><div class="howto-title">Enjoy your life</div><div class="howto-text">Buy cars, houses, yachts and jets. Go to clubs, beaches and shows to meet new friends and business partners.</div></div></div>
+      </div>
+    </div>
   </div>
 
   <!-- Hunger card -->
@@ -3029,6 +3037,7 @@
       if (!data.session) return authFail('Sign-up worked but login is blocked: turn off "Confirm email" in Supabase.');
       uid = data.user.id;
       await sb.from('profiles').insert({ user_id: uid, username: u, phone: ph });
+      window.hustleNewPlayer = true;   // lets the game show the welcome message
       startGame(u);   // a brand new account starts a fresh game
     } catch (e) { authFail('Could not reach the server. Check your internet.'); }
     finally { authBusy(false); }
@@ -3101,8 +3110,8 @@
 
   // Wallet values (sample numbers for now)
   const naira = n => '₦' + n.toLocaleString('en-NG');
-  const wallet = { bank: 10000000, locked: 60000000, earned: 0 };
-  // Unlocking a job or skill costs 10% of your bank balance, sent to a friend
+  const wallet = { bank: 750000, locked: 60000000, earned: 0 };   // bank = the welcome bonus for a new player
+  // Unlocking a job costs 10% of your bank balance, sent to a friend
   const unlockAmount = () => Math.max(1, Math.round(wallet.bank * 0.1));
   // Locked money card: only shown when there is locked money (or just after a plan payment, to show Approved)
   let lockHold = 0, lockVerify = 0;
@@ -4106,7 +4115,7 @@
     requestAnimationFrame(frame);
   })();
 
-  // Jobs and Skills work the same way: apply, work, get paid when the timer bar fills, quit
+  // Jobs: apply, work, get paid when the timer bar fills, quit
   const HOUR = 3600000, DAY = 24 * HOUR;
   const INTRO_PHOTO = 'https://i.postimg.cc/FKGbjNQM/1791665389193.jpg';
   const lists = {
@@ -4120,21 +4129,6 @@
       items: [
         { title: 'Site Engineer', pay: 500000, every: '20 minutes', ms: 20 * 60000, desc: 'Inspect building sites and sign off projects for solid pay.', locked: false },
         { title: 'Oil and Gas Consultant', pay: 2000000, every: '1 hour', ms: HOUR, desc: 'Advise oil companies and earn big. The best paying job.', locked: true },
-      ],
-    },
-    skill: {
-      name: 'Skills', verb: 'earning from', word: 'skill',
-      start: 'Start', starting: 'Starting', stop: 'Stop', stopping: 'Stopping', again: 'start another',
-      popupTitle: 'Stop your skill first', leaveHint: 'Stop it to start something else.',
-      unlock: { people: 1 },
-      intro: { text: 'Going to learn a skill', photo: INTRO_PHOTO },
-      ids: { open: 'skillsOpenBtn', layer: 'skillsSheetLayer', close: 'skillsSheetClose', backdrop: 'skillsSheetBackdrop', list: 'skillsList' },
-      items: [
-        { title: 'Graphic Design', pay: 8000, every: '10 minutes', ms: 10 * 60000, desc: 'Design logos and posters for local brands.', locked: false },
-        { title: 'Video Editing', pay: 20000, every: '30 minutes', ms: 30 * 60000, desc: 'Edit videos for creators and businesses.', locked: true },
-        { title: 'Web Development', pay: 60000, every: '1 hour', ms: HOUR, desc: 'Build websites and apps for paying clients.', locked: true },
-        { title: 'Digital Marketing', pay: 150000, every: '8 hours', ms: 8 * HOUR, desc: 'Run ads and grow brands online, paid every 8 hours.', locked: true },
-        { title: 'Software Engineering', pay: 900000, every: '24 hours', ms: DAY, desc: 'Build serious software and get paid once a day. The best paying skill.', locked: true },
       ],
     },
   };
@@ -4496,8 +4490,8 @@
   try { saved = JSON.parse(gameStore.getItem(STORE)) || {}; } catch (e) { saved = {}; }
   if (typeof saved.bank === 'number') wallet.bank = saved.bank;
   if (typeof saved.locked === 'number') wallet.locked = saved.locked;
-  // Jobs and skills you unlocked by sending money to a friend (kept in your save)
-  const unlocked = { job: [], skill: [] };
+  // Jobs you unlocked by sending money to a friend (kept in your save)
+  const unlocked = { job: [] };
   Object.keys(unlocked).forEach(k => {
     const u = (k === 'job' && saved.jobsV !== 2) ? [] : (saved.unlocked && Array.isArray(saved.unlocked[k]) ? saved.unlocked[k] : []);   // the job list changed: old job unlocks do not carry over
     u.forEach(n => { n = Number(n); if (lists[k] && lists[k].items[n] && !unlocked[k].includes(n)) { lists[k].items[n].locked = false; unlocked[k].push(n); } });
@@ -4548,27 +4542,13 @@
   enforceLimit();
   if (premium) unlockLocked();   // an active plan releases Locked money when the game opens (spending never does)
   if (saved.day === today && typeof saved.earned === 'number') wallet.earned = saved.earned;
-  let work = null;   // { kind: 'job' | 'skill', index, start }
+  let work = null;   // { kind: 'job', index, start }
   if (saved.work) {
     const k = saved.work.kind || 'job';
     const oldJobs = k === 'job' && saved.jobsV !== 2;   // the old five jobs are gone: carry on as the first job, with the clock restarted
     const idx = oldJobs ? 0 : saved.work.index;
     if (lists[k] && lists[k].items[idx]) work = { kind: k, index: idx, start: oldJobs ? Date.now() : saved.work.start, country: saved.work.country || curCountry, shift: k === 'job' && saved.work.shift === 'night' ? 'night' : 'day', ride: saved.work.ride === 'car' ? 'car' : saved.work.ride === 'taxi' ? 'taxi' : 'bus', car: typeof saved.work.car === 'string' ? saved.work.car : null, route: Array.isArray(saved.work.route) ? saved.work.route.filter(t => t === 'L' || t === 'R').slice(0, 6) : null };
   }
-  // Skills unlock after 5 hours of working a job (time counts while the app is closed, but not on a plane)
-  const SKILL_REQ = 5 * HOUR;
-  let workMs = typeof saved.workMs === 'number' ? saved.workMs : 0;
-  let workAt = typeof saved.workAt === 'number' ? saved.workAt : Date.now();
-  if (work && work.kind === 'skill') workMs = Math.max(workMs, SKILL_REQ);   // already on a skill: keep it unlocked
-  function accrueWork() {
-    const now = Date.now();
-    if (work && work.kind === 'job' && !activeFlight()) workMs += Math.max(0, now - workAt);
-    workAt = now;
-  }
-  accrueWork();
-  const skillsUnlocked = () => workMs >= SKILL_REQ;
-  const fmtHM = ms => { const m = Math.floor(ms / 60000); return Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + 'm'; };
-  function renderSkillGate() { document.getElementById('skillLock').hidden = skillsUnlocked(); }
   // Hunger and food. Hunger only goes down when you click inside the app (no clock, nothing drains while you are away).
   const HUNGER_PER_CLICK = 0.1;                   // % lost on every click: a full bar lasts 1,000 taps (change this number to make hunger faster or slower)
   const HUNGER_LOW = 50, HUNGER_VERY_LOW = 10;
@@ -4586,7 +4566,9 @@
     { id: 'fish', name: 'Dried fish', emoji: '🐟', gain: 20, start: 0, local: 1200, hrs: [7, 18, 36] },
     { id: 'moimoi', name: 'Moi moi', emoji: '🍲', gain: 25, start: 0, local: 1300, hrs: [8, 20, 40] },
   ];
-  const foodTaps = f => Math.round(f.gain / HUNGER_PER_CLICK);
+  const foodTaps = f => Math.round(f.gain / HUNGER_PER_CLICK);   // 1 tap = 1 calorie
+  const calOf = h => Math.round(h / HUNGER_PER_CLICK);           // the hunger bar (0-100) shown as calories (0-1,000)
+  const calFmt = h => calOf(h).toLocaleString('en-NG') + ' calories';
   const food = {};
   FOODS.forEach(f => { food[f.id] = saved.food && typeof saved.food[f.id] === 'number' ? saved.food[f.id] : f.start; });
   // Out-of-stock timers: stock[market][food] = the time it is back on the shelf
@@ -4621,7 +4603,7 @@
   function save() {
     let pending = 0;
     try { pending = pendingReturns(); } catch (e) {}   // money out earning, so other players see your full net worth
-    try { gameStore.setItem(STORE, JSON.stringify({ jobsV: 2, bizAll, bizTrip, work, workMs, workAt, bank: wallet.bank, locked: wallet.locked, pending, earned: wallet.earned, day: today, premium, hunger: hunger(), hungerAt: Date.now(), food, stock, sick, lastIllness, sickCost, sickHold, receivedHold, debt, holdings, items: ownedItems, unlocked })); } catch (e) {}
+    try { gameStore.setItem(STORE, JSON.stringify({ jobsV: 2, bizAll, bizTrip, work, bank: wallet.bank, locked: wallet.locked, pending, earned: wallet.earned, day: today, premium, hunger: hunger(), hungerAt: Date.now(), food, stock, sick, lastIllness, sickCost, sickHold, receivedHold, debt, holdings, items: ownedItems, unlocked })); } catch (e) {}
   }
 
   // Flight in progress (stored by the map), or null
@@ -4730,7 +4712,6 @@
 
   function renderAll() {
     Object.keys(lists).forEach(renderList);
-    renderSkillGate();
     tickWork();
   }
 
@@ -4746,7 +4727,7 @@
     const W = lists[work.kind], item = W.items[work.index], isJob = work.kind === 'job';
     document.getElementById('wdIcon').textContent = isJob ? '💼' : '🎓';
     document.getElementById('wdState').textContent = activeFlight() ? 'Paused, on a plane' : (isJob ? 'At work' : 'Earning');
-    document.getElementById('wdTitle').textContent = isJob ? (work.shift === 'night' ? "You're on night shift" : "You're at work now") : "You're earning from a skill";
+    document.getElementById('wdTitle').textContent = isJob ? (work.shift === 'night' ? "You're on night shift" : "You're at work now") : "You're at work now";
     document.getElementById('wdJob').textContent = item.title;
     document.getElementById('wdPay').textContent = naira(workPay());
     if (!wdGo.classList.contains('loading')) wdGo.innerHTML = wdHome + W.stop;
@@ -4873,7 +4854,6 @@
     document.getElementById(L.ids.open).addEventListener('click', () => {
       const fl = activeFlight();
       if (fl) { showNotice("You're on the plane", `Flying to ${fl.dest}. Wait until you land.`, false, true); return; }
-      if (kind === 'skill' && !skillsUnlocked()) { showNotice('Skills locked', '', false, false, true); document.getElementById('noticeText').innerHTML = `Work at a job for 5 hours to unlock skills.<b class="notice-strong">You have worked ${fmtHM(workMs)} of 5h.</b>`; return; }
       if (kind === 'job') { L.setSheet(true); return; }   // just browse the jobs; the fare and bus ride happen when you pick one
       if (work && work.kind !== kind) { showWorkPopup(); return; }
       runIntro(L.intro, () => L.setSheet(true));
@@ -5172,7 +5152,7 @@
     } else if (goldTab === 'jobs') {
       if (work && work.country === goldCountry) {
         const it = lists[work.kind].items[work.index];
-        html = `<div class="gt-row"><div><div class="gt-name">${it.title}</div><div class="gt-sub">${work.kind === 'skill' ? 'Skill' : 'Job'} · ${naira(workPay())} / ${it.every}</div></div><div class="gt-right gt-ready">Working</div></div>`;
+        html = `<div class="gt-row"><div><div class="gt-name">${it.title}</div><div class="gt-sub">Job · ${naira(workPay())} / ${it.every}</div></div><div class="gt-right gt-ready">Working</div></div>`;
       } else html = '<div class="gt-empty">No job here.</div>';
     } else if (goldTab === 'company') {
       html = '<div class="gt-empty">Companies are coming soon.</div>';
@@ -5213,16 +5193,8 @@
   renderWallet();
   renderAll();
   setInterval(tickWork, 1000);
-  let skillWasOpen = skillsUnlocked(), gateTick = 0;
-  setInterval(() => {
-    accrueWork();
-    renderSkillGate();
-    if (!skillWasOpen && skillsUnlocked()) {
-      skillWasOpen = true;
-      save();
-      showNotice('Skills unlocked', 'You have worked 5 hours. You can now earn from skills.', false);
-    } else if (++gateTick % 15 === 0) save();
-  }, 1000);
+  let saveTick = 0;
+  setInterval(() => { if (++saveTick % 15 === 0) save(); }, 1000);   // autosave every 15 seconds
 
   // ---- Hunger card, food page, starvation illness ----
   const $ = id => document.getElementById(id);
@@ -5239,12 +5211,12 @@
     const h = hunger(), pct = Math.round(h), lvl = hungerLevel(h);
     $('hbFill').style.width = h + '%';
     $('fpFill').style.width = h + '%';
-    $('fpPct').textContent = pct + '%';
+    $('fpPct').textContent = calFmt(h);
     $('hbMeter').classList.toggle('crit', lvl === 2);
     hungerBar.classList.toggle('crit', lvl === 2);
     $('fpMeter').className = 'meter' + (lvl === 2 ? ' crit' : lvl === 1 ? '' : ' ok');
     $('hbTitle').textContent = lvl === 2 ? "You're starving" : lvl === 1 ? "You're hungry" : "You're feeling better";
-    $('hbSub').textContent = lvl === 0 ? `Hunger ${pct}%` : `Hunger ${pct}% · 0% = illness`;
+    $('hbSub').textContent = lvl === 0 ? `${calFmt(h)} left` : `${calFmt(h)} left · 0 = illness`;
     if (lvl === 0) dismissed = 0;
     if (!barShown && lvl > dismissed) setBar(true);
   }
@@ -5276,7 +5248,7 @@
       <span class="fc-qty">x${food[f.id]}</span>
       <div class="fc-emoji">${f.emoji}</div>
       <div class="fc-name">${f.name}</div>
-      <div class="fc-gain">+${f.gain}% · ${foodTaps(f).toLocaleString('en-NG')} taps</div>
+      <div class="fc-gain">+${foodTaps(f).toLocaleString('en-NG')} calories</div>
     </button>`).join('');
   }
   $('foodGrid').addEventListener('click', e => {
@@ -5287,7 +5259,7 @@
     // no wasting food: it has to fit in the hunger bar
     if (hunger() + f.gain > 100) {
       const n = $('eatNote');
-      n.textContent = `Too full for ${f.name}. Eat it when your hunger is ${Math.max(0, Math.floor(100 - f.gain))}% or lower.`;
+      n.textContent = `Too full for ${f.name}. Eat it when you are at ${Math.max(0, calOf(100 - f.gain)).toLocaleString('en-NG')} calories or less.`;
       n.hidden = false; clearTimeout(eatNoteT); eatNoteT = setTimeout(() => { n.hidden = true; }, 3000);
       return;
     }
@@ -5306,8 +5278,8 @@
   //  Their prices grow with your net worth (smoothly), so rich players pay more for the convenience.
   const MARKETS = [
     { id: 'local', name: 'Local market', units: 1, mark: 1,   steps: null },
-    { id: 'super', name: 'Supermarket',  units: 10, mark: 1.3, steps: [[5e6, 1], [5e7, 2], [5e8, 4], [5e9, 8]] },
-    { id: 'mall',  name: 'Shopping mall', units: 50, mark: 1.6, steps: [[5e6, 1], [5e7, 4], [5e8, 16], [5e9, 40]] },
+    { id: 'super', name: 'Supermarket',  units: 10, mark: 1.3, steps: [[5e6, 1], [5e7, 5], [5e8, 20], [5e9, 60]] },
+    { id: 'mall',  name: 'Shopping mall', units: 50, mark: 1.6, steps: [[5e6, 1], [5e7, 15], [5e8, 100], [5e9, 400]] },
   ];
   const worthNow = () => { try { return netWorth(); } catch (e) { return wallet.bank + wallet.locked; } };
   function wealthMult(m) {
@@ -5341,7 +5313,7 @@
       const taps = foodTaps(f) * m.units;
       return `<div class="shop-row">
       <div class="sr-emoji">${f.emoji}</div>
-      <div class="sr-text"><div class="sr-name">${f.name}${m.units > 1 ? ' x' + m.units : ''}</div><div class="sr-desc">${taps.toLocaleString('en-NG')} taps${m.units > 1 ? ' total' : ' each'} · You have ${food[f.id]}</div></div>
+      <div class="sr-text"><div class="sr-name">${f.name}${m.units > 1 ? ' x' + m.units : ''}</div><div class="sr-desc">${taps.toLocaleString('en-NG')} calories${m.units > 1 ? ' total' : ' each'} · You have ${food[f.id]}</div></div>
       <button class="mk-buy${left ? ' out' : ''}" data-id="${f.id}"${left ? ' data-out="1"' : ''}>${left ? fmtLeft(left) : naira(marketPrice(m, f))}</button>
     </div>`;
     }).join('');
@@ -5391,6 +5363,11 @@
     renderFood();
     save();
   });
+
+  if (window.hustleNewPlayer) {
+    window.hustleNewPlayer = false;
+    setTimeout(() => showNotice('Welcome to Hustle Hard', "You've worked hard to save up " + naira(wallet.bank) + '. Use it wisely.'), 700);
+  }
 
   // At 0% hunger you fall ill instead of dying: a different illness each time, and you must pay for treatment
   const sickPage = $('sickPage');
@@ -5646,7 +5623,7 @@
 
   const OP_VIEWS = ['home', 'send', 'invest', 'fixed', 'bonds'];
   const opId = v => 'op' + v[0].toUpperCase() + v.slice(1);
-  let opCur = 'home', opPick = '', opLookupTok = 0, opBusy = false, opSearchTimer = 0, opUnlock = null;   // opUnlock: { kind, i, amt } while sending money to unlock a job or skill
+  let opCur = 'home', opPick = '', opLookupTok = 0, opBusy = false, opSearchTimer = 0, opUnlock = null;   // opUnlock: { kind, i, amt } while sending money to unlock a job
   const opTx = [];
   const opAmtValue = () => Number($('opAmt').value.replace(/\D/g, '')) || 0;
 
@@ -5690,7 +5667,7 @@
     $('opUnlockNote').hidden = !opUnlock;
     if (opUnlock) $('opUnlockNote').textContent = `Send at least ${naira(opUnlock.amt)} to a friend to unlock ${lists[opUnlock.kind].items[opUnlock.i].title}.`;
   }
-  // Open the send screen for a locked job or skill, with the amount already filled in
+  // Open the send screen for a locked job, with the amount already filled in
   function opStartUnlock(kind, i) {
     opShow('send');
     opUnlock = { kind, i, amt: unlockAmount() };
@@ -5883,29 +5860,31 @@
   let shopTab = 'cars';
   // Things you can buy. Pay from your bank balance only. Maintenance costs 10% of what you paid and you can sell for 35% less than you paid.
   const MAINT_RATE = 0.10, RESALE_RATE = 0.65, WEAR_PER_CLICK = 0.25;
+  // Houses do not wear down on taps. Every 24 hours the full maintenance (10% of the price) is due; if it is still unpaid 1 hour later the house is sold automatically.
+  const HOUSE_PERIOD = 24 * 3600000, HOUSE_GRACE = 3600000;
   const LAND_RATE = 0.10, LAND_STEP = 3600000;   // land gains 10% of its value every hour (compounding), no maintenance, sells for its full current value   // WEAR_PER_CLICK = % of the maintenance meter lost on every click
   const SHOP_ITEMS = {
     cars: [
       { id: 'camry', img: 'https://i.postimg.cc/cLt3nHdn/images.jpg', emoji: '🚗', name: 'Toyota Camry', desc: '2024 · 2.5L hybrid · brand new', price: 55000000 },
       { id: 'landcruiser', img: 'https://i.postimg.cc/0532JCjz/maxresdefault.jpg', emoji: '🚙', name: 'Toyota Land Cruiser V8', desc: '2024 · 3.5L twin-turbo · brand new', price: 185000000 },
       { id: 'rangerover', img: 'https://i.postimg.cc/NfqFz4cS/z8a9rangelrcpzprts.jpg', emoji: '🚙', name: 'Range Rover Autobiography', desc: '2024 · P530 V8 · brand new', price: 290000000 },
-      { id: 'g63', emoji: '🚘', name: 'Mercedes-AMG G63', desc: '2024 · 4.0L V8 biturbo · brand new', price: 430000000 },
-      { id: 'cullinan', emoji: '🏎️', name: 'Rolls-Royce Cullinan', desc: '2024 · 6.75L V12 · brand new', price: 1150000000 },
+      { id: 'g63', img: 'https://i.postimg.cc/T3F7h9B6/images-(2).jpg', emoji: '🚘', name: 'Mercedes-AMG G63', desc: '2024 · 4.0L V8 biturbo · brand new', price: 430000000 },
+      { id: 'cullinan', img: 'https://i.postimg.cc/VvhM47qR/q8x0hd9m5vk91.jpg', emoji: '🏎️', name: 'Rolls-Royce Cullinan', desc: '2024 · 6.75L V12 · brand new', price: 1150000000 },
     ],
     houses: [
-      { id: 'lekkiflat', emoji: '🏢', name: '3-bedroom flat, Lekki', desc: 'Gated estate · 24h power · BQ', price: 120000000 },
-      { id: 'lekkiduplex', emoji: '🏠', name: '4-bedroom duplex, Lekki Phase 1', desc: 'Fully detached · swimming pool', price: 350000000 },
+      { id: 'lekkiflat', img: 'https://i.postimg.cc/G27shM51/0687dc559b197f-greece-luxurious-3-bedroom-waterfront-apartment-short-let-lekki-phase-1-lekki-lagos.jpg', emoji: '🏢', name: '3-bedroom flat, Lekki', desc: 'Gated estate · 24h power · BQ', price: 120000000 },
+      { id: 'lekkiduplex', img: 'https://i.postimg.cc/90wzXc9c/06899272351d14-fully-furnished-serviced-4-bedroom-semi-detached-duplex-semi-detached-duplexes-for-re.jpg', emoji: '🏠', name: '4-bedroom duplex, Lekki Phase 1', desc: 'Fully detached · swimming pool', price: 350000000 },
       { id: 'ikoyipent', emoji: '🏙️', name: '5-bedroom penthouse, Ikoyi', desc: 'Sea view · private lift · 3 parking bays', price: 950000000 },
       { id: 'bananaisland', emoji: '🏰', name: 'Mansion, Banana Island', desc: '8 bedrooms · cinema · staff quarters', price: 4800000000 },
     ],
     yachts: [
-      { id: 'cruiser40', emoji: '🛥️', name: 'Sea Ray 40 cruiser', desc: '12 m · twin diesel · sleeps 6', price: 620000000 },
+      { id: 'cruiser40', img: 'https://i.postimg.cc/K827WWXN/images-(3).jpg', emoji: '🛥️', name: 'Sea Ray 40 cruiser', desc: '12 m · twin diesel · sleeps 6', price: 620000000 },
       { id: 'azimut55', emoji: '🛥️', name: 'Azimut 55', desc: '17 m · flybridge · 3 cabins', price: 2600000000 },
       { id: 'sunseeker76', emoji: '⛵', name: 'Sunseeker 76 Yacht', desc: '23 m · 4 cabins · crew of 3', price: 9500000000 },
       { id: 'benetti40', emoji: '🚢', name: 'Benetti 40 m superyacht', desc: '40 m · 5 cabins · crew of 9', price: 48000000000 },
     ],
     jets: [
-      { id: 'citationcj2', emoji: '✈️', name: 'Cessna Citation CJ2 (used)', desc: '6 seats · range 2,400 km', price: 4600000000 },
+      { id: 'citationcj2', img: 'https://i.postimg.cc/mDJCyXNw/CJ2-012.jpg', emoji: '✈️', name: 'Cessna Citation CJ2 (used)', desc: '6 seats · range 2,400 km', price: 4600000000 },
       { id: 'phenom300', emoji: '✈️', name: 'Embraer Phenom 300E', desc: '8 seats · range 3,650 km', price: 13500000000 },
       { id: 'challenger350', emoji: '🛩️', name: 'Bombardier Challenger 350', desc: '10 seats · range 5,900 km', price: 38000000000 },
       { id: 'g650', emoji: '🛩️', name: 'Gulfstream G650ER', desc: '16 seats · range 13,900 km', price: 105000000000 },
@@ -5925,6 +5904,14 @@
     else { o.care = typeof o.care === 'number' ? Math.max(0, Math.min(100, o.care)) : 100; if (itemById(id).land && typeof o.at !== 'number') o.at = Date.now(); }
   });
   const maintCost = o => Math.round(o.paid * MAINT_RATE);
+  const isHouse = id => SHOP_ITEMS.houses.some(h => h.id === id);
+  Object.keys(ownedItems).forEach(id => { if (isHouse(id) && typeof ownedItems[id].due !== 'number') ownedItems[id].due = Date.now() + HOUSE_PERIOD; });   // houses bought before this rule start a fresh 24 hours
+  const houseLeft = o => o.due - Date.now();                       // ms until the maintenance is due (negative = overdue)
+  const houseSellIn = o => o.due + HOUSE_GRACE - Date.now();       // ms until it is sold if still unpaid
+  const fmtHrs = ms => { const t = Math.max(0, Math.ceil(ms / 1000)), h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), sec = t % 60; return h ? `${h}h ${String(m).padStart(2, '0')}m` : `${m}m ${String(sec).padStart(2, '0')}s`; };
+  const houseText = o => houseLeft(o) > 0 ? `Due in ${fmtHrs(houseLeft(o))}` : `Overdue · sold in ${fmtHrs(houseSellIn(o))}`;
+  const houseKind = o => houseLeft(o) <= 0 ? ' crit' : houseLeft(o) <= HOUSE_GRACE * 3 ? '' : ' ok';
+  const houseFrac = o => Math.max(0, Math.min(100, houseLeft(o) / HOUSE_PERIOD * 100));
   const landSteps = o => Math.max(0, Math.floor((Date.now() - o.at) / LAND_STEP));
   const landValue = o => Math.min(Number.MAX_SAFE_INTEGER, Math.round(o.paid * Math.pow(1 + LAND_RATE, landSteps(o))));
   const landNextMs = o => LAND_STEP - ((Date.now() - o.at) % LAND_STEP);
@@ -5942,14 +5929,14 @@
       const poor = wallet.bank < it.price;
       return `<div class="item-card">${head}
         <div class="ic-priceBig">${naira(it.price)}</div>
-        <div class="ic-maint"><span class="gear">⚙️</span><span>Maintenance: ${naira(Math.round(it.price * MAINT_RATE))} per service</span></div>
+        <div class="ic-maint"><span class="gear">⚙️</span><span>${isHouse(it.id) ? 'Maintenance: ' + naira(Math.round(it.price * MAINT_RATE)) + ' every 24 hours. Miss it by 1 hour and the house is sold.' : 'Maintenance: ' + naira(Math.round(it.price * MAINT_RATE)) + ' per service'}</span></div>
         <div class="ic-btns"><button class="mk-buy item-buy${poor ? ' no-funds' : ''}" data-id="${it.id}">${poor ? 'Insufficient Funds' : 'Buy'}</button></div>
       </div></div>`;
     }
     return `<div class="item-card">${head}
       <div class="ic-paid"><span>You paid</span><b>${naira(o.paid)}</b></div>
-      <div class="ic-care"><div class="ic-care-row"><span>Maintenance</span><span class="ic-pct" data-id="${it.id}">${Math.round(o.care)}%</span></div>
-        <div class="meter${careKind(o.care)}" data-id="${it.id}"><span style="width:${o.care}%"></span></div></div>
+      <div class="ic-care"><div class="ic-care-row"><span>Maintenance</span><span class="ic-pct" data-id="${it.id}">${isHouse(it.id) ? houseText(o) : Math.round(o.care) + '%'}</span></div>
+        <div class="meter${isHouse(it.id) ? houseKind(o) : careKind(o.care)}" data-id="${it.id}"><span style="width:${isHouse(it.id) ? houseFrac(o) : o.care}%"></span></div></div>
       <div class="ic-btns">
         <button class="mk-buy item-care" data-id="${it.id}">Service ${naira(maintCost(o))}</button>
         <button class="item-sell${sellArm === it.id ? ' arm' : ''}" data-id="${it.id}">${sellArm === it.id ? 'Tap again to sell' : 'Sell ' + naira(sellPrice(o, it.id))}</button>
@@ -5965,11 +5952,12 @@
   }
   // Light update while you click around: only the maintenance meters, so buttons are never rebuilt under your finger
   function updateItemMeters() {
-    shopPage.querySelectorAll('.ic-pct').forEach(el => { const o = ownedItems[el.dataset.id]; if (o) el.textContent = Math.round(o.care) + '%'; });
+    shopPage.querySelectorAll('.ic-pct').forEach(el => { const o = ownedItems[el.dataset.id]; if (o) el.textContent = isHouse(el.dataset.id) ? houseText(o) : Math.round(o.care) + '%'; });
     shopPage.querySelectorAll('.ic-care .meter').forEach(el => {
       const o = ownedItems[el.dataset.id]; if (!o) return;
-      el.className = 'meter' + careKind(o.care);
-      el.firstElementChild.style.width = o.care + '%';
+      const h = isHouse(el.dataset.id);
+      el.className = 'meter' + (h ? houseKind(o) : careKind(o.care));
+      el.firstElementChild.style.width = (h ? houseFrac(o) : o.care) + '%';
     });
   }
 
@@ -5985,23 +5973,30 @@
   let careId = '';
   function renderCare() {
     let w = null;
-    Object.keys(ownedItems).forEach(id => { if (isLand(id)) return; if (!w || ownedItems[id].care < ownedItems[w].care) w = id; });
+    let dueHouse = null;
+    Object.keys(ownedItems).forEach(id => {
+      if (isLand(id)) return;
+      if (isHouse(id)) { if (houseLeft(ownedItems[id]) <= 0 && (!dueHouse || houseSellIn(ownedItems[id]) < houseSellIn(ownedItems[dueHouse]))) dueHouse = id; return; }
+      if (!w || ownedItems[id].care < ownedItems[w].care) w = id;
+    });
+    if (dueHouse) w = dueHouse;
     careId = w || '';
     const o = w && ownedItems[w], it = w && itemById(w);
-    const c = o ? o.care : 100, lvl = careLevel(c);
+    const hs = !!(w && isHouse(w));
+    const c = o ? (hs ? 0 : o.care) : 100, lvl = hs ? 2 : careLevel(c);
     if (o && it) {
       $('careIcon').textContent = it.emoji;
-      $('careTitle').textContent = lvl === 2 ? 'Needs urgent service' : lvl === 1 ? 'Maintenance due' : 'Looking good';
-      $('careSub').textContent = `${it.name} · ${Math.round(c)}%`;
-      $('careFill').style.width = c + '%';
-      $('carePay').textContent = 'Service · ' + naira(maintCost(o));
+      $('careTitle').textContent = hs ? 'Pay maintenance now' : lvl === 2 ? 'Needs urgent service' : lvl === 1 ? 'Maintenance due' : 'Looking good';
+      $('careSub').textContent = hs ? `${it.name} · sold in ${fmtHrs(houseSellIn(o))} if unpaid` : `${it.name} · ${Math.round(c)}%`;
+      $('careFill').style.width = (hs ? Math.max(0, Math.min(100, houseSellIn(o) / HOUSE_GRACE * 100)) : c) + '%';
+      $('carePay').textContent = (hs ? 'Pay · ' : 'Service · ') + naira(maintCost(o));
     }
     careBar.classList.toggle('crit', lvl === 2);
     $('careMeter').className = 'meter' + (lvl === 2 ? ' crit' : '');
     if (lvl === 0) { careDismissed = 0; if (careShown) setCare(false); }
     else if (!careShown && lvl > careDismissed) setCare(true);
   }
-  $('careClose').addEventListener('click', () => { careDismissed = careLevel(careId && ownedItems[careId] ? ownedItems[careId].care : 100); setCare(false); });
+  $('careClose').addEventListener('click', () => { careDismissed = careId && isHouse(careId) ? 2 : careLevel(careId && ownedItems[careId] ? ownedItems[careId].care : 100); setCare(false); });
 
   // Maintenance: 10% of what you paid, from your bank balance only
   function serviceItem(id) {
@@ -6011,10 +6006,37 @@
     if (wallet.bank < cost) { needHelp(cost, 'servicing ' + it.name); return; }
     wallet.bank -= cost;
     o.care = 100;
+    if (isHouse(id)) o.due = Date.now() + HOUSE_PERIOD;
     careDismissed = 0;
     renderWallet(); renderCare(); drawShop(); save();
   }
   $('carePay').addEventListener('click', () => { if (careId) serviceItem(careId); });
+
+  // Houses: sold automatically once the maintenance is more than 1 hour late (also catches the time you were away)
+  function houseTick() {
+    const sold = [];
+    Object.keys(ownedItems).forEach(id => {
+      if (!isHouse(id)) return;
+      const o = ownedItems[id];
+      if (houseSellIn(o) <= 0) {
+        const get = sellPrice(o, id), lockedBefore = wallet.locked;
+        delete ownedItems[id];
+        wallet.bank += get;
+        enforceLimit();
+        sold.push({ name: itemById(id).name, get, toLocked: wallet.locked - lockedBefore });
+      }
+    });
+    if (sold.length) {
+      renderWallet(); renderCare(); drawShop(); save();
+      const t = sold.map(x => `${x.name} for ${naira(x.get)}`).join(' and ');
+      showNotice(sold.length > 1 ? 'Houses sold' : 'House sold', `You did not pay the maintenance in time, so your ${t} ${sold.length > 1 ? 'were' : 'was'} sold automatically.`, false, false, true);
+    } else if (Object.keys(ownedItems).some(isHouse)) {
+      renderCare();
+      updateItemMeters();
+    }
+  }
+  setInterval(houseTick, 1000);
+  setTimeout(houseTick, 1200);
 
   shopPage.addEventListener('click', e => {
     const buy = e.target.closest('.item-buy'), care = e.target.closest('.item-care'), sell = e.target.closest('.item-sell');
@@ -6024,8 +6046,11 @@
       if (wallet.bank < it.price) { needHelp(it.price, 'buying ' + it.name); return; }
       wallet.bank -= it.price;
       ownedItems[it.id] = { paid: it.price, care: 100, at: Date.now() };
+      if (isHouse(it.id)) ownedItems[it.id].due = Date.now() + HOUSE_PERIOD;
       renderWallet(); renderCare(); drawShop(); save();
-      showNotice(it.name + ' is yours', `You paid ${naira(it.price)}. Keeping it maintained costs ${naira(maintCost(ownedItems[it.id]))} (10%) each time. You can sell it later for ${naira(sellPrice(ownedItems[it.id], it.id))}.`, false);
+      showNotice(it.name + ' is yours', isHouse(it.id)
+        ? `You paid ${naira(it.price)}. Every 24 hours you must pay ${naira(maintCost(ownedItems[it.id]))} to maintain it. If it is still unpaid 1 hour after it is due, the house is sold automatically for ${naira(sellPrice(ownedItems[it.id], it.id))}.`
+        : `You paid ${naira(it.price)}. Keeping it maintained costs ${naira(maintCost(ownedItems[it.id]))} (10%) each time. You can sell it later for ${naira(sellPrice(ownedItems[it.id], it.id))}.`, false);
     } else if (care) {
       serviceItem(care.dataset.id);
     } else if (sell) {
@@ -6053,6 +6078,7 @@
   // Land investments sheet (opened from the Hustle page). Value is worked out from the time you bought, so it also grows while the game is closed.
   const landList = $('landList');
   const setLandSheet = bindSheet('landSheetLayer', 'landOpenBtn', 'landSheetClose', 'landSheetBackdrop');
+  bindSheet('howtoLayer', 'howtoBtn', 'howtoClose', 'howtoBackdrop');
   let landSig = '';
   function landCardHtml(it) {
     const o = ownedItems[it.id];
@@ -6174,7 +6200,7 @@
     if (sick) return;
     hungerBase = Math.max(0, hungerBase - HUNGER_PER_CLICK);
     // the same click also wears down the maintenance meter of what you own. Cars are the exception: they only wear when you drive them (each trip to work)
-    const ids = Object.keys(ownedItems).filter(id => !isLand(id) && !SHOP_ITEMS.cars.some(c => c.id === id));
+    const ids = Object.keys(ownedItems).filter(id => !isLand(id) && !isHouse(id) && !SHOP_ITEMS.cars.some(c => c.id === id));
     ids.forEach(id => { ownedItems[id].care = Math.max(0, ownedItems[id].care - WEAR_PER_CLICK); });
     if (ids.length) { renderCare(); updateItemMeters(); }
     tickHunger();
@@ -7054,7 +7080,7 @@
   const liveHoldings = () => holdings.filter(h => opProduct(h));
   // Things bought in the Showroom (cars, houses, yachts, jets) and land bought on the Hustle page
   const ownedRows = list => (list || []).filter(it => ownedItems[it.id]).map(it => { const o = ownedItems[it.id];
-    return { title: it.name, sub: `You paid ${naira(o.paid)} · Maintenance ${Math.round(o.care)}%`, right: 'Worth ' + naira(sellPrice(o, it.id)) }; });
+    return { title: it.name, sub: `You paid ${naira(o.paid)} · ${isHouse(it.id) ? 'Maintenance ' + houseText(o).toLowerCase() : 'Maintenance ' + Math.round(o.care) + '%'}`, right: 'Worth ' + naira(sellPrice(o, it.id)) }; });
   const landRows = () => LAND_ITEMS.filter(it => ownedItems[it.id]).map(it => { const o = ownedItems[it.id];
     return { title: it.name, sub: `You paid ${naira(o.paid)} · ${landGain(o)} · next +10% in ${fmtMs(landNextMs(o))}`, right: naira(landValue(o)) }; });
   const OWN_SECTIONS = [
@@ -7380,7 +7406,7 @@ function smooth(a,b,x){var t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t);}
 var reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 var renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
-renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.75));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5));
 document.getElementById('stage').appendChild(renderer.domElement);
 var maxAniso=Math.min(4,renderer.capabilities.getMaxAnisotropy());
 
@@ -7841,8 +7867,19 @@ function pickNet(){var r=Math.random()*100,a=0;for(var i=0;i<NETS.length;i++){a+
 var NAMES=['chidi_ok','amaka.b','tunde_x','ngozi24','emeka_dev','sade_lagos','ibrahim_k','funke.a','obinna99','zainab_m','kelechi_','bola_ade','uche.nwa','halima.s','david_asaba','blessing_o','femi_tech','chioma_x','ejiro_01','ose_man','tobi.fx','ifeanyi_','mercy.e','peter_dlt','yemi_j','kunle_b','oluchi_','sam_asaba','ada_ugo','jide_m','nkechi.v','segun_k','rita_okoro','musa.d','tamara_n','wale_xo','ify_c','gozie77','dami_o','hauwa.s','kene_k','lola_bee','ikenna.t','precious_e'];
 NAMES.sort(function(){return Math.random()-.5;});
 var SKIN=[0x3b2417,0x4a2e1c,0x5a3825,0x7a4b2e,0x8d5a3b,0xa06a47],CLOTH=[0xe63946,0xf4a261,0x2a9d8f,0x264653,0xe9c46a,0x6a4c93,0x1d84b5,0xff6b6b,0xffffff,0x118ab2,0x06d6a0,0xef476f];
-var legGeo=new THREE.BoxGeometry(.17,.76,.2).translate(0,-.38,0),shoeGeo=new THREE.BoxGeometry(.18,.09,.32).translate(0,-.72,.05),torsoGeo=new THREE.BoxGeometry(.5,.58,.28),armGeo=new THREE.BoxGeometry(.1,.54,.12).translate(0,-.26,0),handGeo=new THREE.SphereGeometry(.058,6,5).translate(0,-.56,0),neckGeo=new THREE.CylinderGeometry(.055,.065,.1,6),headGeo=new THREE.SphereGeometry(.17,10,8),hairGeo=new THREE.SphereGeometry(.18,10,8);
+var legGeo=new THREE.BoxGeometry(.17,.76,.2).translate(0,-.38,0),shoeGeo=new THREE.BoxGeometry(.18,.09,.32).translate(0,-.72,.05),torsoGeo=new THREE.BoxGeometry(.5,.58,.28),armGeo=new THREE.BoxGeometry(.1,.54,.12).translate(0,-.26,0),handGeo=new THREE.SphereGeometry(.058,6,5).translate(0,-.56,0),neckGeo=new THREE.CylinderGeometry(.055,.065,.1,6),headGeo=new THREE.SphereGeometry(.17,8,6),hairGeo=new THREE.SphereGeometry(.18,8,6);
 var HAIR=[0x15110e,0x15110e,0x15110e,0x241a14,0x0d0b0a,0x3a2a20];
+/* one vertex-coloured mesh per limb instead of a mesh per part: far fewer draw calls for 44 people */
+var VCMAT=new THREE.MeshLambertMaterial({vertexColors:true});
+function mergeColored(parts){
+ var pos=[],nor=[],col=[],idx=[],off=0,c=new THREE.Color();
+ parts.forEach(function(p){
+  var g=p[0],pa=g.attributes.position,na=g.attributes.normal,ix=g.index,sx=p[5]||1,sy=p[6]||1,sz=p[7]||1;c.setHex(p[1]);
+  for(var i=0;i<pa.count;i++){pos.push(pa.getX(i)*sx+p[2],pa.getY(i)*sy+p[3],pa.getZ(i)*sz+p[4]);nor.push(na.getX(i),na.getY(i),na.getZ(i));col.push(c.r,c.g,c.b);}
+  for(var j=0;j<ix.count;j++)idx.push(ix.getX(j)+off);off+=pa.count;});
+ var geo=new THREE.BufferGeometry();
+ geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));geo.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));geo.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
+ geo.setIndex(idx);return geo;}
 var FIRST=['Chidi','Amaka','Tunde','Ngozi','Emeka','Sade','Ibrahim','Funke','Obinna','Zainab','Kelechi','Bola','Uche','Halima','David','Blessing','Femi','Chioma','Ejiro','Ose','Tobi','Ifeanyi','Mercy','Peter','Yemi','Kunle','Oluchi','Samuel','Ada','Jide'];
 var LAST=['Okafor','Balogun','Adeyemi','Nwosu','Ibrahim','Okoro','Eze','Abubakar','Ogunleye','Onyekachi','Udoh','Oyelaran','Mohammed','Obi','Akpan','Bello','Igwe','Olawale','Ezekiel','Umeh'];
 function fullName(){return rp(FIRST)+' '+rp(LAST);}
@@ -7859,16 +7896,12 @@ var tagsEl=document.getElementById('tags');
 var peds=[],selected=null;
 function makePed(i){
  var net=pickNet(),name='@'+NAMES[i%NAMES.length];
- var g=new THREE.Group(),skin=M(sp(SKIN)),cloth=M(sp(CLOTH)),pants=M(sp([0x1f2937,0x374151,0x0b3d62,0x3b2f2f,0x111111]));
- var shoe=M(rp([0x111111,0x222222,0xf2f2f2,0x3b2f2f]));
- var l1=new THREE.Mesh(legGeo,pants),l2=new THREE.Mesh(legGeo,pants);l1.position.set(-.12,.78,0);l2.position.set(.12,.78,0);g.add(l1,l2);
- l1.add(new THREE.Mesh(shoeGeo,shoe));l2.add(new THREE.Mesh(shoeGeo,shoe));
- var tr=new THREE.Mesh(torsoGeo,cloth);tr.position.y=1.08;g.add(tr);
- var a1=new THREE.Mesh(armGeo,cloth),a2=new THREE.Mesh(armGeo,cloth);a1.position.set(-.31,1.34,0);a2.position.set(.31,1.34,0);g.add(a1,a2);
- a1.add(new THREE.Mesh(handGeo,skin));a2.add(new THREE.Mesh(handGeo,skin));
- var nk=new THREE.Mesh(neckGeo,skin);nk.position.y=1.42;g.add(nk);
- var hd=new THREE.Mesh(headGeo,skin);hd.position.y=1.59;g.add(hd);
- var hr=new THREE.Mesh(hairGeo,M(rp(HAIR)));hr.position.set(0,1.64,-.025);hr.scale.set(1,.68,1.02);g.add(hr);
+ var g=new THREE.Group(),skinC=sp(SKIN),clothC=sp(CLOTH),pantsC=sp([0x1f2937,0x374151,0x0b3d62,0x3b2f2f,0x111111]),shoeC=rp([0x111111,0x222222,0xf2f2f2,0x3b2f2f]),hairC=rp(HAIR);
+ var legG=mergeColored([[legGeo,pantsC,0,0,0],[shoeGeo,shoeC,0,0,0]]),armG=mergeColored([[armGeo,clothC,0,0,0],[handGeo,skinC,0,0,0]]);
+ var upG=mergeColored([[torsoGeo,clothC,0,1.08,0],[neckGeo,skinC,0,1.42,0],[headGeo,skinC,0,1.59,0],[hairGeo,hairC,0,1.64,-.025,1,.68,1.02]]);
+ var l1=new THREE.Mesh(legG,VCMAT),l2=new THREE.Mesh(legG,VCMAT);l1.position.set(-.12,.78,0);l2.position.set(.12,.78,0);g.add(l1,l2);
+ var tr=new THREE.Mesh(upG,VCMAT);g.add(tr);
+ var a1=new THREE.Mesh(armG,VCMAT),a2=new THREE.Mesh(armG,VCMAT);a1.position.set(-.31,1.34,0);a2.position.set(.31,1.34,0);g.add(a1,a2);
  var body=new THREE.Group();body.scale.set(1.2,1.2,1.2);scene.add(body);body.add(g);
  var sh=new THREE.Mesh(shadowGeo,shadowMat);sh.scale.set(1.1,1,1.1);sh.position.y=.03;body.add(sh);
  var tag=document.createElement('div');tag.className='tag';tag.tabIndex=0;
@@ -8263,7 +8296,7 @@ var ENG={car:{b:48,k:4.2,lp:420,v:.5},bus:{b:32,k:3.2,lp:280,v:.9},danfo:{b:40,k
 var HORNS={car:{f:[415,520],v:.8,w:'sawtooth'},bus:{f:[300,375],v:1.1,w:'sawtooth'},danfo:{f:[350,440],v:1,w:'sawtooth'},okada:{f:[620,780],v:.45,w:'square'},keke:{f:[560,700],v:.5,w:'square'}};
 var PATS={tap:[[0,.13]],double:[[0,.12],[.19,.12]],long:[[0,.65]],triple:[[0,.1],[.17,.1],[.34,.32]]};
 function buildAudio(){
- var ctx=au.ctx=new AC(),comp=ctx.createDynamicsCompressor();comp.connect(ctx.destination);
+ var ctx=au.ctx=new AC(),comp=ctx.createDynamicsCompressor();comp.threshold.value=-18;comp.knee.value=8;comp.ratio.value=14;comp.connect(ctx.destination);
  au.master=ctx.createGain();au.master.gain.value=0;au.master.connect(comp);
  var nb=ctx.createBuffer(1,ctx.sampleRate*2,ctx.sampleRate),d=nb.getChannelData(0);for(var i=0;i<d.length;i++)d[i]=Math.random()*2-1;
  function bed(freq,type,q){var s=ctx.createBufferSource();s.buffer=nb;s.loop=true;var f=ctx.createBiquadFilter();f.type=type;f.frequency.value=freq;f.Q.value=q;var g=ctx.createGain();g.gain.value=0;s.connect(f);f.connect(g);g.connect(au.master);s.start();return g;}
@@ -8276,7 +8309,7 @@ function buildAudio(){
 }
 function setSound(on){
  try{
-  if(on){if(!AC)return;if(!au.ctx)buildAudio();au.ctx.resume();au.on=true;au.tv=0;au.master.gain.setTargetAtTime(.85,au.ctx.currentTime,.2);}
+  if(on){if(!AC)return;if(!au.ctx)buildAudio();au.ctx.resume();au.on=true;au.tv=0;au.master.gain.setTargetAtTime(.6,au.ctx.currentTime,.2);}
   else if(au.ctx){au.on=false;au.master.gain.setTargetAtTime(0,au.ctx.currentTime,.1);setTimeout(function(){if(!au.on)au.ctx.suspend();},500);}
  }catch(err){au.on=false;}
  snd.textContent=au.on?'Sound on':(au.ctx?'Sound off':'Turn sound on');snd.setAttribute('aria-pressed',au.on?'true':'false');}
@@ -8349,6 +8382,7 @@ function updateAudio(dt){
   else if(d.hc==='results')onResults(d);
   else if(d.hc==='flyStatus')onFly(d.status);
   else if(d.hc==='visible'){
+   window.__hcPaused=!d.on;
    if(d.on){if(wasOn){wasOn=false;setSound(true);}}
    else if(au.on){wasOn=true;setSound(false);}}});
 })();
@@ -8360,6 +8394,7 @@ function updateClock(dt){clockT-=dt;if(clockT>0)return;clockT=.5;var d=new Date(
 var last=performance.now(),blink=0;
 function frame(now){
  requestAnimationFrame(frame);
+ if(window.__hcPaused){last=now;return;}
  var dt=Math.min(.05,(now-last)/1000);last=now;T+=dt;
  updateSignals(dt);updateVehicles(dt);updatePeds(dt);updateMood(dt);updateFlight(dt);updateCamera(dt);try{updateAudio(dt);}catch(err){au.on=false;snd.textContent='Sound unavailable';}updateClock(dt);
  ledT-=dt;if(ledT<=0){ledT=.09;drawLED(T);}
@@ -8387,12 +8422,17 @@ setTimeout(function(){document.getElementById('hint').classList.remove('show');}
   var openAuth = function () { if (window.hustleOpenAuth) window.hustleOpenAuth(); };
   var photo = function () { try { return localStorage.getItem(KEY) || ''; } catch (e) { return ''; } };
   var send = function (m) { try { frame.contentWindow.postMessage(m, '*'); } catch (e) {} };
-  var pushVisible = function () { send({ hc: 'visible', on: home.classList.contains('active') }); };
+  var lastOn = null;
+  var pushVisible = function (force) {
+    var covered = !!document.querySelector('.popup.show, .sheet-layer.open, .phone-layer.open, .plane-scene.show, #pfLayer.open, .auth-layer:not(.hide)');
+    var on = home.classList.contains('active') && !covered;
+    if (force === true || on !== lastOn) { lastOn = on; send({ hc: 'visible', on: on }); }
+  };
 
   // Rooftop scene
-  frame.addEventListener('load', function () { var p = photo(); if (p) send({ hc: 'photo', src: p }); pushVisible(); });
+  frame.addEventListener('load', function () { var p = photo(); if (p) send({ hc: 'photo', src: p }); pushVisible(true); });
   frame.srcdoc = $('rooftopSrc').textContent.replace(/<\\\/script/g, '</script');
-  new MutationObserver(pushVisible).observe(home, { attributes: true, attributeFilter: ['class'] });   // pause the city sound when you leave Home
+  new MutationObserver(function () { pushVisible(); }).observe(document.body, { attributes: true, attributeFilter: ['class'], subtree: true });   // pause the city (and its sound) when you leave Home or a popup/sheet is open on top
 
   // Buttons under the scene
   $('rtSignUp').addEventListener('click', openAuth);
