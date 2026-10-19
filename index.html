@@ -1477,6 +1477,7 @@
   .welcome-layer.hide { display: none; }
   /* Logged in: the city stays visible, but the tabs and buttons wait until "Ok I will" is tapped */
   body.welcome-open .nav, body.welcome-open .howto-fab, body.welcome-open .install-bar { opacity: 0; visibility: hidden; pointer-events: none; }
+  body.welcome-open main, body.welcome-open .app.inst-on main { bottom: 0; }
   .welcome-card { width: 100%; max-width: 340px; padding: 30px 24px 22px; border-radius: 28px; text-align: center; color: #fff;
     background: linear-gradient(145deg, rgba(255, 255, 255, .22), rgba(255, 255, 255, .08));
     border: 1px solid rgba(255, 255, 255, .34);
