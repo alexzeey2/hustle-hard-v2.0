@@ -1485,8 +1485,8 @@
     box-shadow: 0 8px 24px rgba(8, 4, 24, .4), inset 0 1px 0 rgba(255, 255, 255, .4);
     animation: authPop .26s ease; }
   .welcome-small { font-size: 13px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: rgba(255, 255, 255, .75); }
-  .welcome-title { margin-top: 6px; font-size: 40px; font-weight: 800; line-height: 1.05; letter-spacing: -.5px; background: linear-gradient(90deg, #fde68a, #e6b422 45%, #ec4899); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 2px 10px rgba(0, 0, 0, .35)); }
-  .welcome-line { width: 54px; height: 3px; margin: 16px auto; border-radius: 3px; background: linear-gradient(90deg, #e6b422, #ec4899); }
+  .welcome-title { margin-top: 6px; font-size: 40px; font-weight: 800; line-height: 1.05; letter-spacing: -.5px; color: #fff; text-shadow: 0 2px 12px rgba(0, 0, 0, .35); }
+  .welcome-line { width: 54px; height: 3px; margin: 16px auto; border-radius: 3px; background: #fff; }
   .welcome-sub { margin: 0; font-size: 17px; font-weight: 700; line-height: 1.4; color: #fff; text-shadow: 0 1px 8px rgba(0, 0, 0, .35); }
   .welcome-go { margin: 14px 0 22px; font-size: 17px; font-weight: 700; color: #fff; text-shadow: 0 2px 10px rgba(0, 0, 0, .4); }
   .welcome-hh { display: inline-block; font-size: 24px; font-weight: 800; letter-spacing: -.3px; background: linear-gradient(90deg, #fde68a, #e6b422 45%, #ec4899); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 2px 8px rgba(0, 0, 0, .4)); }
@@ -1518,6 +1518,7 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
   document.getElementById('welcomeLayer').classList.add('hide');
   document.body.classList.remove('welcome-open');
   try { document.getElementById('rtFrame').contentDocument.body.classList.remove('wl'); } catch (e) {}
+  try { document.getElementById('rtFrame').contentWindow.postMessage({ hc: 'sound' }, '*'); } catch (e) {}
 });
 </script>
 <div class="auth-layer hide" id="authLayer" role="dialog" aria-label="Sign up">
@@ -8585,6 +8586,7 @@ function updateAudio(dt){
   if(d.hc==='photo'&&d.src)img.src=d.src;
   else if(d.hc==='results')onResults(d);
   else if(d.hc==='flyStatus')onFly(d.status);
+  else if(d.hc==='sound'){if(!au.on)setSound(true);}
   else if(d.hc==='visible'){
    window.__hcPaused=!d.on;
    if(d.on){if(wasOn){wasOn=false;setSound(true);}}
