@@ -3172,7 +3172,7 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
 
   // Wallet values (sample numbers for now)
   const naira = n => '₦' + n.toLocaleString('en-NG');
-  const wallet = { bank: 750000, locked: 60000000, earned: 0 };   // bank = the welcome bonus for a new player
+  const wallet = { bank: 750000, locked: 0, earned: 0 };   // bank = the welcome bonus for a new player
   // Unlocking a job costs 10% of your bank balance, sent to a friend
   const unlockAmount = () => Math.max(1, Math.round(wallet.bank * 0.1));
   // Locked money card: only shown when there is locked money (or just after a plan payment, to show Approved)
