@@ -6117,10 +6117,10 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
   };
   // Land is an investment (Hustle page), not a Showroom item. It grows 10% every hour, has no maintenance and sells for its full value.
   const LAND_ITEMS = [
-      { id: 'asabaplot', land: true, emoji: '🌳', name: 'Plot of land, Asaba', desc: '600 m² · C of O · fenced', price: 28000000 },
-      { id: 'epefarm', land: true, emoji: '🌾', name: 'Farmland, Epe', desc: '5 hectares · survey plan · access road', price: 85000000 },
-      { id: 'lekkiplot', land: true, emoji: '🏗️', name: 'Plot of land, Lekki', desc: '648 m² · C of O · gated estate', price: 180000000 },
-      { id: 'ikoyiplot', land: true, emoji: '🏝️', name: 'Plot of land, Ikoyi', desc: '1,000 m² · C of O · waterfront', price: 1400000000 },
+      { id: 'asabaplot', land: true, img: 'https://i.postimg.cc/KYqWm5NV/istockphoto-2213542214-612x612.jpg', emoji: '🌳', name: 'Plot of land, Asaba', desc: '600 m² · C of O · fenced', price: 28000000 },
+      { id: 'epefarm', land: true, img: 'https://i.postimg.cc/KYqWm5NV/istockphoto-2213542214-612x612.jpg', emoji: '🌾', name: 'Farmland, Epe', desc: '5 hectares · survey plan · access road', price: 85000000 },
+      { id: 'lekkiplot', land: true, img: 'https://i.postimg.cc/KYqWm5NV/istockphoto-2213542214-612x612.jpg', emoji: '🏗️', name: 'Plot of land, Lekki', desc: '648 m² · C of O · gated estate', price: 180000000 },
+      { id: 'ikoyiplot', land: true, img: 'https://i.postimg.cc/KYqWm5NV/istockphoto-2213542214-612x612.jpg', emoji: '🏝️', name: 'Plot of land, Ikoyi', desc: '1,000 m² · C of O · waterfront', price: 1400000000 },
   ];
   const itemById = id => { for (const k in SHOP_ITEMS) { const f = SHOP_ITEMS[k].find(x => x.id === id); if (f) return f; } return LAND_ITEMS.find(x => x.id === id) || null; };
   Object.keys(ownedItems).forEach(id => {   // drop anything in the save that is not a real item
