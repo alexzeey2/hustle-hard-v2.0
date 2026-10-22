@@ -7724,6 +7724,12 @@ html,body{height:100%;overflow:hidden;background:#070a12;color:#eef3ff;font-fami
 #go[hidden]{display:none}
 #placesBtn:active{transform:scale(.96)}
 #placesBtn:focus-visible{outline:2px solid #fff;outline-offset:2px}
+@property --gl-ang{syntax:'<angle>';initial-value:0deg;inherits:false}
+@keyframes glSpin{to{--gl-ang:360deg}}
+#placesBtn{position:relative;border-color:rgba(230,180,34,.35)}
+#placesBtn::before,#placesBtn::after{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:2px;pointer-events:none;background:conic-gradient(from var(--gl-ang),transparent 0 55%,rgba(230,180,34,.25) 68%,#e6b422 82%,#fff3b0 92%,transparent 100%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:glSpin 3s linear infinite}
+#placesBtn::after{filter:blur(8px);inset:-3px;padding:6px}
+@media (prefers-reduced-motion:reduce){#placesBtn::before,#placesBtn::after{animation:none}}
 #foodCard{position:absolute;left:12px;bottom:calc(94px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:9px;height:46px;padding:0 16px 0 14px;border-radius:999px;font:inherit;font-size:15px;font-weight:750;color:#eef3ff;cursor:pointer;white-space:nowrap}
 #foodCard[hidden]{display:none}
 #foodCard .fe{font-size:20px;line-height:1}
@@ -8851,7 +8857,7 @@ function showSuggest(list){
  sugOn=true;showRes([box]);}
 function hideSuggest(){if(sugOn){sugOn=false;hideRes();}}
 /* Search for a place. Nothing is looked up: tapping the bar lists the places, The beach, Somto Club and the Local market are open for now */
-var PLACES=[['Go to work',false,'work'],['The beach',false,'beach'],['Somto Club',false,'club'],['Local market',false,'market'],['Stadium',true],['Mall',true]];
+var PLACES=[['Go to work',false,'work'],['Go to the Beach',false,'beach'],['Go to Club',false,'club'],['Go to local market',false,'market'],['Go to shopping mall',true],['Go to Supermarket',true]];
 function showPlaces(){
  var box=ce('div','sg');
  PLACES.forEach(function(p){
