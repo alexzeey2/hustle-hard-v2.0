@@ -769,6 +769,10 @@
   .g-btn:disabled { opacity: .5; }
   .flight-bar { position: absolute; z-index: 5; bottom: 18px; left: 16px; right: 16px; padding: 12px 14px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); }
   .flight-bar[hidden] { display: none; }
+  /* Keep Find a friend / Travel and the flight bar above the tabs (and the install bar) */
+  .globe-actions, .flight-bar { bottom: calc(var(--nav-h) + 14px); }
+  .app.inst-on .globe-actions, .app.inst-on .flight-bar { bottom: calc(var(--nav-h) + 54px + 14px); }
+  body:not([data-auth="in"]) .globe-actions, body:not([data-auth="in"]) .flight-bar { bottom: 18px; }
   .fb-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
   .fb-row b { color: var(--text); font-weight: 700; }
   .fb-left { font-size: 14px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
