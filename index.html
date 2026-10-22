@@ -30,7 +30,7 @@
     --line: #2f2756;
     --text: #f3f0ff;
     --purple-light: #a78bfa;
-    --nav-h: calc(68px + env(safe-area-inset-bottom));
+    --nav-h: calc(84px + env(safe-area-inset-bottom));
   }
   * { box-sizing: border-box; margin: 0; -webkit-tap-highlight-color: transparent; }
   html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
@@ -60,36 +60,59 @@
   }
 
   /* Pages (blank for now) */
-  main { position: absolute; top: 0; left: 0; right: 0; bottom: var(--nav-h); }
+  main { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
   .page { display: none; height: 100%; }
   .page.active { display: block; }
 
-  /* Bottom navigation */
+  /* Bottom navigation: floating glass pill + separate round Phone button */
   .nav {
     position: absolute;
     left: 0; right: 0; bottom: 0;
     height: var(--nav-h);
-    padding-bottom: env(safe-area-inset-bottom);
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    background: var(--surface);
-    border-top: 1px solid var(--line);
+    padding: 0 14px calc(10px + env(safe-area-inset-bottom));
+    display: flex; align-items: flex-end; gap: 10px;
+    background: transparent;
+    border: 0;
+    pointer-events: none;
     z-index: 30;
   }
-  .nav button {
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 4px;
-    font-size: 12px; font-weight: 600;
-    color: var(--muted);
-    transition: color .15s;
+  .nav-pill, .nav .nav-phone {
+    pointer-events: auto;
+    background: rgba(255, 255, 255, .16);
+    -webkit-backdrop-filter: blur(18px) saturate(1.6);
+    backdrop-filter: blur(18px) saturate(1.6);
+    border: 1px solid rgba(255, 255, 255, .3);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .18), inset 0 1px 0 rgba(255, 255, 255, .25);
   }
+  .nav-pill {
+    flex: 1; min-width: 0; height: 64px; padding: 5px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
+    border-radius: 999px;
+  }
+  .nav button {
+    position: relative;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 2px;
+    font-size: 12px; font-weight: 600;
+    color: rgba(255, 255, 255, .9);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, .35);
+    transition: color .15s, background .15s;
+  }
+  .nav-pill button { border-radius: 999px; }
+  .nav .nav-phone { flex: none; width: 64px; height: 64px; border-radius: 50%; }
   .nav svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .nav button.active, .nav button[aria-pressed="true"] { color: var(--purple-light); }
-  .nav button.active::before {
-    content: ""; position: absolute; top: 0; width: 28px; height: 3px;
-    border-radius: 0 0 3px 3px; background: var(--purple-light);
+  .nav-pill button.active { background: rgba(167, 139, 250, .38); color: #fff; }
+  .nav .nav-phone {
+    background: #fff;
+    -webkit-backdrop-filter: none; backdrop-filter: none;
+    border: 0;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
+    overflow: visible;
   }
-  .nav button { position: relative; }
+  .nav .nav-phone .np-svg { width: 34px; height: 54px; transform: rotate(9deg); filter: drop-shadow(0 3px 4px rgba(46, 24, 10, .35)); }
+  .nav .nav-phone[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--purple-light), 0 8px 24px rgba(0, 0, 0, .35); }
+  .nav .nav-phone .msg-navdot { top: 2px; right: 2px; border-color: #fff; }
 
   /* Phone overlay: sits above the pages, stops above the nav so tabs stay usable */
   .phone-layer {
@@ -166,7 +189,9 @@
   }
 
   /* Hustle page */
-  .page { overflow-y: auto; scrollbar-width: none; }
+  .page { overflow-y: auto; scrollbar-width: none; padding-bottom: var(--nav-h); }
+  .app.inst-on .page { padding-bottom: calc(var(--nav-h) + 54px); }
+  body:not([data-auth="in"]) .page { padding-bottom: 0; }
   .page::-webkit-scrollbar { display: none; }
   .topbar {
     position: relative;
@@ -228,6 +253,7 @@
     padding: var(--hustle-head, 200px) 16px 28px;
   }
   .hustle-scroll::-webkit-scrollbar { display: none; }
+  #page-hustle .hustle-scroll { padding-top: calc(var(--hustle-head, 0px) + 16px + env(safe-area-inset-top)); }
   .hustle-scroll .section { margin-top: 12px; }
   .locked-card {
     display: flex; align-items: center; gap: 12px;
@@ -604,7 +630,7 @@
   .install-bar .ib-text b { display: block; font-size: 14px; }
   .install-bar .ib-text span { display: block; font-size: 12px; color: #d8ccff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .install-bar button { flex: none; padding: 9px 18px; border-radius: 999px; background: #fff; color: #4c1d95; font: 800 13px system-ui, sans-serif; }
-  .app.inst-on main { bottom: calc(var(--nav-h) + 54px); }
+  .app.inst-on main { bottom: 0; }
   .install-help { position: absolute; inset: 0; z-index: 320; display: grid; place-items: center; padding: 24px; background: rgba(8, 5, 20, .72); }
   .install-help[hidden] { display: none; }
   .ih-card { width: 100%; max-width: 360px; padding: 22px 20px; border-radius: 20px; background: var(--surface-2); border: 1px solid var(--line); text-align: center; }
@@ -797,7 +823,7 @@
   .popup-btn.hh-msg { flex: 1 1 100%; order: 3; color: var(--purple-light); }
   .popup-btn.hh-msg svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .msg-dot { position: absolute; top: -6px; right: -8px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; display: grid; place-items: center; background: #ef4444; border: 2px solid #232323; color: #fff; font: 800 11px system-ui, sans-serif; }
-  .msg-navdot { position: absolute; top: 4px; left: calc(50% + 2px); min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; display: grid; place-items: center; background: #ef4444; border: 2px solid var(--surface); color: #fff; font: 800 11px system-ui, sans-serif; font-style: normal; line-height: 1; }
+  .msg-navdot { position: absolute; top: 0; right: 0; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; display: grid; place-items: center; background: #ef4444; border: 2px solid var(--surface); color: #fff; font: 800 11px system-ui, sans-serif; font-style: normal; line-height: 1; }
   .msg-app [hidden] { display: none !important; }
   .msg-app input { font-family: inherit; -webkit-user-select: text; user-select: text; }
   .msg-view { flex: 1; min-height: 0; display: flex; flex-direction: column; }
@@ -1169,6 +1195,20 @@
   .fp-tab.active { background: var(--purple); border-color: var(--purple); color: #fff; }
   .fp-body { flex: 1; min-height: 0; overflow-y: auto; margin: 12px -14px 0; padding: 0 14px 44px; scrollbar-width: none; }
   .fp-body::-webkit-scrollbar { display: none; }
+  /* Food screen: sits on its own above the game, outside the phone */
+  .food-app.food-screen {
+    position: absolute; left: 0; right: 0; top: auto; bottom: var(--nav-h); height: 72%; z-index: 38;
+    display: flex; flex-direction: column;
+    padding-top: 12px;
+    border-radius: 28px 28px 0 0;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, .45);
+    opacity: 1; transform: translateY(110%); visibility: hidden; pointer-events: none;
+    transition: transform .3s ease, visibility 0s .3s;
+  }
+  .food-app.food-screen::before { content: ""; flex: none; align-self: center; width: 40px; height: 4px; margin-bottom: 12px; border-radius: 2px; background: var(--line); }
+  .food-app.food-screen.open { transform: none; visibility: visible; pointer-events: auto; transition: transform .3s ease; }
+  .food-backdrop { position: absolute; left: 0; right: 0; top: 0; bottom: var(--nav-h); z-index: 37; background: rgba(15, 11, 31, .45); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .3s ease, visibility 0s .3s; }
+  .food-backdrop.open { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity .3s ease; }
 
   /* Opay app (static: no backend yet) */
   .opay-app { --op-bg: #121816; --op-card: #1b2321; --op-line: #29332f; --op-green: #1ecf9e; --op-muted: #8a9894; background: var(--op-bg); }
@@ -1551,33 +1591,13 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
     </section>
     <section class="page" id="page-hustle" aria-label="Hustle">
       <div class="hustle-head">
-      <div class="topbar">
-        <button class="transfer-btn" id="transferBtn">
-          <svg viewBox="0 0 24 24"><path d="M4 8h15M15 4l4 4-4 4M20 16H5M9 12l-4 4 4 4"/></svg>
-          Transfer
-        </button>
-        <div class="bal-right">
-          <div class="text">
-            <div class="label">Bank balance</div>
-            <div class="amount" id="bankBalance">₦0</div>
-          </div>
-          <button class="add-btn" id="addMoneyBtn" aria-label="Buy game money">
-            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <div class="hustle-lock lock-wrap">
-        <div class="locked-card">
-          <div class="lock-badge">
-            <svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-          </div>
-          <div class="text">
-            <div class="label">Locked money</div>
-            <div class="amount" id="lockedBalance">₦0</div>
-          </div>
-          <button class="unlock-btn" id="unlockBtn">Unlock</button>
-        </div>
+      <!-- Balance, locked money and Transfer now live on the Home city page; these hidden stand-ins keep the wallet code and the city buttons working -->
+      <div hidden aria-hidden="true">
+        <button id="transferBtn" type="button" tabindex="-1">Transfer</button>
+        <span id="bankBalance">₦0</span>
+        <button id="addMoneyBtn" type="button" tabindex="-1" aria-label="Buy game money"></button>
+        <span id="lockedBalance">₦0</span>
+        <button id="unlockBtn" type="button" tabindex="-1">Unlock</button>
       </div>
       </div>
 
@@ -1586,7 +1606,7 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
           <div class="section-head"><h3>Income streams</h3></div>
           <p class="section-sub">Climb the ladder: Jobs, Mini Business, Contract Business, Company.</p>
 
-          <div class="job-card" id="jobsCard">
+          <div class="job-card" id="jobsCard" style="display:none">
             <div class="job-top">
               <div class="lock-badge">
                 <svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></svg>
@@ -1770,10 +1790,6 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
             <div class="phone-app" id="opayIcon" role="button" tabindex="0">
               <div class="app-icon opay-icon"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18"/><circle cx="16" cy="14.5" r="1.3" fill="#fff" stroke="none"/></svg></div>
               Somiesbank
-            </div>
-            <div class="phone-app" id="foodsIcon" role="button" tabindex="0">
-              <div class="app-icon emoji" style="background: linear-gradient(145deg, #fb923c, #ea580c)">🍽️</div>
-              Foods
             </div>
             <div class="phone-app" id="loanIcon" role="button" tabindex="0">
               <div class="app-icon emoji" style="background: linear-gradient(145deg, #a78bfa, #6d28d9)">🏦</div>
@@ -1968,43 +1984,6 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
             </div>
           </div>
         </div>
-        <!-- Foods app (opens inside the phone) -->
-  <div class="bank-ui food-app" id="foodPage" aria-label="Foods" aria-hidden="true">
-      <div class="sb-space"></div>
-    <div class="fp-head">
-      <h2>Food</h2>
-      <button class="sheet-close" id="foodClose" aria-label="Close">
-        <svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13"/></svg>
-      </button>
-    </div>
-    <div class="fp-hunger">
-      <div class="fp-hunger-row"><span>Hunger</span><span id="fpPct">500 calories</span></div>
-      <div class="meter ok" id="fpMeter"><span id="fpFill"></span></div>
-    </div>
-    <div class="fp-tabs">
-      <button class="fp-tab active" data-tab="stuffs">Food stuffs</button>
-      <button class="fp-tab" data-tab="shop">Food shopping</button>
-    </div>
-    <div class="fp-body">
-      <div class="mk-note" id="eatNote" hidden></div>
-      <div class="food-grid" id="foodGrid"></div>
-      <div class="market" id="marketView" hidden>
-        <div class="mk-head">
-          <button class="mk-back" id="marketBack" aria-label="Back to food shopping">‹</button>
-          <div class="mk-title" id="mkTitle">Local market</div>
-        </div>
-        <div class="mk-bal">Bank balance <b id="mkBal"></b></div>
-        <div class="mk-bal" id="mkInfo" hidden style="margin-top:-6px"></div>
-        <div class="mk-note" id="mkNote" hidden>Not enough money in your bank</div>
-        <div class="shop-list" id="marketList"></div>
-      </div>
-      <div class="shop-list" id="shopList" hidden>
-        <button class="shop-row" id="openLocalMarket"><div class="sr-emoji">🧺</div><div class="sr-text"><div class="sr-name">Local market</div><div class="sr-desc">Go to the market to buy fresh food stuffs</div></div><span class="sr-chev">›</span></button>
-        <button class="shop-row" id="openSuperMarket"><div class="sr-emoji">🛒</div><div class="sr-text"><div class="sr-name">Supermarket</div><div class="sr-desc">Buy 10 at a time · price grows with your net worth</div></div><span class="sr-chev">›</span></button>
-        <button class="shop-row" id="openMall"><div class="sr-emoji">🏬</div><div class="sr-text"><div class="sr-name">Shopping mall</div><div class="sr-desc">Buy 50 at a time · premium prices, longest restock</div></div><span class="sr-chev">›</span></button>
-      </div>
-    </div>
-  </div>
   <div class="bank-ui food-app" id="shopPage" aria-label="Showroom" aria-hidden="true">
     <div class="sb-space"></div>
     <div class="fp-head">
@@ -2101,6 +2080,44 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
         <div class="island"></div>
         <div class="home-hit" id="homeBtn" role="button" aria-label="Home"><div class="home-bar"></div></div>
         <div class="b-toast" id="bToast" role="status">Coming soon</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Food page: its own screen, not part of the phone -->
+  <div class="food-backdrop" id="foodBackdrop"></div>
+  <div class="food-app food-screen" id="foodPage" aria-label="Foods" aria-hidden="true">
+    <div class="fp-head">
+      <h2>Food</h2>
+      <button class="sheet-close" id="foodClose" aria-label="Close">
+        <svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13"/></svg>
+      </button>
+    </div>
+    <div class="fp-hunger">
+      <div class="fp-hunger-row"><span>Hunger</span><span id="fpPct">500 calories</span></div>
+      <div class="meter ok" id="fpMeter"><span id="fpFill"></span></div>
+    </div>
+    <div class="fp-tabs">
+      <button class="fp-tab active" data-tab="stuffs">Food stuffs</button>
+      <button class="fp-tab" data-tab="shop">Food shopping</button>
+    </div>
+    <div class="fp-body">
+      <div class="mk-note" id="eatNote" hidden></div>
+      <div class="food-grid" id="foodGrid"></div>
+      <div class="market" id="marketView" hidden>
+        <div class="mk-head">
+          <button class="mk-back" id="marketBack" aria-label="Back to food shopping">‹</button>
+          <div class="mk-title" id="mkTitle">Local market</div>
+        </div>
+        <div class="mk-bal">Bank balance <b id="mkBal"></b></div>
+        <div class="mk-bal" id="mkInfo" hidden style="margin-top:-6px"></div>
+        <div class="mk-note" id="mkNote" hidden>Not enough money in your bank</div>
+        <div class="shop-list" id="marketList"></div>
+      </div>
+      <div class="shop-list" id="shopList" hidden>
+        <button class="shop-row" id="openLocalMarket"><div class="sr-emoji">🧺</div><div class="sr-text"><div class="sr-name">Local market</div><div class="sr-desc">Go to the market to buy fresh food stuffs</div></div><span class="sr-chev">›</span></button>
+        <button class="shop-row" id="openSuperMarket"><div class="sr-emoji">🛒</div><div class="sr-text"><div class="sr-name">Supermarket</div><div class="sr-desc">Buy 10 at a time · price grows with your net worth</div></div><span class="sr-chev">›</span></button>
+        <button class="shop-row" id="openMall"><div class="sr-emoji">🏬</div><div class="sr-text"><div class="sr-name">Shopping mall</div><div class="sr-desc">Buy 50 at a time · premium prices, longest restock</div></div><span class="sr-chev">›</span></button>
       </div>
     </div>
   </div>
@@ -2493,7 +2510,7 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
         <div class="howto-alert-tag">⚠️ IMPORTANT</div>
         <div class="howto-alert-title">Eat, or you will fall ill</div>
         <div class="howto-alert-row"><span>🔥</span><span>You burn <b>1 calorie with every tap</b>. A full stomach is 500 calories.</span></div>
-        <div class="howto-alert-row"><span>🍞</span><span>Buy food in the Foods app on your phone, and eat before you reach 0.</span></div>
+        <div class="howto-alert-row"><span>🍞</span><span>Buy food from the food button or the hunger card, and eat before you reach 0.</span></div>
         <div class="howto-alert-row"><span>🏥</span><span>At <b>0 calories</b> you fall seriously ill and cannot play until you pay the hospital bill: <b>₦1.5 million to ₦20 million</b>.</span></div>
       </div>
     </div>
@@ -2723,6 +2740,7 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
   </div>
 
   <nav class="nav" aria-label="Main">
+    <div class="nav-pill">
     <button data-page="home" class="active">
       <svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10"/></svg>
       Home
@@ -2731,13 +2749,28 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
       <svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></svg>
       Hustle
     </button>
-    <button id="bankBtn" aria-pressed="false">
-      <svg viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg>
-      Phone<i class="msg-navdot" id="msgNavDot" hidden></i>
-    </button>
     <button data-page="map">
       <svg viewBox="0 0 24 24"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/></svg>
       Map
+    </button>
+    </div>
+    <button id="bankBtn" class="nav-phone" aria-pressed="false" aria-label="Phone">
+      <svg class="np-svg" viewBox="0 0 40 64" aria-hidden="true">
+        <defs>
+          <linearGradient id="npScr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#150f40"/><stop offset=".6" stop-color="#281456"/><stop offset="1" stop-color="#3a1a66"/></linearGradient>
+          <linearGradient id="npChat" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22d3ee"/><stop offset=".55" stop-color="#6366f1"/><stop offset="1" stop-color="#a855f7"/></linearGradient>
+        </defs>
+        <rect x="1" y="1" width="38" height="62" rx="9" fill="#5c3a21"/>
+        <rect x="3.5" y="3.5" width="33" height="57" rx="7" fill="url(#npScr)"/>
+        <rect x="14" y="6.5" width="12" height="3.6" rx="1.8" fill="#0d0b16"/>
+        <rect x="10" y="20" width="20" height="20" rx="6" fill="url(#npChat)"/>
+        <path transform="translate(12.8 22.8) scale(.6)" fill="#fff" d="M6 3h12a4 4 0 0 1 4 4v7a4 4 0 0 1-4 4h-5.5L8 21.5V18H6a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4z"/>
+        <path transform="translate(12.8 22.8) scale(.6)" fill="#6d28d9" d="M13.2 5.6 7.6 12.1h3.5l-.9 4.3 5.7-6.6h-3.6z"/>
+        <rect x="7" y="46" width="6" height="6" rx="2" fill="#2ee6ad" opacity=".9"/>
+        <rect x="17" y="46" width="6" height="6" rx="2" fill="#ec4899" opacity=".85"/>
+        <rect x="27" y="46" width="6" height="6" rx="2" fill="#14b8a6" opacity=".85"/>
+        <rect x="12" y="56" width="16" height="1.6" rx=".8" fill="#fff" opacity=".85"/>
+      </svg><i class="msg-navdot" id="msgNavDot" hidden></i>
     </button>
   </nav>
 
@@ -3177,7 +3210,7 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
   document.getElementById('closePhone').addEventListener('click', () => {
     if (opayApp.classList.contains('open') && opBack()) return;   // inside Opay, Back first steps back within the app
     if (document.getElementById('msgPage').classList.contains('open') && msgBack()) return;   // inside a chat, Back returns to the chat list
-    if (opayApp.classList.contains('open') || document.getElementById('foodPage').classList.contains('open') || document.getElementById('loanPage').classList.contains('open') || document.getElementById('shopPage').classList.contains('open') || document.getElementById('msgPage').classList.contains('open')) goHome(); else setPhone(false);
+    if (opayApp.classList.contains('open') || document.getElementById('loanPage').classList.contains('open') || document.getElementById('shopPage').classList.contains('open') || document.getElementById('msgPage').classList.contains('open')) goHome(); else setPhone(false);
   });
 
   // Wallet values (sample numbers for now)
@@ -3200,6 +3233,7 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
       if (verifying) b.innerHTML = '<span class="spin"></span>Verifying';
       else b.textContent = holding ? 'Approved' : 'Unlock';
     });
+    if (window.hustlePushLock) window.hustlePushLock({ text: String(wallet.locked), show: wallet.locked > 0 || holding, state: verifying ? 'verifying' : holding ? 'approved' : '' });
   }
   function countTo(els, from, to, ms, delay) {
     const t0 = performance.now() + delay;
@@ -3215,6 +3249,7 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
     document.getElementById('bankBalance').textContent = naira(wallet.bank);
     document.querySelectorAll('.home-bank').forEach(el => { el.textContent = naira(wallet.bank); });
     document.getElementById('bankPhoneBalance').textContent = naira(wallet.bank);
+    if (window.hustlePushBank) window.hustlePushBank(naira(wallet.bank));
     document.getElementById('lockedBalance').textContent = naira(wallet.locked);
     document.getElementById('bankEarned').textContent = naira(wallet.earned);
     const opSb = document.getElementById('opSendBal'); if (opSb) opSb.textContent = naira(wallet.bank);
@@ -3433,12 +3468,12 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
   const closeIcon = document.getElementById('closeIcon');
   const closeLabel = document.getElementById('closeLabel');
   function updateCloseBtn() {
-    const inApp = opayApp.classList.contains('open') || document.getElementById('foodPage').classList.contains('open') || loanPage.classList.contains('open') || document.getElementById('shopPage').classList.contains('open') || document.getElementById('msgPage').classList.contains('open');
+    const inApp = opayApp.classList.contains('open') || loanPage.classList.contains('open') || document.getElementById('shopPage').classList.contains('open') || document.getElementById('msgPage').classList.contains('open');
     closeLabel.textContent = inApp ? 'Back' : 'Close';
     closeIcon.innerHTML = inApp ? '<path d="M13 8H3M7 4L3 8l4 4"/>' : '<path d="M3 3l10 10M13 3L3 13"/>';
   }
-  const openOpay = () => { opShow('home'); document.getElementById('foodPage').classList.remove('open'); loanPage.classList.remove('open'); document.getElementById('msgPage').classList.remove('open'); opayApp.classList.add('open'); updateCloseBtn(); };
-  const goHome = () => { opayApp.classList.remove('open'); document.getElementById('shopPage').classList.remove('open'); document.getElementById('foodPage').classList.remove('open'); loanPage.classList.remove('open'); loanPage.setAttribute('aria-hidden', 'true'); document.getElementById('msgPage').classList.remove('open'); document.getElementById('msgPage').setAttribute('aria-hidden', 'true'); updateCloseBtn(); };
+  const openOpay = () => { opShow('home'); loanPage.classList.remove('open'); document.getElementById('msgPage').classList.remove('open'); opayApp.classList.add('open'); updateCloseBtn(); };
+  const goHome = () => { opayApp.classList.remove('open'); document.getElementById('shopPage').classList.remove('open'); loanPage.classList.remove('open'); loanPage.setAttribute('aria-hidden', 'true'); document.getElementById('msgPage').classList.remove('open'); document.getElementById('msgPage').setAttribute('aria-hidden', 'true'); updateCloseBtn(); };
   opayIcon.addEventListener('click', openOpay);
   opayIcon.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openOpay(); } });
   document.getElementById('homeBtn').addEventListener('click', goHome);
@@ -5446,7 +5481,9 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
     hungerBar.classList.toggle('show', show);
     hungerBar.setAttribute('aria-hidden', String(!show));
   }
+  window.hustleCal = () => calOf(hunger());
   function renderHunger() {
+    if (window.hustlePushCal) window.hustlePushCal(calOf(hunger()));
     if (sick) return;
     const h = hunger(), pct = Math.round(h), lvl = hungerLevel(h);
     $('hbFill').style.width = h + '%';
@@ -5464,17 +5501,16 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
 
   const setFood = open => {
     foodPage.classList.toggle('open', open);
+    $('foodBackdrop').classList.toggle('open', open);
     foodPage.setAttribute('aria-hidden', String(!open));
-    if (open) { opayApp.classList.remove('open'); loanPage.classList.remove('open'); loanPage.setAttribute('aria-hidden', 'true'); document.getElementById('msgPage').classList.remove('open'); setPhone(true); renderFood(); }
-    updateCloseBtn();
+    if (open) { setPhone(false); renderFood(); }
   };
   sheetClosers.push(open => { if (!open) setFood(false); });
   $('hbEat').addEventListener('click', () => setFood(true));
-  // Foods app on the phone opens the same page
-  const foodsIcon = $('foodsIcon');
-  foodsIcon.addEventListener('click', () => { if (!sick) setFood(true); });
-  foodsIcon.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && !sick) { e.preventDefault(); setFood(true); } });
+  // The map's food button opens the same page
+  window.hustleFood = () => { if (!sick) setFood(true); };
   $('foodClose').addEventListener('click', () => setFood(false));
+  $('foodBackdrop').addEventListener('click', () => setFood(false));
   foodPage.querySelectorAll('.fp-tab').forEach(t => t.addEventListener('click', () => {
     foodPage.querySelectorAll('.fp-tab').forEach(x => x.classList.toggle('active', x === t));
     $('foodGrid').hidden = t.dataset.tab !== 'stuffs';
@@ -5581,7 +5617,7 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
   const shopTabActive = () => foodPage.querySelector('.fp-tab.active').dataset.tab === 'shop';
   // No buying the local market from the phone any more: tapping it closes the phone and opens the transport sheet, you have to go to the market
   $('openLocalMarket').addEventListener('click', () => {
-    setPhone(false);
+    setFood(false);
     setTimeout(() => { if (window.hustleMarket) window.hustleMarket(); }, 300);
   });
   $('openSuperMarket').addEventListener('click', () => setMarket(true, 'super'));
@@ -7651,13 +7687,49 @@ html,body{height:100%;overflow:hidden;background:#070a12;color:#eef3ff;font-fami
 #err{position:fixed;left:10px;right:10px;top:70px;z-index:60;background:rgba(120,10,10,.92);color:#fff;font:13px/1.4 system-ui,sans-serif;padding:12px 14px;border-radius:12px;display:none;word-break:break-word}
 
 #hud{--sw:min(540px,calc(100vw - 80px))}
-#search{position:absolute;left:calc(50% + 28px);top:14px;transform:translateX(-50%);width:var(--sw);display:flex;gap:6px;padding:6px}
-#avatar{position:absolute;top:14px;left:calc(50% - 28px - var(--sw)/2);width:52px;height:52px;padding:0;border:2px solid rgba(255,255,255,.55);border-radius:50%;overflow:hidden;cursor:pointer;background:#1b2436;pointer-events:auto;box-shadow:0 2px 10px rgba(0,0,0,.4)}
-#avatar img{display:block;width:100%;height:100%;object-fit:cover}
+#topbar{position:absolute;right:12px;top:14px;display:flex;flex-direction:column;align-items:flex-end;gap:8px;max-width:calc(100vw - 24px)}
+#avatar{position:relative;width:46px;height:46px;padding:0;border-radius:50%;display:grid;place-items:center;overflow:hidden;color:#eef3ff;cursor:pointer}
+#avatar svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+#avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%}
+#avatar img:not([src]){display:none}
+#avatar:active{transform:scale(.94)}
 #avatar:focus-visible{outline:2px solid #fff;outline-offset:2px}
-#avatar:active{transform:scale(.95)}
-#avatar,#search,#hint{transition:opacity .35s ease,visibility 0s}
-body.wl #avatar,body.wl #search,body.wl #hint{opacity:0;visibility:hidden;pointer-events:none;transition:none}
+#search{position:relative}
+#balWrap{position:absolute;left:12px;top:14px;display:flex;flex-direction:column;align-items:flex-start;gap:8px;max-width:calc(100vw - 24px);pointer-events:none}
+#bankCard{display:flex;align-items:center;gap:9px;height:46px;padding:0 16px 0 8px;border-radius:999px;font:inherit;font-size:15px;font-weight:750;color:#eef3ff;min-width:0;white-space:nowrap}
+#addMoney{order:-1;flex:none;width:32px;height:32px;border-radius:50%;border:0;background:#8b5cf6;color:#fff;display:grid;place-items:center;cursor:pointer;padding:0;pointer-events:auto}
+#addMoney svg{width:16px;height:16px;stroke-width:2.6}
+#addMoney:active{transform:scale(.92)}
+#lockCard{display:flex;align-items:center;gap:9px;height:46px;padding:0 8px 0 14px;border-radius:999px;font:inherit;font-size:15px;font-weight:750;color:#eef3ff;min-width:0;white-space:nowrap}
+#lockCard[hidden]{display:none}
+#lockCard>svg{flex:none;width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;color:#c4b5fd}
+#lockCard span{min-width:0;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums;color:rgba(238,243,255,.8)}
+#unlockBtn{flex:none;height:32px;padding:0 13px;border-radius:999px;border:1px solid #c4b5fd;background:transparent;color:#c4b5fd;font:inherit;font-size:13px;font-weight:700;cursor:pointer;pointer-events:auto;display:inline-flex;align-items:center;gap:7px}
+#unlockBtn:active{transform:scale(.95)}
+#unlockBtn.approved{border-color:transparent;background:rgba(74,222,128,.16);color:#4ade80}
+#unlockBtn.verifying{border-color:transparent;background:rgba(167,139,250,.16);color:#c4b5fd;pointer-events:none}
+#unlockBtn .sp{width:12px;height:12px;border-radius:50%;border:2px solid rgba(196,181,253,.35);border-top-color:#c4b5fd;animation:ulspin .8s linear infinite}
+@keyframes ulspin{to{transform:rotate(360deg)}}
+#bankCard[hidden]{display:none}
+#bankCard svg{flex:none;width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+#bankCard span{min-width:0;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+#placesBtn{display:flex;align-items:center;gap:9px;height:46px;padding:0 14px;border-radius:999px;font:inherit;font-size:15px;font-weight:750;color:#eef3ff;cursor:pointer}
+#placesBtn svg{flex:none;width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+#placesBtn .chev{width:16px;height:16px;opacity:.75;transition:transform .2s}
+#placesBtn.open .chev{transform:rotate(180deg)}
+#go[hidden]{display:none}
+#placesBtn:active{transform:scale(.96)}
+#placesBtn:focus-visible{outline:2px solid #fff;outline-offset:2px}
+#foodCard{position:absolute;left:12px;bottom:calc(94px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:9px;height:46px;padding:0 16px 0 14px;border-radius:999px;font:inherit;font-size:15px;font-weight:750;color:#eef3ff;cursor:pointer;white-space:nowrap}
+#foodCard[hidden]{display:none}
+#foodCard .fe{font-size:20px;line-height:1}
+#foodCard #foodAmt{font-variant-numeric:tabular-nums}
+#foodCard:active{transform:scale(.96)}
+#foodCard.hungry{border-color:rgba(255,60,60,.9);color:#ffd9d9;animation:hungryGlow 1.4s ease-in-out infinite}
+@keyframes hungryGlow{0%,100%{box-shadow:0 0 8px 1px rgba(255,40,40,.55),0 0 18px 2px rgba(255,40,40,.3)}50%{box-shadow:0 0 14px 4px rgba(255,40,40,.95),0 0 32px 8px rgba(255,40,40,.55)}}
+#foodCard:focus-visible{outline:2px solid #fff;outline-offset:2px}
+#topbar,#balWrap,#hint,#foodCard{transition:opacity .35s ease,visibility 0s}
+body.wl #topbar,body.wl #balWrap,body.wl #hint,body.wl #foodCard{opacity:0;visibility:hidden;pointer-events:none;transition:none}
 #search input{flex:1;min-width:0;font:inherit;font-size:16px;color:#eef3ff;background:rgba(255,255,255,.08);border:1px solid transparent;border-radius:10px;padding:11px 14px;-webkit-appearance:none;appearance:none}
 #search input::placeholder{color:rgba(238,243,255,.5)}
 #search input:focus{outline:none;border-color:rgba(255,255,255,.45);background:rgba(255,255,255,.12)}
@@ -7666,8 +7738,8 @@ body.wl #avatar,body.wl #search,body.wl #hint{opacity:0;visibility:hidden;pointe
 .btn:focus-visible{outline:2px solid #fff;outline-offset:2px}
 .btn:active{transform:scale(.97)}
 #go{min-width:86px;display:inline-flex;align-items:center;justify-content:center}
-#result{position:absolute;left:calc(50% + 28px);top:74px;transform:translateX(-50%) translateY(-6px);width:var(--sw);padding:14px 16px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
-#result.show{opacity:1;transform:translateX(-50%);pointer-events:auto}
+#result{position:absolute;right:12px;top:68px;transform:translateY(-6px);width:min(300px,calc(100vw - 24px));padding:14px 16px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
+#result.show{opacity:1;transform:none;pointer-events:auto}
 #result h2{font-size:17px;font-weight:800;margin-bottom:4px;word-break:break-word}
 #result p{font-size:13.5px;opacity:.8;line-height:1.4}
 #result .meta{display:flex;gap:22px;margin-top:10px}
@@ -7697,11 +7769,30 @@ body.wl #avatar,body.wl #search,body.wl #hint{opacity:0;visibility:hidden;pointe
 <div id="tags"></div>
 <div id="fade"></div>
 <div id="hud">
-  <button id="avatar" type="button" aria-label="Open your profile" title="Your profile"><img id="avImg" alt="" src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 44'%3E%3Crect width='44' height='44' fill='%231b2436'/%3E%3Ccircle cx='22' cy='17' r='8' fill='%238fa3c7'/%3E%3Cpath d='M6 44c1-11 8-16 16-16s15 5 16 16z' fill='%238fa3c7'/%3E%3C/svg%3E"></button>
-  <div class="panel" id="search" role="search">
-    <input id="q" type="text" placeholder="Search for a place" autocomplete="off" autocapitalize="none" spellcheck="false" enterkeyhint="search" aria-label="Search for a place">
-    <button class="btn" id="go" type="button">Search</button>
+  <div id="topbar">
+  <button class="panel" id="avatar" type="button" aria-label="Profile"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><img id="avImg" alt=""></button>
+  <div id="search" role="search">
+    <input id="q" type="text" hidden aria-hidden="true" tabindex="-1">
+    <button id="go" type="button" hidden aria-hidden="true" tabindex="-1">Search</button>
+    <button class="panel" id="placesBtn" type="button" aria-label="Places" aria-haspopup="true" aria-expanded="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
   </div>
+  </div>
+  <div id="balWrap">
+    <div class="panel" id="bankCard" aria-label="Bank balance">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10l9-6 9 6M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 21h18"/></svg>
+      <span id="bankAmt">₦0</span>
+      <button id="addMoney" type="button" aria-label="Buy game money"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+    </div>
+    <div class="panel" id="lockCard" aria-label="Locked money" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+      <span id="lockAmt">₦0</span>
+      <button id="unlockBtn" type="button">Unlock</button>
+    </div>
+  </div>
+  <button class="panel" id="foodCard" type="button" aria-label="Food and shopping" hidden><span class="fe" aria-hidden="true">🍔</span><span id="foodAmt">500 cal</span></button>
   <div class="panel" id="result" aria-live="polite"></div>
   <div class="panel" id="card">
     <div class="top"><b id="cFull"></b></div>
@@ -8673,7 +8764,8 @@ var qEl=document.getElementById('q'),resEl=document.getElementById('result'),fad
 function ce(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;}
 function pbtn(label,cls,fn){var b=ce('button','btn '+(cls||''),label);b.type='button';b.addEventListener('click',fn);return b;}
 function showRes(nodes){resEl.textContent='';nodes.forEach(function(n){resEl.appendChild(n);});resEl.classList.add('show');}
-function hideRes(){resEl.classList.remove('show');}
+function setPlacesOpen(on){var b=document.getElementById('placesBtn');if(b){b.classList.toggle('open',on);b.setAttribute('aria-expanded',on?'true':'false');}}
+function hideRes(){resEl.classList.remove('show');setPlacesOpen(false);}
 function fadeTo(on,cb){fadeEl.style.opacity=on?'1':'0';if(cb)setTimeout(cb,on?400:0);}
 function later(my,ms,fn){setTimeout(function(){if(my===sid)fn();},ms);}
 function metaRow(P){var m=ce('div','meta'),a=ce('div'),b=ce('div'),c=ce('div');
@@ -8755,7 +8847,7 @@ function showSuggest(list){
  sugOn=true;showRes([box]);}
 function hideSuggest(){if(sugOn){sugOn=false;hideRes();}}
 /* Search for a place. Nothing is looked up: tapping the bar lists the places, The beach, Somto Club and the Local market are open for now */
-var PLACES=[['The beach',false,'beach'],['Somto Club',false,'club'],['Local market',false,'market'],['Stadium',true],['Mall',true]];
+var PLACES=[['Go to work',false,'work'],['The beach',false,'beach'],['Somto Club',false,'club'],['Local market',false,'market'],['Stadium',true],['Mall',true]];
 function showPlaces(){
  var box=ce('div','sg');
  PLACES.forEach(function(p){
@@ -8763,12 +8855,16 @@ function showPlaces(){
   if(p[1])b.appendChild(ce('small',null,'Coming soon'));
   else b.addEventListener('click',function(){qEl.blur();hideRes();post({hc:p[2]||'beach'});});
   box.appendChild(b);});
- showRes([box]);}
+ showRes([box]);setPlacesOpen(true);}
 /* empty bar: the list of places. Anything typed: the list goes away and only what was typed shows */
 function showTyped(){
  var q=qEl.value.trim();
  if(!q){showPlaces();return;}
  showRes([ce('h2',null,q),ce('p',null,'Under construction, come back later')]);}
+document.getElementById('placesBtn').addEventListener('click',function(){
+ if(this.classList.contains('open'))hideRes();else showPlaces();});
+document.addEventListener('pointerdown',function(e){
+ if(!e.target.closest('#search,#result'))if(document.getElementById('placesBtn').classList.contains('open'))hideRes();});
 qEl.addEventListener('focus',showTyped);
 qEl.addEventListener('input',showTyped);
 goBtn.addEventListener('click',function(){qEl.blur();showTyped();});
@@ -8861,10 +8957,29 @@ function updateAudio(dt){
 /* ---------- profile avatar: tap opens the profile in the app, the photo comes from the app ---------- */
 (function(){
  var btn=document.getElementById('avatar'),img=document.getElementById('avImg'),wasOn=false;
- btn.addEventListener('click',function(){try{parent.postMessage({hc:'avatar'},'*');}catch(e){}});
+ var bc=document.getElementById('bankCard'),ba=document.getElementById('bankAmt');
+ if(btn)btn.addEventListener('click',function(){try{parent.postMessage({hc:'avatar'},'*');}catch(e){}});
+ var lc=document.getElementById('lockCard'),la=document.getElementById('lockAmt'),ub=document.getElementById('unlockBtn');
+ if(ub)ub.addEventListener('click',function(){try{parent.postMessage({hc:'unlock'},'*');}catch(e){}});
+ var fc=document.getElementById('foodCard'),fa=document.getElementById('foodAmt'),fe=fc&&fc.querySelector('.fe');
+ var FOODS=['🍔','🍕','🍗','🍟','🌮','🍜','🍛','🍎','🍩','🥪','🍣','🥗'],fi=0,fcal=500;
+ function fshow(){if(fe)fe.textContent=fcal<=250?'😩':FOODS[fi%FOODS.length];if(fc)fc.classList.toggle('hungry',fcal<=250);if(fa&&!fc.hidden)fa.textContent=fcal<=250?'Hungry':fcal.toLocaleString('en-NG')+' cal';}
+ setInterval(function(){fi++;fshow();},1800);
+ if(fc)fc.addEventListener('click',function(){try{parent.postMessage({hc:'food'},'*');}catch(e){}});
+ var am=document.getElementById('addMoney');
+ if(am)am.addEventListener('click',function(){try{parent.postMessage({hc:'addMoney'},'*');}catch(e){}});
+ function short(t){var n=Number(String(t==null?'':t).replace(/[^0-9.]/g,''));if(!isFinite(n)||n<=0)return '\u20A60';
+  if(n<1e6)return '\u20A6'+Math.floor(n).toLocaleString('en-NG');
+  var U=[['qi',1e18],['qa',1e15],['t',1e12],['b',1e9],['m',1e6]];
+  for(var i=0;i<U.length;i++){if(n>=U[i][1]){var v=Math.floor(n/(U[i][1]/10))/10;return '\u20A6'+v.toFixed(1)+U[i][0];}}
+  return '\u20A6'+Math.floor(n);}
  window.addEventListener('message',function(e){
   if(e.source!==window.parent)return;var d=e.data;if(!d||!d.hc)return;
-  if(d.hc==='photo'&&d.src)img.src=d.src;
+  if(d.hc==='photo'){if(img&&d.src)img.src=d.src;}
+  else if(d.hc==='bank'){if(bc&&ba){ba.textContent=d.text?short(d.text):'';bc.hidden=!d.text;}}
+  else if(d.hc==='locked'){if(lc&&la&&ub){la.textContent=short(d.text);lc.hidden=!d.show;ub.className=d.state||'';if(d.state==='verifying')ub.innerHTML='<span class="sp"></span>Verifying';else ub.textContent=d.state==='approved'?'Approved':'Unlock';}}
+  else if(d.hc==='cal'){if(fc&&fa){var has=d.text!==''&&d.text!=null;fa.textContent=has?Number(d.text).toLocaleString('en-NG')+' cal':'';fc.hidden=!has;if(has){fcal=Number(d.text);fshow();}}}
+  else if(d.hc==='inset'){if(fc&&d.px>0)fc.style.bottom=d.px+'px';}
   else if(d.hc==='results')onResults(d);
   else if(d.hc==='flyStatus')onFly(d.status);
   else if(d.hc==='sound'){if(!au.on)setSound(true);}
@@ -8909,7 +9024,28 @@ setTimeout(function(){document.getElementById('hint').classList.remove('show');}
   var openAuth = function () { if (window.hustleOpenAuth) window.hustleOpenAuth(); };
   var photo = function () { try { return localStorage.getItem(KEY) || ''; } catch (e) { return ''; } };
   var send = function (m) { try { frame.contentWindow.postMessage(m, '*'); } catch (e) {} };
-  var lastOn = null;
+  var lastOn = null, lastBank = '';
+  function pushBank(t) { if (typeof t === 'string') lastBank = t; else if (!lastBank) { var h = document.querySelector('.home-bank'); if (h) lastBank = h.textContent; } send({ hc: 'bank', text: isIn() ? lastBank : '₦0.00' }); }
+  window.hustlePushBank = pushBank;
+  var lastLock = { text: '60000000', show: true, state: '' };
+  function pushLock(o) { if (o) lastLock = o; send({ hc: 'locked', text: isIn() ? lastLock.text : '60000000', show: isIn() ? lastLock.show : true, state: isIn() ? lastLock.state : '' }); }
+  window.hustlePushLock = pushLock;
+  var lastCal = '';
+  function pushCal(n) { if (typeof n === 'number') lastCal = n; else if (lastCal === '' && window.hustleCal) lastCal = window.hustleCal(); send({ hc: 'cal', text: isIn() ? lastCal : '' }); }
+  window.hustlePushCal = pushCal;
+  new MutationObserver(function () { pushBank(); pushLock(); pushCal(); pushInset(); }).observe(document.body, { attributes: true, attributeFilter: ['data-auth'] });
+  // The cal card must sit above the tabs and the install bar, so measure how much of the bottom they cover and tell the scene
+  var lastInset = -1;
+  function pushInset() {
+    var fr = frame.getBoundingClientRect(), top = fr.bottom;
+    var nav = document.querySelector('.nav'), pill = document.querySelector('.nav-pill'), ib = document.querySelector('.install-bar');
+    if (nav && pill && getComputedStyle(nav).display !== 'none') top = Math.min(top, pill.getBoundingClientRect().top);
+    if (ib && !ib.hidden && getComputedStyle(ib).display !== 'none') top = Math.min(top, ib.getBoundingClientRect().top);
+    var px = Math.max(0, Math.round(fr.bottom - top)) + 14;
+    if (px !== lastInset) { lastInset = px; send({ hc: 'inset', px: px }); }
+  }
+  window.addEventListener('resize', pushInset);
+  setInterval(pushInset, 1000);
   var pushVisible = function (force) {
     var covered = !!document.querySelector('.popup.show, .sheet-layer.open, .phone-layer.open, .plane-scene.show, .bus-scene.show, #pfLayer.open, .auth-layer:not(.hide)');
     var on = home.classList.contains('active') && !covered;
@@ -8917,9 +9053,9 @@ setTimeout(function(){document.getElementById('hint').classList.remove('show');}
   };
 
   // Rooftop scene
-  frame.addEventListener('load', function () { try { if (!document.body.classList.contains('welcome-open')) frame.contentDocument.body.classList.remove('wl'); } catch (e) {} var p = photo(); if (p) send({ hc: 'photo', src: p }); pushVisible(true); });
+  frame.addEventListener('load', function () { lastInset = -1; pushInset(); pushBank(); pushLock(); pushCal(); try { if (!document.body.classList.contains('welcome-open')) frame.contentDocument.body.classList.remove('wl'); } catch (e) {} var p = photo(); if (p) send({ hc: 'photo', src: p }); pushVisible(true); });
   frame.srcdoc = $('rooftopSrc').textContent.replace(/<\\\/script/g, '</script');
-  new MutationObserver(function () { pushVisible(); }).observe(document.body, { attributes: true, attributeFilter: ['class'], subtree: true });   // pause the city (and its sound) when you leave Home or a popup/sheet is open on top
+  new MutationObserver(function () { pushVisible(); pushInset(); }).observe(document.body, { attributes: true, attributeFilter: ['class'], subtree: true });   // pause the city (and its sound) when you leave Home or a popup/sheet is open on top
 
   // Buttons under the scene
   $('rtSignUp').addEventListener('click', openAuth);
@@ -8955,9 +9091,13 @@ setTimeout(function(){document.getElementById('hint').classList.remove('show');}
     var d = e.data;
     if (e.source !== frame.contentWindow || !d || !d.hc) return;
     if (d.hc === 'avatar') { if (isIn()) setProfile(true); else openAuth(); }
+    else if (d.hc === 'unlock') { if (isIn()) { var ub = $('unlockBtn'); if (ub) ub.click(); } else openAuth(); }
+    else if (d.hc === 'addMoney') { if (isIn()) { var am = $('addMoneyBtn'); if (am) am.click(); } else openAuth(); }
     else if (d.hc === 'login') openAuth();
     else if (d.hc === 'message') { if (isIn() && window.hustleChat) window.hustleChat(d.user); else openAuth(); }
     else if (d.hc === 'search') doSearch(d);
+    else if (d.hc === 'work') { if (isIn()) { var jb = $('jobsOpenBtn'); if (jb) jb.click(); } else openAuth(); }
+    else if (d.hc === 'food') { if (isIn() && window.hustleFood) window.hustleFood(); else openAuth(); }
     else if (d.hc === 'beach') { if (isIn() && window.hustleBeach) window.hustleBeach(); else openAuth(); }
     else if (d.hc === 'club') { if (isIn() && window.hustleClub) window.hustleClub(); else openAuth(); }
     else if (d.hc === 'market') { if (isIn() && window.hustleMarket) window.hustleMarket(); else openAuth(); }
@@ -8972,7 +9112,7 @@ setTimeout(function(){document.getElementById('hint').classList.remove('show');}
 
   // Profile photo: tap the picture in the profile card
   var pfA = $('pfAvatar'), pfImg = $('pfImg'), pfFile = $('pfFile');
-  function showPhoto() { var p = photo(); if (p) { pfImg.src = p; pfImg.hidden = false; } else pfImg.hidden = true; }
+  function showPhoto() { var p = photo(); if (p) { pfImg.src = p; pfImg.hidden = false; } else { pfImg.hidden = true; } }
   showPhoto();
   pfA.addEventListener('click', function () { pfFile.click(); });
   pfA.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pfFile.click(); } });
