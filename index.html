@@ -596,6 +596,28 @@
   .gt-collect:disabled { opacity: .4; }
   .gt-empty { padding: 22px 8px; text-align: center; font-size: 14px; color: var(--muted); }
 
+  /* My Businesses */
+  .bz-head { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .bz-logo { width: 44px; height: 44px; border-radius: 12px; object-fit: cover; flex: none; background: var(--surface-2); }
+  .bz-emoji { display: grid; place-items: center; font-size: 24px; }
+  .bz-sub { margin-top: 2px; font-size: 12px; color: var(--muted); }
+  .bz-stats { margin-top: 10px; display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--muted); }
+  .bz-hire { width: 100%; margin-top: 10px; }
+  .bz-top { display: flex; gap: 12px; align-items: center; margin: 4px 0 14px; }
+  .bz-logo-pick { flex: none; width: 74px; height: 74px; border-radius: 16px; border: 1px dashed var(--purple-light); background: var(--surface-2); color: var(--purple-light); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; overflow: hidden; padding: 0; cursor: pointer; font: inherit; }
+  .bz-logo-pick small { font-size: 11px; font-weight: 700; }
+  .bz-logo-pick img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .bz-logo-pick .bz-big { font-size: 30px; line-height: 1; }
+  .bz-logo-pick.has-img small { display: none; }
+  .bz-input { width: 100%; min-width: 0; padding: 13px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--text); font: inherit; font-size: 16px; outline: none; }
+  .bz-input:focus { border-color: var(--purple-light); }
+  .bz-types { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .bz-chip { padding: 9px 2px; border-radius: 12px; border: 1px solid var(--line); background: transparent; color: var(--text); font: inherit; font-size: 11px; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; }
+  .bz-chip span { font-size: 22px; line-height: 1; }
+  .bz-chip.active { border-color: var(--purple-light); background: rgba(139, 92, 246, .16); }
+  .bz-presets { display: flex; gap: 8px; margin: 8px 0 12px; }
+  .bz-preset { flex: 1; padding: 8px 0; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--text); font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .bz-file { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
   /* Mini business card actions */
   .biz-actions { margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .biz-actions.one { grid-template-columns: 1fr; }
@@ -627,6 +649,7 @@
   /* Install bar: sits right above the bottom navigation and stays until the app is installed */
   .install-bar { position: absolute; left: 0; right: 0; bottom: var(--nav-h); z-index: 60; height: 54px; display: flex; align-items: center; gap: 10px; padding: 0 12px; background: linear-gradient(90deg, #2e1065, #4c1d95); border-top: 1px solid rgba(167, 139, 250, .35); color: #fff; }
   .install-bar[hidden] { display: none; }
+  body:has(.sheet-layer.open) .install-bar { visibility: hidden; pointer-events: none; }   /* do not cover the buttons at the bottom of a sheet */
   .install-bar img { width: 34px; height: 34px; border-radius: 9px; flex: none; }
   .install-bar .ib-text { flex: 1; min-width: 0; line-height: 1.25; }
   .install-bar .ib-text b { display: block; font-size: 14px; }
@@ -1610,7 +1633,7 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
       <div class="hustle-scroll">
         <section class="section" aria-label="Income streams">
           <div class="section-head"><h3>Income streams</h3></div>
-          <p class="section-sub">Climb the ladder: Jobs, Mini Business, Contract Business, Company.</p>
+          <p class="section-sub">Climb the ladder: Jobs, My Businesses, Contract Business, Company.</p>
 
           <div class="job-card" id="jobsCard" style="display:none">
             <div class="job-top">
@@ -1628,11 +1651,11 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
               <div class="lock-badge">
                 <svg viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9M3 9v11h18V9M3 9a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0M9 20v-5h6v5"/></svg>
               </div>
-              <div class="job-title">Mini Business</div>
+              <div class="job-title">My Businesses</div>
             </div>
-            <p class="job-desc">Run a small business of your own. Start any business, then boost it to earn more.</p>
+            <p class="job-desc">Open up to 3 businesses with your own name and logo. Hire staff to earn more, and your manager collects the money for you.</p>
             <b class="ct-badge" id="bizBadge" hidden></b>
-            <button class="primary-btn" id="bizOpenBtn">See all businesses</button>
+            <button class="primary-btn" id="bizOpenBtn">My businesses</button>
           </div>
 
           <div class="job-card" id="contractCard" data-tier="contract">
@@ -2193,17 +2216,17 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
     </div>
   </div>
 
-  <!-- Mini Business sheet -->
+  <!-- My Businesses sheet -->
   <div class="sheet-layer" id="bizSheetLayer" aria-hidden="true">
     <div class="sheet-backdrop" id="bizSheetBackdrop"></div>
-    <div class="sheet" role="dialog" aria-label="Mini Business">
+    <div class="sheet" role="dialog" aria-label="My Businesses">
       <div class="sheet-head">
-        <h2>Mini Business</h2>
+        <h2>My Businesses</h2>
         <button class="sheet-close" id="bizSheetClose" aria-label="Close">
           <svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13"/></svg>
         </button>
       </div>
-      <p class="section-sub" style="margin:0 0 10px">Balance <b id="bizBal">&#8358;0</b>. Start any business and boost it up to 4 times to earn more.</p>
+      <p class="section-sub" style="margin:0 0 10px">Balance <b id="bizBal">&#8358;0</b>. Open up to 3 businesses. Hire staff to earn more. Your manager collects for you.</p>
       <div class="jobs-list" id="bizList"></div>
     </div>
   </div>
@@ -2346,28 +2369,40 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
     </div>
   </div>
 
-  <!-- Start a business: write-up, what you are buying, then pay -->
+  <!-- Open a business: name, logo, type and how much to start with -->
   <div class="sheet-layer" id="bizStartLayer" aria-hidden="true">
     <div class="sheet-backdrop" id="bizStartBackdrop"></div>
-    <div class="sheet" role="dialog" aria-label="Start a business" style="max-height:90vh;overflow-y:auto">
+    <div class="sheet" role="dialog" aria-label="Open a business" style="max-height:90vh;overflow-y:auto">
       <div class="sheet-head">
-        <h2 id="bsTitle">Start a business</h2>
+        <h2 id="bsTitle">Open a business</h2>
         <button class="sheet-close" id="bizStartClose" aria-label="Close">
           <svg viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13"/></svg>
         </button>
       </div>
-      <p class="lead" id="bsAbout"></p>
-      <div class="bs-label">What you are buying</div>
-      <div class="bus-rows" id="bsItems"></div>
+      <div class="bz-top">
+        <button type="button" class="bz-logo-pick" id="bsLogoBtn" aria-label="Upload your business logo"><span id="bsLogoPrev"></span><small>Add logo</small></button>
+        <input type="file" id="bsLogoFile" class="bz-file" accept="image/*">
+        <input class="bz-input" id="bsName" type="text" maxlength="24" placeholder="Business name" autocomplete="off">
+      </div>
+      <div class="bs-label">Type of business</div>
+      <div class="bz-types" id="bsTypes"></div>
+      <p class="bs-earn" id="bsTypeDesc"></p>
+      <div class="bs-label">How much to start with</div>
+      <input class="bz-input" id="bsAmount" type="text" inputmode="numeric" autocomplete="off">
+      <div class="bz-presets" id="bsPresets"></div>
       <div class="bus-rows">
-        <div class="bus-row bs-total"><span>Total</span><b id="bsTotal">&#8358;0</b></div>
+        <div class="bus-row"><span>Pays every</span><b id="bsEvery"></b></div>
+        <div class="bus-row"><span>Each payout</span><b id="bsPayout"></b></div>
+        <div class="bus-row"><span>About a day</span><b id="bsDay"></b></div>
+        <div class="bus-row"><span>With your first staff</span><b id="bsHire"></b></div>
+      </div>
+      <div class="bus-rows">
         <div class="bus-row"><span>Your bank</span><b id="bsBank">&#8358;0</b></div>
         <div class="bus-row"><span>Left after paying</span><b id="bsAfter">&#8358;0</b></div>
       </div>
-      <p class="bs-earn" id="bsEarn"></p>
-      <div class="bus-note" id="bsNote" hidden>Not enough money in your bank</div>
+      <div class="bus-note" id="bsNote" hidden></div>
       <div class="bus-actions">
-        <button class="popup-btn pay" id="bizPay">Pay</button>
+        <button class="popup-btn pay" id="bizPay">Open business</button>
         <button class="popup-btn" id="bizStartCancel">Cancel</button>
       </div>
     </div>
@@ -2507,7 +2542,7 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
       <div class="howto-list">
         <div class="howto-item"><div class="howto-emoji">💼</div><div><div class="howto-title">Get a job</div><div class="howto-text">Work a job to save money faster.</div></div></div>
         <div class="howto-item"><div class="howto-emoji">🤝</div><div><div class="howto-title">Do a business contract</div><div class="howto-text">Find a friend and sign a business contract together. You both start earning faster.</div></div></div>
-        <div class="howto-item"><div class="howto-emoji">🏪</div><div><div class="howto-title">Start mini businesses</div><div class="howto-text">They make money for you automatically.</div></div></div>
+        <div class="howto-item"><div class="howto-emoji">🏪</div><div><div class="howto-title">Open your own businesses</div><div class="howto-text">Name them, hire staff, and your manager collects the money for you.</div></div></div>
         <div class="howto-item"><div class="howto-emoji">🏦</div><div><div class="howto-title">Invest with Somiesbank</div><div class="howto-text">Open Somiesbank on your phone and put big money into fixed deposits and bonds.</div></div></div>
         <div class="howto-item"><div class="howto-emoji">🌳</div><div><div class="howto-title">Buy land</div><div class="howto-text">Land grows in value, so it makes you more money over time.</div></div></div>
         <div class="howto-item"><div class="howto-emoji">🏖️</div><div><div class="howto-title">Enjoy your life</div><div class="howto-text">Buy cars, houses, yachts and jets. Go to clubs, beaches and shows to meet new friends and business partners.</div></div></div>
@@ -4774,26 +4809,19 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
     const u = (k === 'job' && saved.jobsV !== 2) ? [] : (saved.unlocked && Array.isArray(saved.unlocked[k]) ? saved.unlocked[k] : []);   // the job list changed: old job unlocks do not carry over
     u.forEach(n => { n = Number(n); if (lists[k] && lists[k].items[n] && !unlocked[k].includes(n)) { lists[k].items[n].locked = false; unlocked[k].push(n); } });
   });
-  // Mini businesses are kept per country: bizAll[country] = { [id]: { level, start, ready } }. Each country starts fresh.
-  // They keep running while the app is closed. `biz` is always the country you are in now.
+  // My businesses (up to 3): not tied to a country. A manager collects for you, also while the app is closed.
   let curCountry = 'Nigeria';
   try { curCountry = gameStore.getItem('lifesim.home') || 'Nigeria'; } catch (e) {}
-  const parseBiz = o => {
-    const r = {};
-    if (o && typeof o === 'object') Object.keys(o).forEach(k => { const v = o[k]; if (v && typeof v.start === 'number') r[k] = { level: Math.max(1, Math.min(5, (v.level | 0) || 1)), start: v.start, ready: Math.max(0, +v.ready || 0), manager: !!v.manager }; if (r[k] && v.base > 0) r[k].base = +v.base; });
-    return r;
-  };
-  const bizAll = {};
-  if (saved.bizAll && typeof saved.bizAll === 'object') Object.keys(saved.bizAll).forEach(c => { bizAll[c] = parseBiz(saved.bizAll[c]); });
-  else if (saved.biz) bizAll[curCountry] = parseBiz(saved.biz);   // old save: your businesses belong to the country you are in now
-  if (!bizAll[curCountry]) bizAll[curCountry] = {};
-  let biz = bizAll[curCountry];
-  const bizTrip = saved.bizTrip && typeof saved.bizTrip === 'object' ? saved.bizTrip : {};   // { businessId: { to, cost } }: the flight you were told to take to start it
-  function setCountry(name) { curCountry = name; if (!bizAll[name]) bizAll[name] = {}; biz = bizAll[name]; }
+  const myBiz = [];   // { id, name, type, logo, invested, staff, start }
+  if (Array.isArray(saved.myBiz)) saved.myBiz.slice(0, 3).forEach((o, n) => {
+    if (o && typeof o.invested === 'number' && o.invested >= 1000000 && typeof o.start === 'number') myBiz.push({ id: String(o.id || 'b' + n), name: String(o.name || 'My business').slice(0, 24), type: String(o.type || 'cafe'), logo: typeof o.logo === 'string' && o.logo.indexOf('data:image/') === 0 ? o.logo : '', invested: Math.round(o.invested), staff: Math.max(0, o.staff | 0), start: o.start });
+  });
+  const hadOldBiz = !!((saved.bizAll && typeof saved.bizAll === 'object' && Object.keys(saved.bizAll).some(c => saved.bizAll[c] && Object.keys(saved.bizAll[c]).length)) || (saved.biz && typeof saved.biz === 'object' && Object.keys(saved.biz).length));
+  function setCountry(name) { curCountry = name; }
   // A country is gold when you own something there
   // Contracts, investments, land and Showroom items are not tied to a country: they count as owned in the country you are in now
-  const ownsLoose = () => { try { return Object.keys(ownedItems).length > 0 || ctState.list.length > 0 || ctState.sent.length > 0 || holdings.some(h => opProduct(h)); } catch (e) { return false; } };
-  const ownedIn = name => !!(bizAll[name] && Object.keys(bizAll[name]).length) || !!(work && work.country === name) || (name === curCountry && ownsLoose());
+  const ownsLoose = () => { try { return myBiz.length > 0 || Object.keys(ownedItems).length > 0 || ctState.list.length > 0 || ctState.sent.length > 0 || holdings.some(h => opProduct(h)); } catch (e) { return false; } };
+  const ownedIn = name => !!(work && work.country === name) || (name === curCountry && ownsLoose());
   const FREE_LIMIT = 60000000;
   let premium = window.hustlePremium || null;   // from the server, never from the save
   const bankLimit = () => Math.max(FREE_LIMIT, premium ? premium.limit : 0);
@@ -4883,7 +4911,7 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
   function save() {
     let pending = 0;
     try { pending = pendingReturns(); } catch (e) {}   // money out earning, so other players see your full net worth
-    try { gameStore.setItem(STORE, JSON.stringify({ jobsV: 2, bizAll, bizTrip, work, bank: wallet.bank, locked: wallet.locked, pending, earned: wallet.earned, day: today, premium, hunger: hunger(), hungerAt: Date.now(), food, stock, sick, lastIllness, sickCost, sickHold, receivedHold, debt, holdings, items: ownedItems, unlocked })); } catch (e) {}
+    try { gameStore.setItem(STORE, JSON.stringify({ jobsV: 2, myBiz, work, bank: wallet.bank, locked: wallet.locked, pending, earned: wallet.earned, day: today, premium, hunger: hunger(), hungerAt: Date.now(), food, stock, sick, lastIllness, sickCost, sickHold, receivedHold, debt, holdings, items: ownedItems, unlocked })); } catch (e) {}
   }
 
   // Flight in progress (stored by the map), or null
@@ -5193,40 +5221,31 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
   });
   document.querySelectorAll('.nav button[data-page]').forEach(b => b.addEventListener('click', () => setTimeout(renderDock, 0)));
 
-  // ---- Mini Business: start any business, then boost it any time you have the money ----
-  const BIZ_MAX = 5;
-  const BUSINESSES = [
-    { id: 'water',  emoji: '💧', title: 'Pure Water',      cost: 20000,  pay: 3000,    ms: 10 * 60000, every: '10 minutes', desc: 'Bag and sell sachet water around your area.', about: "Buy a sachet sealing machine and a stack of nylon, then sell cold pure water to shops, drivers and street sellers every day.", items: [["Sachet sealing machine", 9000], ["Water tank and filter", 5000], ["Nylon rolls and packaging", 3000], ["Permit and first supply", 3000]] },
-    { id: 'suya',   emoji: '🍢', title: 'Suya Spot',       cost: 100000, pay: 20000,   ms: 30 * 60000, every: '30 minutes', desc: 'Grill and sell suya to the evening crowd.', about: "Set up a grill by the roadside, stock fresh meat and spices, and sell hot suya to the evening crowd.", items: [["Grill and serving stand", 30000], ["Meat and spices (first stock)", 35000], ["Charcoal, gas and utensils", 15000], ["Shed and signboard", 20000]] },
-    { id: 'barber', emoji: '💈', title: 'Barber Shop',     cost: 250000, pay: 60000,   ms: HOUR,       every: '1 hour',     desc: 'A busy shop with a queue of regular customers.', about: "Open a neat barber shop with comfortable chairs and good clippers, and build a queue of regular customers.", items: [["Barber chairs and mirrors", 90000], ["Clippers, trimmers and tools", 60000], ["Shop rent (first month)", 70000], ["Generator fuel and signboard", 30000]] },
-    { id: 'store',  emoji: '🛒', title: 'Provision Store', cost: 450000, pay: 300000,  ms: 8 * HOUR,   every: '8 hours',    desc: 'Stock the shelves and get paid every 8 hours.', about: "Rent a shop, fill the shelves with everyday goods and sell to the whole neighbourhood.", items: [["Shop rent (first month)", 120000], ["Shelves and freezer", 130000], ["First bulk stock", 170000], ["Licence and signboard", 30000]] },
-    { id: 'fuel',   emoji: '⛽', title: 'Fuel Station',    cost: 500000, pay: 1500000, ms: DAY,        every: '24 hours',   desc: 'The biggest mini business, paid once a day.', about: "Run a busy filling station with pumps, a storage tank and steady customers all day.", items: [["Pumps and storage tank", 230000], ["Land lease", 120000], ["First fuel supply", 110000], ["Licence and safety gear", 40000]] },
+  // ---- My Businesses: up to 3 businesses with your own name, logo and type. A manager collects for you; boosts are staff you hire ----
+  const gid = id => document.getElementById(id);
+  const BIZ_SLOTS = 3;
+  const BIZ_MIN = [1000000, 20000000, 400000000];   // the least you can start with: each next business costs 20 times the one before
+  const BIZ_TYPES = [
+    { id: 'cafe',       emoji: '☕',  name: 'Cafe',        ms: 30 * 60000, every: '30 minutes', rate: 0.04, desc: 'Coffee, snacks and quick sales all day long.' },
+    { id: 'barber',     emoji: '💈', name: 'Barber',      ms: HOUR,       every: '1 hour',     rate: 0.085, desc: 'A busy shop with a queue of regular customers.' },
+    { id: 'salon',      emoji: '💇', name: 'Salon',       ms: 2 * HOUR,   every: '2 hours',    rate: 0.18, desc: 'Hair, nails and makeup for clients who book ahead.' },
+    { id: 'carwash',    emoji: '🚗', name: 'Car wash',    ms: 4 * HOUR,   every: '4 hours',    rate: 0.38, desc: 'Drivers line up all day to get their cars shining.' },
+    { id: 'restaurant', emoji: '🍽️', name: 'Restaurant',  ms: 6 * HOUR,   every: '6 hours',    rate: 0.58, desc: 'Hot meals for lunch and dinner crowds.' },
+    { id: 'fashion',    emoji: '👗', name: 'Fashion',     ms: 8 * HOUR,   every: '8 hours',    rate: 0.80, desc: 'Ready to wear and made to measure outfits.' },
+    { id: 'gym',        emoji: '🏋️', name: 'Gym',         ms: 12 * HOUR,  every: '12 hours',   rate: 1.22, desc: 'Monthly members who keep paying.' },
+    { id: 'pharmacy',   emoji: '💊', name: 'Pharmacy',    ms: DAY,        every: '24 hours',   rate: 2.50, desc: 'Steady daily sales, paid once a day.' },
   ];
-  // Every business now costs more to open (its shopping list scales with it)
-  const BIZ_COST_X = { water: 5, suya: 6, barber: 6, store: 8, fuel: 24 };
-  BUSINESSES.forEach(b => { const f = BIZ_COST_X[b.id] || 1; b.cost *= f; b.items = b.items.map(([n, v]) => [n, v * f]); });
-  // Some businesses cannot be started in a new country. You are told which country to fly to and start it there.
-  const strHash = str => { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
-  const bizOrigin = () => Object.keys(bizAll)[0];
-  const bizLocked = (country, id) => country !== bizOrigin() && strHash(country + '|' + id) % 100 < 40;
-  function bizStartIn(b) {   // null = you can start it here, otherwise the country you must go to
-    if (!bizLocked(curCountry, b.id)) return null;
-    const m = window.hustleMap, names = m && m.names ? m.names() : [];
-    const ok = names.filter(n => n !== curCountry && n !== bizOrigin() && !bizLocked(n, b.id) && !(bizAll[n] && bizAll[n][b.id]));
-    return ok.length ? ok[strHash(curCountry + '>' + b.id) % ok.length] : null;
-  }
-  // A business you had to fly to another country to start never pays less than 20% more than that flight cost
-  const TRIP_MARGIN = 1.2;
-  const tripPay = (b, cost) => Math.max(b.pay, Math.ceil(cost * TRIP_MARGIN / 1000) * 1000);
-  const bizBase = b => { const t = bizTrip[b.id]; return t && t.to === curCountry && t.cost > 0 ? tripPay(b, t.cost) : b.pay; };
-  const bizPay = (b, lvl, st) => Math.round(((st && st.base) || b.pay) * (1 + 0.5 * (lvl - 1)));                 // each boost adds +50% of the starting pay
-  // first boost costs 20% of the start price, and every boost after that costs double the one before
-  const boostCost = (b, lvl) => Math.max(1000, Math.round(b.cost * 0.2 / 1000) * 1000) * Math.pow(2, lvl - 1);
-  const bizList = document.getElementById('bizList');
+  const bzType = id => BIZ_TYPES.find(t => t.id === id) || BIZ_TYPES[0];
+  const bzEsc = v => String(v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  // Income: a bigger start earns a little less per naira, and each staff member adds less than the one before
+  const bzScale = amt => Math.pow(Math.max(amt, 1000000) / 1000000, -0.06);
+  const bzBonus = k => 0.35 * Math.pow(k, 0.75);
+  const bzPayout = (t, amt, staff) => Math.round(amt * t.rate * bzScale(amt) * (1 + bzBonus(staff)) / 100) * 100;
+  const bzHireCost = (amt, staff) => Math.round(amt * 0.25 * Math.pow(1.3, staff) / 1000) * 1000;   // each hire costs 30% more than the last
+  const bzDay = (t, pay) => Math.round(pay * (DAY / t.ms) / 100) * 100;
+  const bizList = gid('bizList');
   const setBizSheet = bindSheet('bizSheetLayer', 'bizOpenBtn', 'bizSheetClose', 'bizSheetBackdrop');
 
-  // When a cycle finishes the payout waits until you tap Collect. The next timer only starts after you collect.
-  const managerCost = b => b.cost * 2;   // one-time price to hire a manager
   // Put a payout in the bank and show the money card
   function bizBank(source, total) {
     const lockedBefore = wallet.locked;
@@ -5237,169 +5256,166 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
     save();
     payBar(source, total, wallet.locked - lockedBefore);
   }
-  // A finished cycle waits for you to tap Collect. With a manager, every finished cycle is paid straight into your bank
-  // (also while you are in another country or the app is closed).
+  // The manager pays every finished cycle straight into your bank (also while you are away or the app is closed)
   function bizSettle() {
     const now = Date.now();
-    let changed = false, total = 0;
+    let total = 0;
     const names = [];
-    Object.keys(bizAll).forEach(c => BUSINESSES.forEach(b => {
-      const st = bizAll[c][b.id]; if (!st) return;
-      if (st.manager) {
-        const cycles = Math.floor((now - st.start) / b.ms);
-        if (cycles > 0) { total += cycles * bizPay(b, st.level, st); st.start += cycles * b.ms; names.push(b.title); changed = true; }
-      } else if (!st.ready && now - st.start >= b.ms) { st.ready = bizPay(b, st.level, st); changed = true; }
-    }));
-    if (total > 0) bizBank(names.join(', '), total);
-    else if (changed) save();
-    return changed;
+    myBiz.forEach(b => {
+      const t = bzType(b.type);
+      const cycles = Math.floor((now - b.start) / t.ms);
+      if (cycles > 0) { total += cycles * bzPayout(t, b.invested, b.staff); b.start += cycles * t.ms; names.push(b.name); }
+    });
+    if (total > 0) { bizBank(names.join(', '), total); return true; }
+    return false;
   }
-  function bizCollect(b) {
-    const st = biz[b.id]; if (!st || !st.ready) return;
-    const total = st.ready;
-    st.ready = 0;
-    st.start = Date.now();
-    bizBank(b.title, total);
-    renderBiz();
-  }
+  const bzLogo = (b, cls) => b.logo ? `<img class="${cls}" src="${b.logo}" alt="">` : `<div class="${cls} bz-emoji">${bzType(b.type).emoji}</div>`;
 
   function renderBiz() {
-    document.getElementById('bizBal').textContent = naira(wallet.bank);
-    bizList.innerHTML = BUSINESSES.map(b => {
-      const st = biz[b.id];
-      const tagList = st ? (st.manager ? '<span class="biz-tag">Manager</span>' : '') + (st.level >= BIZ_MAX ? '<span class="biz-tag muted">Max level</span>' : '') : '';
-      const tags = tagList ? `<div class="biz-tags">${tagList}</div>` : '';
-      const head = `<div class="ji-top"><div><div class="ji-title">${b.emoji} ${b.title}</div>${tags}</div><span class="ji-pay">${naira(st ? bizPay(b, st.level, st) : bizBase(b))} / ${b.every}</span></div><p class="ji-desc">${b.desc}</p>`;
-      if (!st) {
-        const away = bizStartIn(b);
-        if (away) {
-          const fm = window.hustleMap, fc = fm && fm.cost ? fm.cost(away) : 0;
-          const more = fc ? ` There it pays at least ${naira(tripPay(b, fc))} each time (20% more than the ${naira(fc)} flight).` : '';
-          return `<div class="job-item" data-id="${b.id}">${head}<p class="biz-away">This one cannot be started in ${curCountry}. Start it in <b>${away}</b>.${more}</p><button class="primary-btn biz-start">\u2708\uFE0F Travel to ${away}</button></div>`;
-        }
-        return `<div class="job-item" data-id="${b.id}">${head}<button class="primary-btn biz-start">Start for ${naira(b.cost)}</button></div>`;
-      }
-      const max = st.level >= BIZ_MAX;
-      const timer = st.ready
-        ? `<div class="ji-timer">
-          <div class="ji-timer-row"><span>Boosted ${st.level - 1} of ${BIZ_MAX - 1} · Ready: ${naira(st.ready)}</span><span class="ji-left">Ready</span></div>
-          <div class="ji-bar"><div class="ji-fill" style="width:100%"></div></div>
-        </div>
-        <button class="primary-btn biz-collect">Collect ${naira(st.ready)}</button>`
-        : `<div class="ji-timer">
-          <div class="ji-timer-row"><span>Boosted ${st.level - 1} of ${BIZ_MAX - 1} · Next pay ${naira(bizPay(b, st.level, st))}</span><span class="ji-left">--</span></div>
+    gid('bizBal').textContent = naira(wallet.bank);
+    const cards = myBiz.map((b, i) => {
+      const t = bzType(b.type), pay = bzPayout(t, b.invested, b.staff), next = bzPayout(t, b.invested, b.staff + 1), cost = bzHireCost(b.invested, b.staff);
+      return `<div class="job-item bz-item" data-i="${i}">
+        <div class="ji-top"><div class="bz-head">${bzLogo(b, 'bz-logo')}<div><div class="ji-title">${bzEsc(b.name)}</div><div class="bz-sub">${t.emoji} ${t.name} · ${b.staff} staff</div></div></div><span class="ji-pay">${naira(pay)} / ${t.every}</span></div>
+        <div class="ji-timer">
+          <div class="ji-timer-row"><span>🧑‍💼 Manager collects for you</span><span class="ji-left">--</span></div>
           <div class="ji-bar"><div class="ji-fill"></div></div>
-        </div>`;
-      const acts = [];
-      if (!max) acts.push(`<button class="biz-act biz-boost">Boost<small>${naira(boostCost(b, st.level))}</small></button>`);
-      if (!st.manager) acts.push(`<button class="biz-act biz-hire">Hire manager<small>${naira(managerCost(b))}</small></button>`);
-      const actions = acts.length ? `<div class="biz-actions${acts.length === 1 ? ' one' : ''}">${acts.join('')}</div>` : '';
-      return `<div class="job-item" data-id="${b.id}">${head}
-        ${timer}
-        ${actions}
+        </div>
+        <div class="bz-stats"><span>Started with ${naira(b.invested)}</span><span>About ${naira(bzDay(t, pay))} a day</span></div>
+        <button class="biz-act bz-hire">Hire staff · ${naira(cost)}<small>Earn ${naira(next)} each payout (+${naira(next - pay)})</small></button>
       </div>`;
-    }).join('');
+    });
+    if (myBiz.length < BIZ_SLOTS) {
+      const n = myBiz.length;
+      cards.push(`<div class="job-item bz-open"><div class="ji-title">${n === 0 ? 'Open your first business' : 'Open business ' + (n + 1)}</div><p class="ji-desc">Pick a name, a logo and a type. Start from ${naira(BIZ_MIN[n])}.</p><button class="primary-btn bz-new">Open a business</button></div>`);
+    } else cards.push('<p class="section-sub" style="margin:4px 0 0">You have opened all 3 businesses. Keep hiring staff to grow them.</p>');
+    bizList.innerHTML = cards.join('');
     tickBiz();
   }
   function tickBiz() {
-    document.getElementById('bizBal').textContent = naira(wallet.bank);
-    const bb = document.getElementById('bizBadge'), bn = BUSINESSES.filter(b => biz[b.id]).length;
-    bb.hidden = bn === 0; bb.textContent = String(bn);
+    gid('bizBal').textContent = naira(wallet.bank);
+    const bb = gid('bizBadge'); bb.hidden = myBiz.length === 0; bb.textContent = String(myBiz.length);
     const now = Date.now();
-    BUSINESSES.forEach(b => {
-      const st = biz[b.id]; if (!st || st.ready) return;
-      const card = bizList.querySelector(`.job-item[data-id="${b.id}"]`); if (!card) return;
-      const elapsed = Math.max(0, now - st.start);
+    myBiz.forEach((b, i) => {
+      const card = bizList.querySelector(`.bz-item[data-i="${i}"]`); if (!card) return;
+      const t = bzType(b.type), elapsed = Math.max(0, now - b.start);
       const fill = card.querySelector('.ji-fill'), left = card.querySelector('.ji-left');
-      if (fill) fill.style.width = Math.min(100, (elapsed / b.ms) * 100) + '%';
-      if (left) left.textContent = fmtLeft(b.ms - elapsed);
+      if (fill) fill.style.width = Math.min(100, (elapsed / t.ms) * 100) + '%';
+      if (left) left.textContent = fmtLeft(t.ms - elapsed);
     });
   }
-  document.getElementById('bizOpenBtn').addEventListener('click', () => { bizSettle(); renderBiz(); });
+  gid('bizOpenBtn').addEventListener('click', () => { bizSettle(); renderBiz(); });
+  bizList.addEventListener('click', e => {
+    if (e.target.closest('.bz-new')) { openBizStart(); return; }
+    const card = e.target.closest('.bz-item'); if (!card || !e.target.closest('.bz-hire')) return;
+    const b = myBiz[+card.dataset.i]; if (!b) return;
+    bizSettle();   // pay what was earned at the old rate first
+    const cost = bzHireCost(b.invested, b.staff);
+    if (wallet.bank < cost) { needHelp(cost, 'hiring staff for ' + b.name); return; }
+    wallet.bank -= cost;
+    refillFromLocked();
+    b.staff++;
+    renderWallet(); save(); renderBiz();
+  });
 
-  // Start a business: one sheet with the write-up and what you are buying, then Pay (spinner) and it opens
-  const gid = id => document.getElementById(id);
+  // Open a business: name, logo, type and how much to start with, with the earnings shown before you pay
   const setBizStart = bindSheet('bizStartLayer', null, 'bizStartClose', 'bizStartBackdrop');
-  let bsBiz = null, bsPaying = false;
-  function openBizStart(b) {
-    bsBiz = b;
-    const broke = wallet.bank < b.cost;
-    gid('bsTitle').textContent = b.emoji + ' ' + b.title;
-    gid('bsAbout').textContent = b.about;
-    gid('bsItems').innerHTML = b.items.map(([n, v]) => `<div class="bus-row"><span>${n}</span><b>${naira(v)}</b></div>`).join('');
-    gid('bsTotal').textContent = naira(b.cost);
+  const bs = { type: 'cafe', logo: '', amount: 0, paying: false };
+  const bzMin = () => BIZ_MIN[Math.min(myBiz.length, BIZ_SLOTS - 1)];
+  const bzAmountOf = () => Number(String(gid('bsAmount').value).replace(/\D/g, '')) || 0;
+  function bzReadLogo(file) {   // shrinks the picture to a small square so it saves easily
+    return new Promise((resolve, reject) => {
+      const fr = new FileReader();
+      fr.onerror = reject;
+      fr.onload = () => {
+        const im = new Image();
+        im.onerror = reject;
+        im.onload = () => {
+          const S = 128, c = document.createElement('canvas'); c.width = c.height = S;
+          const m = Math.min(im.width, im.height), x = c.getContext('2d');
+          x.fillStyle = '#fff'; x.fillRect(0, 0, S, S);
+          x.drawImage(im, (im.width - m) / 2, (im.height - m) / 2, m, m, 0, 0, S, S);
+          resolve(c.toDataURL('image/jpeg', 0.82));
+        };
+        im.src = fr.result;
+      };
+      fr.readAsDataURL(file);
+    });
+  }
+  function renderBizForm() {
+    const t = bzType(bs.type), amt = bs.amount, min = bzMin();
+    gid('bsTypes').querySelectorAll('.bz-chip').forEach(c => c.classList.toggle('active', c.dataset.t === bs.type));
+    gid('bsTypeDesc').textContent = t.desc;
+    const prev = gid('bsLogoPrev');
+    prev.innerHTML = bs.logo ? `<img src="${bs.logo}" alt="">` : `<span class="bz-big">${t.emoji}</span>`;
+    gid('bsLogoBtn').classList.toggle('has-img', !!bs.logo);
+    const ok = amt >= min, pay = ok ? bzPayout(t, amt, 0) : 0;
+    gid('bsEvery').textContent = t.every;
+    gid('bsPayout').textContent = ok ? naira(pay) : '-';
+    gid('bsDay').textContent = ok ? naira(bzDay(t, pay)) : '-';
+    gid('bsHire').textContent = ok ? naira(bzPayout(t, amt, 1)) + ' each payout' : '-';
     gid('bsBank').textContent = naira(wallet.bank);
-    gid('bsAfter').textContent = naira(Math.max(0, wallet.bank - b.cost));
-    gid('bsEarn').textContent = `Once it is open it pays ${naira(bizBase(b))} every ${b.every}, and you can boost it any time.`;
-    gid('bsNote').hidden = !broke;
+    gid('bsAfter').textContent = naira(Math.max(0, wallet.bank - amt));
+    const note = gid('bsNote');
+    if (amt < min) { note.textContent = 'The least you can start with is ' + naira(min); note.hidden = false; }
+    else if (wallet.bank < amt) { note.textContent = 'Not enough money in your bank'; note.hidden = false; }
+    else note.hidden = true;
+    gid('bizPay').textContent = 'Open for ' + naira(amt);
+  }
+  function openBizStart() {
+    if (myBiz.length >= BIZ_SLOTS) return;
+    bs.type = 'cafe'; bs.logo = ''; bs.amount = bzMin();
+    gid('bsTitle').textContent = myBiz.length === 0 ? 'Open your first business' : 'Open business ' + (myBiz.length + 1);
+    gid('bsName').value = '';
+    gid('bsAmount').value = bs.amount.toLocaleString('en-NG');
+    gid('bsTypes').innerHTML = BIZ_TYPES.map(t => `<button type="button" class="bz-chip" data-t="${t.id}"><span>${t.emoji}</span>${t.name}</button>`).join('');
+    const min = bzMin();
+    gid('bsPresets').innerHTML = [1, 2, 5, 10].map(m => `<button type="button" class="bz-preset" data-a="${min * m}">${m === 1 ? 'Minimum' : m + 'x'}</button>`).join('');
     gid('bizPay').disabled = false;
-    gid('bizPay').textContent = 'Pay ' + naira(b.cost);
+    renderBizForm();
     setBizStart(true);
   }
-  gid('bizStartCancel').addEventListener('click', () => { if (!bsPaying) setBizStart(false); });
+  gid('bsTypes').addEventListener('click', e => { const c = e.target.closest('.bz-chip'); if (!c) return; bs.type = c.dataset.t; renderBizForm(); });
+  gid('bsPresets').addEventListener('click', e => { const c = e.target.closest('.bz-preset'); if (!c) return; bs.amount = Number(c.dataset.a); gid('bsAmount').value = bs.amount.toLocaleString('en-NG'); renderBizForm(); });
+  gid('bsAmount').addEventListener('input', () => { bs.amount = bzAmountOf(); renderBizForm(); });
+  gid('bsAmount').addEventListener('blur', () => { gid('bsAmount').value = bs.amount ? bs.amount.toLocaleString('en-NG') : ''; });
+  gid('bsLogoBtn').addEventListener('click', () => gid('bsLogoFile').click());
+  gid('bsLogoFile').addEventListener('change', () => {
+    const f = gid('bsLogoFile').files && gid('bsLogoFile').files[0]; gid('bsLogoFile').value = '';
+    if (!f) return;
+    const note = gid('bsNote');
+    if (!/^image\//.test(f.type) || f.size > 10 * 1024 * 1024) { note.textContent = 'Choose a picture smaller than 10 MB'; note.hidden = false; return; }
+    bzReadLogo(f).then(d => { bs.logo = d; renderBizForm(); }).catch(() => { note.textContent = 'That picture could not be read. Try another one.'; note.hidden = false; });
+  });
+  gid('bizStartCancel').addEventListener('click', () => { if (!bs.paying) setBizStart(false); });
   gid('bizPay').addEventListener('click', () => {
-    const b = bsBiz;
-    if (!b || bsPaying || biz[b.id] || bizStartIn(b)) return;
-    if (wallet.bank < b.cost) { needHelp(b.cost, 'starting ' + b.title); return; }
-    bsPaying = true;
+    if (bs.paying || myBiz.length >= BIZ_SLOTS) return;
+    const name = gid('bsName').value.replace(/\s+/g, ' ').trim().slice(0, 24), amt = bs.amount, note = gid('bsNote');
+    if (name.length < 2) { note.textContent = 'Give your business a name'; note.hidden = false; gid('bsName').focus(); return; }
+    if (amt < bzMin()) { renderBizForm(); return; }
+    if (wallet.bank < amt) { needHelp(amt, 'opening ' + name); return; }
+    bs.paying = true;
+    const t = bzType(bs.type), logo = bs.logo;
     withSpinner(gid('bizPay'), 'Processing', () => new Promise(r => setTimeout(r, 2000))).then(() => {
-      bsPaying = false;
-      if (biz[b.id]) return;
+      bs.paying = false;
       setBizStart(false);
-      if (wallet.bank < b.cost) { needHelp(b.cost, 'starting ' + b.title); return; }
-      wallet.bank -= b.cost;
+      if (myBiz.length >= BIZ_SLOTS) return;
+      if (wallet.bank < amt) { needHelp(amt, 'opening ' + name); return; }
+      wallet.bank -= amt;
       refillFromLocked();
-      biz[b.id] = { level: 1, start: Date.now() };
-      const tb = bizBase(b); if (tb > b.pay) biz[b.id].base = tb;
-      delete bizTrip[b.id];
+      myBiz.push({ id: 'b' + Date.now().toString(36), name, type: t.id, logo, invested: amt, staff: 0, start: Date.now() });
       renderWallet(); save(); renderBiz();
-      showNotice(b.title + ' is open', `Your business is running and pays ${naira(bizPay(b, 1, biz[b.id]))} every ${b.every}. Boost it any time to earn more.`, false);
+      showNotice(name + ' is open', `Your manager collects ${naira(bzPayout(t, amt, 0))} every ${t.every} straight into your bank, even while you are away. Hire staff to earn more.`, false);
     });
   });
-  bizList.addEventListener('click', e => {
-    const card = e.target.closest('.job-item'); if (!card) return;
-    const b = BUSINESSES.find(x => x.id === card.dataset.id); if (!b) return;
-    if (e.target.closest('.biz-start')) {
-      if (biz[b.id]) return;
-      const away = bizStartIn(b);
-      if (away) {
-        const fm = window.hustleMap, fc = fm && fm.cost ? fm.cost(away) : 0;
-        if (fc) { bizTrip[b.id] = { to: away, cost: fc }; save(); }
-      }
-      if (away) askFly('Start it in ' + away, `${b.title} cannot be started in ${curCountry}. Fly to ${away} and start it there.`, away, () => setBizSheet(false));
-      else openBizStart(b);
-    } else if (e.target.closest('.biz-collect')) {
-      bizCollect(b);
-    } else if (e.target.closest('.biz-hire')) {
-      const st = biz[b.id]; if (!st || st.manager) return;
-      const cost = managerCost(b);
-      if (wallet.bank < cost) { needHelp(cost, 'hiring a manager for ' + b.title); return; }
-      wallet.bank -= cost;
-      refillFromLocked();
-      st.manager = true;
-      const waiting = st.ready;
-      st.ready = 0;
-      if (waiting) { st.start = Date.now(); bizBank(b.title, waiting); }   // pay out what was already waiting
-      renderWallet(); save(); renderBiz();
-      showNotice('Manager hired', `${b.title} now pays into your bank by itself. No more tapping Collect.`, false);
-    } else if (e.target.closest('.biz-boost')) {
-      const st = biz[b.id]; if (!st || st.level >= BIZ_MAX) return;
-      const cost = boostCost(b, st.level);
-      if (wallet.bank < cost) { needHelp(cost, 'boosting ' + b.title); return; }
-      wallet.bank -= cost;
-      refillFromLocked();
-      st.level++;
-      renderWallet(); save(); renderBiz();
-    }
-  });
   // ---- Gold sheet: everything you own in one country. You can only collect while you are in that country ----
-  const GOLD_TABS = [['jobs', 'Jobs'], ['biz', 'Mini business'], ['contract', 'Contract business'], ['investments', 'Investments'], ['company', 'Company'], ['land', 'Land'], ['cars', 'Cars'], ['houses', 'Houses'], ['yachts', 'Yachts'], ['jets', 'Jets']];
+  const GOLD_TABS = [['jobs', 'Jobs'], ['biz', 'My businesses'], ['contract', 'Contract business'], ['investments', 'Investments'], ['company', 'Company'], ['land', 'Land'], ['cars', 'Cars'], ['houses', 'Houses'], ['yachts', 'Yachts'], ['jets', 'Jets']];
   const setGoldSheet = bindSheet('goldSheetLayer', null, 'goldSheetClose', 'goldSheetBackdrop');
   let goldCountry = null, goldTab = 'biz';
-  const OWN_TAB = { contract: 'Contract business', investments: 'Investments', land: 'Land', cars: 'Cars', houses: 'Houses', yachts: 'Yachts', jets: 'Jets' };
+  const OWN_TAB = { biz: 'My businesses', contract: 'Contract business', investments: 'Investments', land: 'Land', cars: 'Cars', houses: 'Houses', yachts: 'Yachts', jets: 'Jets' };
   function openGold(name) {
     goldCountry = name;
-    goldTab = bizAll[name] && Object.keys(bizAll[name]).length ? 'biz' : 'jobs';
+    goldTab = name === curCountry && myBiz.length ? 'biz' : 'jobs';
     gid('goldTabs').innerHTML = GOLD_TABS.map(([k, t]) => `<button class="gt-tab${k === goldTab ? ' active' : ''}" data-tab="${k}">${t}</button>`).join('');
     gid('goldTabs').scrollLeft = 0;
     setGoldSheet(true);
@@ -5411,15 +5427,7 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
     gid('goldTitle').textContent = goldCountry;
     gid('goldNote').textContent = here ? 'You are here. Collect your payouts below.' : `You are away. You can only collect when you are in ${goldCountry}.`;
     let html = '';
-    if (goldTab === 'biz') {
-      const mine = bizAll[goldCountry] || {};
-      html = BUSINESSES.filter(b => mine[b.id]).map(b => {
-        const st = mine[b.id];
-        const right = st.ready && !st.manager ? '<span class="gt-ready">Ready</span>' : `<span class="gt-left" data-id="${b.id}">--</span>`;
-        const btn = st.ready && !st.manager ? `<button class="gt-collect" data-id="${b.id}"${here ? '' : ' disabled'}>${here ? 'Collect ' : 'Go there to collect '}${naira(st.ready)}</button>` : '';
-        return `<div class="gt-row"><div><div class="gt-name">${b.emoji} ${b.title}</div><div class="gt-sub">Level ${st.level} of ${BIZ_MAX} · ${naira(bizPay(b, st.level, st))} / ${b.every}${st.manager ? ' · Manager' : ''}</div></div><div class="gt-right">${right}</div>${btn}</div>`;
-      }).join('') || '<div class="gt-empty">No mini business here yet.</div>';
-    } else if (goldTab === 'jobs') {
+    if (goldTab === 'jobs') {
       if (work && work.country === goldCountry) {
         const it = lists[work.kind].items[work.index];
         html = `<div class="gt-row"><div><div class="gt-name">${it.title}</div><div class="gt-sub">Job · ${naira(workPay())} / ${it.every}</div></div><div class="gt-right gt-ready">Working</div></div>`;
@@ -5435,27 +5443,14 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
     gid('goldBody').innerHTML = `<div class="gt-table">${html}</div>`;
     tickGold();
   }
-  function tickGold() {
-    if (!goldCountry) return;
-    const mine = bizAll[goldCountry] || {};
-    gid('goldBody').querySelectorAll('.gt-left').forEach(el => {
-      const b = BUSINESSES.find(x => x.id === el.dataset.id), st = b && mine[b.id];
-      if (st) el.textContent = fmtLeft(b.ms - (Date.now() - st.start));
-    });
-  }
+  function tickGold() {}
   gid('goldTabs').addEventListener('click', e => {
     const t = e.target.closest('.gt-tab'); if (!t) return;
     goldTab = t.dataset.tab;
     gid('goldTabs').querySelectorAll('.gt-tab').forEach(x => x.classList.toggle('active', x === t));
     renderGold();
   });
-  gid('goldBody').addEventListener('click', e => {
-    const c = e.target.closest('.gt-collect');
-    if (!c || c.disabled || goldCountry !== curCountry) return;
-    const b = BUSINESSES.find(x => x.id === c.dataset.id);
-    if (b) { bizCollect(b); renderGold(); }
-  });
-
+  if (hadOldBiz) { save(); setTimeout(() => showNotice('Businesses have been rebuilt', 'The old mini businesses are gone. You can now open up to 3 businesses of your own, with your own name, logo and type. Your manager collects the money for you.', false), 2500); }
   bizSettle();
   setInterval(() => { if (bizSettle()) { renderBiz(); renderGold(); } else { tickBiz(); tickGold(); if (goldTab === 'land' || goldTab === 'contract' || goldTab === 'investments') renderGold(); } }, 1000);
 
@@ -7439,7 +7434,7 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
   const landRows = () => LAND_ITEMS.filter(it => ownedItems[it.id]).map(it => { const o = ownedItems[it.id];
     return { title: it.name, sub: `You paid ${naira(o.paid)} · ${landGain(o)} · next +10% in ${fmtMs(landNextMs(o))}`, right: naira(landValue(o)) }; });
   const OWN_SECTIONS = [
-    { tab: 'Mini business', name: 'Mini businesses', rows: () => { const out = []; Object.keys(bizAll).forEach(c => BUSINESSES.forEach(b => { const st = bizAll[c][b.id]; if (st) out.push({ title: b.emoji + ' ' + b.title, sub: `Level ${st.level} of ${BIZ_MAX} · ${naira(bizPay(b, st.level, st))} / ${b.every} · ${c}${st.manager ? ' · Manager' : ''}`, right: '' }); })); return out; }, empty: 'No mini business yet.' },
+    { tab: 'My businesses', name: 'My businesses', rows: () => myBiz.map(b => { const t = bzType(b.type); return { title: t.emoji + ' ' + b.name, sub: `${t.name} · ${b.staff} staff · ${naira(bzPayout(t, b.invested, b.staff))} / ${t.every}`, right: '' }; }), empty: 'No business yet.' },
     { tab: 'Contract business', name: 'Contract business', rows: () => {
       const now = Date.now() + ctState.off;
       const run = ctState.list.map(c => { const t = ctType(c.type_id); return { title: t.icon + ' ' + t.name, sub: `${naira(Number(c.amount))} paid · Est. profit ${naira(Number(c.share))}`, right: fmtLeft(new Date(c.ends_at).getTime() - now) + ' left' }; });
@@ -7460,7 +7455,7 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
   // and business contracts (what you paid + your expected profit; for a pending proposal, the money held for it)
   function pendingReturns() {
     let t = 0;
-    Object.keys(bizAll).forEach(c => BUSINESSES.forEach(b => { const st = bizAll[c][b.id]; if (st && st.ready) t += st.ready; }));
+    myBiz.forEach(b => { t += b.invested; });   // the money you started your businesses with still counts as yours
     holdings.forEach(h => {
       const p = opProduct(h); if (!p) return;
       let back = h.amt + opProfit(p, h.amt);
