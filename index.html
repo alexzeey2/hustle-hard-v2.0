@@ -613,6 +613,8 @@
   .ji-title { font-size: 16px; font-weight: 700; }
   .ji-pay { flex: none; padding: 4px 10px; border-radius: 999px; background: rgba(74, 222, 128, .12); color: #4ade80; font-size: 12px; font-weight: 700; white-space: nowrap; }
   .ji-desc { margin: 8px 0 0; font-size: 13px; line-height: 1.5; color: var(--muted); }
+  .ji-shift { display: inline-block; margin-top: 8px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: rgba(245, 158, 11, .15); color: #fbbf24; }
+  .ji-shift.night { background: #312e81; color: #c7d2fe; }
   .ji-lock { margin-top: 14px; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--text); }
   .ji-lock svg { flex: none; width: 16px; height: 16px; fill: none; stroke: var(--purple-light); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .job-item .segs { margin-top: 12px; }
@@ -3832,7 +3834,7 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
 
     function startFlight(dest) {
       const start = Date.now(), dur = durFor(dest);
-      if (work) { settle(); work.start += dur; save(); }
+      if (work) { settle(); if (work) { work.start += dur; save(); } }
       hungerBase = hunger(); hungerAt = start + dur;   // pause hunger until you land
       try { gameStore.setItem('lifesim.flight', JSON.stringify({ dest: dest.name, from: home.name, start, dur })); } catch (e) {}
       projection.rotate([-home.center[0], -home.center[1], 0]);
@@ -4238,18 +4240,17 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
       intro: { text: 'Going to work', photo: INTRO_PHOTO },
       ids: { open: 'jobsOpenBtn', layer: 'jobsSheetLayer', close: 'jobsSheetClose', backdrop: 'jobsSheetBackdrop', list: 'jobsList' },
       items: [
-        { title: 'Site Engineer', pay: 500000, every: '20 minutes', ms: 20 * 60000, desc: 'Inspect building sites and sign off projects for solid pay.', locked: false },
-        { title: 'Oil and Gas Consultant', pay: 2000000, every: '1 hour', ms: HOUR, desc: 'Advise oil companies and earn big. The best paying job.', locked: true },
+        { title: 'Site Engineer', shift: 'day', pay: 250000, every: '10 minutes', ms: 10 * 60000, desc: 'Inspect building sites and sign off projects for solid pay. After 10 minutes you go home, so come back to earn more.', locked: false },
+        { title: 'Oil and Gas Consultant', shift: 'night', pay: 350000, every: '10 minutes', ms: 10 * 60000, desc: 'Advise oil companies and earn big. The best paying job. After 10 minutes you go home, so come back to earn more.', locked: true },
       ],
     },
   };
-  // Shifts for jobs: day shift is the normal work hours, night shift fills the rest of the day and pays more
-  const NIGHT_BONUS = 1.25;
+  // Shifts for jobs: each job belongs to one shift. Day shift is the normal work hours, night shift fills the rest of the day
   const DAY_SHIFT = [6 * 60 + 30, 17 * 60];                 // 6:30 AM to 5:00 PM
   const inDayShift = m => m >= DAY_SHIFT[0] && m < DAY_SHIFT[1];
   const nowMins = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); };
-  let jobShift = inDayShift(nowMins()) ? 'day' : 'night';   // starts on the shift that is open right now
-  const effPay = (kind, item, shift) => (kind === 'job' && shift === 'night') ? Math.round(item.pay * NIGHT_BONUS) : item.pay;
+  const effPay = (kind, item) => item.pay;
+  const SHIFT_TAG = { day: '☀️ Day shift · 6:30 AM to 5:00 PM', night: '🌙 Night shift · 5:00 PM to 6:30 AM' };
   const workPay = () => effPay(work.kind, lists[work.kind].items[work.index], work.shift);
   const lockSvg = '<svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
 
@@ -4826,7 +4827,7 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
     const k = saved.work.kind || 'job';
     const oldJobs = k === 'job' && saved.jobsV !== 2;   // the old five jobs are gone: carry on as the first job, with the clock restarted
     const idx = oldJobs ? 0 : saved.work.index;
-    if (lists[k] && lists[k].items[idx]) work = { kind: k, index: idx, start: oldJobs ? Date.now() : saved.work.start, country: saved.work.country || curCountry, shift: k === 'job' && saved.work.shift === 'night' ? 'night' : 'day', ride: saved.work.ride === 'car' ? 'car' : saved.work.ride === 'taxi' ? 'taxi' : 'bus', car: typeof saved.work.car === 'string' ? saved.work.car : null, route: Array.isArray(saved.work.route) ? saved.work.route.filter(t => t === 'L' || t === 'R').slice(0, 6) : null };
+    if (lists[k] && lists[k].items[idx]) work = { kind: k, index: idx, start: oldJobs ? Date.now() : saved.work.start, country: saved.work.country || curCountry, shift: k === 'job' ? (lists[k].items[idx].shift || 'day') : 'day', ride: saved.work.ride === 'car' ? 'car' : saved.work.ride === 'taxi' ? 'taxi' : 'bus', car: typeof saved.work.car === 'string' ? saved.work.car : null, route: Array.isArray(saved.work.route) ? saved.work.route.filter(t => t === 'L' || t === 'R').slice(0, 6) : null };
   }
   // Hunger and food. Hunger only goes down when you click inside the app (no clock, nothing drains while you are away).
   const HUNGER_PER_CLICK = 0.2;                   // % lost on every click: a full bar lasts 500 taps = 500 calories (change this number to make hunger faster or slower)
@@ -4898,7 +4899,9 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
   function settle() {
     if (!work || activeFlight()) return;
     const item = lists[work.kind].items[work.index];
-    const cycles = Math.floor((Date.now() - work.start) / item.ms);
+    const isJob = work.kind === 'job';
+    let cycles = Math.floor((Date.now() - work.start) / item.ms);
+    if (isJob) cycles = Math.min(cycles, 1);   // a job lasts one 10 minute session, even if you were offline for hours
     if (cycles > 0) {
       const total = cycles * workPay();
       const bankBefore = wallet.bank, lockedBefore = wallet.locked;
@@ -4910,6 +4913,12 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
       save();
       const toLocked = wallet.locked - lockedBefore;
       payBar(item.title, total, toLocked);
+      if (isJob) {   // the shift is over: you are sent home automatically
+        work = null;
+        save();
+        renderAll();
+        showNotice('Work is over', `Your 10 minute shift as ${item.title} has ended and you are back home. Go to work again to keep earning.`, false);
+      }
     }
   }
 
@@ -4947,7 +4956,7 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
     const L = lists[kind];
     const employed = !!work && work.kind === kind && work.index === i;
     const blocked = !!work && !employed;
-    const pay = effPay(kind, j, employed ? work.shift : jobShift);
+    const pay = effPay(kind, j);
     let action;
     if (employed) {
       action = `<div class="ji-timer">
@@ -4966,6 +4975,7 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
     return `<div class="job-item${j.locked ? ' locked' : ''}" data-i="${i}">
       <div class="ji-top"><div class="ji-title">${j.title}</div><span class="ji-pay">${naira(pay)} / ${j.every}</span></div>
       <p class="ji-desc">${j.desc}</p>
+      ${j.shift ? `<div class="ji-shift ${j.shift}">${SHIFT_TAG[j.shift]}</div>` : ''}
       ${action}
     </div>`;
   }
@@ -4978,15 +4988,7 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
       const where = work.kind === kind ? `Tap ${W.stop} to ${W.again}.` : `Tap ${W.stop} in ${W.name} first.`;
       banner = `<div class="ji-banner">You're ${W.verb} ${W.items[work.index].title}. ${where}</div>`;
     }
-    let seg = '';
-    if (kind === 'job') {
-      const sh = work && work.kind === 'job' ? work.shift : jobShift, lock = work ? ' disabled' : '';
-      seg = `<div class="shift-seg" role="radiogroup" aria-label="Choose a shift">
-        <button class="shift-btn day${sh === 'day' ? ' on' : ''}" data-shift="day"${lock}>☀️ Day shift<small>6:30 AM to 5:00 PM</small></button>
-        <button class="shift-btn night${sh === 'night' ? ' on' : ''}" data-shift="night"${lock}>🌙 Night shift<small>5:00 PM to 6:30 AM · +25% pay</small></button>
-      </div>`;
-    }
-    L.el.innerHTML = banner + seg + L.items.map((j, i) => itemCard(kind, j, i)).join('');
+    L.el.innerHTML = banner + L.items.map((j, i) => itemCard(kind, j, i)).join('');
   }
 
   function renderAll() {
@@ -5016,6 +5018,7 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
     renderDock();
     if (!work) return;
     settle();
+    if (!work) return;
     const L = lists[work.kind];
     const item = L.items[work.index];
     const f = activeFlight();
@@ -5089,7 +5092,7 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
     const d = new Date(), mins = d.getHours() * 60 + d.getMinutes();
     if (place === 'work' && shift === 'night') {
       if (!inDayShift(mins)) return false;                  // night shift is open whenever the day shift is not
-      showNotice('Night shift not open yet', `Night shift starts at 5:00 PM. Come back in ${fmtWait(DAY_SHIFT[1] - mins)}, or switch to the day shift.`, false, false, true);
+      showNotice('Night shift not open yet', `Night shift starts at 5:00 PM. Come back in ${fmtWait(DAY_SHIFT[1] - mins)}.`, false, false, true);
       noticePopup.querySelector('.popup-icon path').setAttribute('d', 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l3 2');
       return true;
     }
@@ -5102,26 +5105,15 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
                         : (before ? 'Not time for work yet' : 'Work is closed for today');
     const text = before
       ? `${isAir ? 'The airport' : 'Work'} opens at 6:30 AM. Come back in ${fmtWait(wait)}.`
-      : `${isAir ? 'Airport hours are 6:30 AM to 10:00 PM' : 'Day shift is 6:30 AM to 5:00 PM'}. Come back tomorrow at 6:30 AM (in ${fmtWait(wait)}).${isAir ? '' : ' Or switch to the night shift.'}`;
+      : `${isAir ? 'Airport hours are 6:30 AM to 10:00 PM' : 'Day shift is 6:30 AM to 5:00 PM'}. Come back tomorrow at 6:30 AM (in ${fmtWait(wait)}).`;
     showNotice(title, text, false, false, true);
     // clock icon instead of the lock
     const icon = noticePopup.querySelector('.popup-icon');
     icon.querySelector('path').setAttribute('d', 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l3 2');
     return true;
   }
-  const workClosedNow = () => closedNow('work', jobShift);
+  const workClosedNow = shift => closedNow('work', shift);
 
-  // Follow real time: when the clock crosses 6:30 AM or 5:00 PM, flip the selected shift.
-  // Anyone already working a shift stays locked to it until they stop.
-  let lastShiftPeriod = inDayShift(nowMins()) ? 'day' : 'night';
-  setInterval(() => {
-    const p = inDayShift(nowMins()) ? 'day' : 'night';
-    if (p === lastShiftPeriod) return;
-    lastShiftPeriod = p;
-    if (work && work.kind === 'job') return;
-    jobShift = p;
-    renderList('job');
-  }, 1000);
   const airportClosedNow = () => closedNow('airport');
 
   let applying = false;
@@ -5141,14 +5133,13 @@ document.getElementById('welcomeOk').addEventListener('click', function () {
     L.el.addEventListener('click', e => {
       const btn = e.target.closest('button');
       if (!btn || btn.disabled) return;
-      if (btn.classList.contains('shift-btn')) { jobShift = btn.dataset.shift === 'night' ? 'night' : 'day'; renderList('job'); return; }
       const i = Number(btn.closest('.job-item').dataset.i);
       if (btn.classList.contains('ji-apply')) {
         if (applying) return;
         if (kind === 'job' && !L.items[i].locked) {
           // Go to work: only during work hours, then choose My car or Public bus, travel, start the job
-          if (workClosedNow()) return;
-          openTransport((ride, carId, route) => { L.setSheet(false); work = { kind, index: i, start: Date.now(), country: curCountry, shift: jobShift, ride, car: carId || null, route: route || null }; save(); renderAll(); });
+          if (workClosedNow(L.items[i].shift)) return;
+          openTransport((ride, carId, route) => { L.setSheet(false); work = { kind, index: i, start: Date.now(), country: curCountry, shift: L.items[i].shift || 'day', ride, car: carId || null, route: route || null }; save(); renderAll(); });
           return;
         }
         applying = true;
